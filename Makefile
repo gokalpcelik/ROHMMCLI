@@ -1,12 +1,8 @@
-all:
-	clean mktargetdir java
+all: clean java
 
 java: 
 	mvn package
 
-mktargetdir:
-	mkdir target
-
 clean: 
-	rm -rf build
+	rm -rf target
 	mvn clean
