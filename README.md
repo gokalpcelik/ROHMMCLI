@@ -6,6 +6,8 @@ Once the theses is complete it will be moved to a public repository.
 
 Requires Java 11. HTSJDK and Apache Commons-cli are 2 dependencies. 
 
+Build requires maven. 
+
 # Install
 
 git clone https://github.com/kelepiradam/ROHMMCLI.git
