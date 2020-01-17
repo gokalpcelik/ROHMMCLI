@@ -8,12 +8,10 @@ Requires Java 11. HTSJDK and Apache Commons-cli are 2 dependencies.
 
 Build requires maven. 
 
-# Install
-
+### Install
+```
 git clone https://github.com/kelepiradam/ROHMMCLI.git
-
 cd ROHMMCLI
-
 make
-
+```
 Jar file with dependency will be inside the target directory. 
