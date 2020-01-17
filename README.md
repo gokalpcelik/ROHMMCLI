@@ -4,5 +4,4 @@ This is a brand new tool designed from the foundations of bcftools roh and H3M2 
 
 Once the theses is complete it will be moved to a public repository. 
 
-Requires Java 11
-HTSJDK and Apache Commons-cli are 2 dependencies. 
+Requires Java 11. HTSJDK and Apache Commons-cli are 2 dependencies. 
