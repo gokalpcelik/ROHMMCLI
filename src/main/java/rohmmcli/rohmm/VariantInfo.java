@@ -2,14 +2,14 @@ package rohmmcli.rohmm;
 
 public interface VariantInfo {
 
-	public final int HOMREF = 0;
-	public final int HET = 1;
-	public final int HOMVAR = 2;
+	int HOMREF = 0;
+	int HET = 1;
+	int HOMVAR = 2;
 
-	public int[] getPL(int sampleindex);
+	int[] getPL(int sampleindex);
 
-	public int getGenotype(int sampleindex);
+	int getGenotype(int sampleindex);
 
-	public double getAF();
+	double getAF();
 
 }
