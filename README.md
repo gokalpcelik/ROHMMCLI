@@ -4,7 +4,7 @@ This is a brand new tool designed from the foundations of bcftools roh and H3M2 
 
 Once the theses is complete it will be moved to a public repository. 
 
-Requires Java 11. HTSJDK and Apache Commons-cli are 2 dependencies. 
+Requires Java 8 or 11. HTSJDK and Apache Commons-cli are 2 dependencies. 
 
 Build requires maven. 
 
@@ -13,5 +13,9 @@ Build requires maven.
 git clone https://github.com/kelepiradam/ROHMMCLI.git
 cd ROHMMCLI
 make
+```
+Compile with java 8
+```
+make java8
 ```
 Jar file with dependency will be inside the target directory. 
