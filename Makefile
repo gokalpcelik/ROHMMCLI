@@ -3,10 +3,10 @@ all: clean java
 java8: clean mvn8
 
 mvn8:
-	mvn -f pom8.xml package
+	mvn package -P Java8
 
 java: 
-	mvn package
+	mvn package -P Java11
 
 clean: 
 	rm -rf target

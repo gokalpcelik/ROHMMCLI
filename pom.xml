@@ -30,14 +30,39 @@
 </dependencies>
 
 
+<profiles>
+    <profile>
+      <id>Java8</id>
+	  <activation>
+	  	<activeByDefault>false</activeByDefault>
+	  </activation>
+      <properties>
+        <java.release>8</java.release>
+      </properties>
+    </profile>
+    <profile>
+      <id>Java11</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <java.release>11</java.release>
+      </properties>
+    </profile>
+</profiles>
+
+
+
+
+
 <build>
     <plugins>
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.8.0</version>
+    <version>3.8.1</version>
     <configuration>
-        <release>11</release>
+        <release>${java.release}</release>
     </configuration>
 </plugin>
 		<plugin>
