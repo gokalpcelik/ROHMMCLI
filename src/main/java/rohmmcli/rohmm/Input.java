@@ -265,7 +265,9 @@ public class Input {
 		}
 
 		// System.err.println("Generating the input map - VCF phase");
-		VCFFileReader vcfrdr = new VCFFileReader(new File(vcfpath), new File(vcfpath + ".tbi"));
+		
+		VCFReader vcffile = new VCFReader(vcfpath); //this fixes the problem with unindexed and uncompressed vcf files. BCF support coming soon. 
+		VCFFileReader vcfrdr = vcffile.createReader();
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
 		// vcfreading

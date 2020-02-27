@@ -8,7 +8,9 @@ public class SampleVariantInfo implements VariantInfo {
 	protected int FPLV;
 	protected double AF;
 	protected double sum = 0.0;
+	
 
+	
 	public SampleVariantInfo(int samplesize, boolean FPL, int fplv) {
 		FakePL = FPL;
 		FPLV = fplv;
