@@ -28,23 +28,18 @@ public class ROHMMCLIRunner {
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 
-		Utility.logSysInfo();
+		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...", Utility.INFO);
 		CommandLine cmd = Utility.parseCommands(args);
-		hmmModelParser(cmd.getOptionValue("hmm"));
+		Model model = new Model();
+		input = new Input();
+		hmm = Model.hmmModelParser(cmd.getOptionValue("hmm"));
 
-		if (cmd.hasOption("AF")) {
-			input.setAFTag(cmd.getOptionValue("AF"));
-			input.forceCalculateAF = false;
-		}
-		if (cmd.hasOption("S"))
-			input.skipindels = true;
-
-		if (cmd.hasOption("D"))
-			input.defaultMAF = Double.parseDouble(cmd.getOptionValue("D"));
-
-		if (cmd.hasOption("SZ"))
-			input.skipzeroaf = true;
-
+		input.Distenabled = Model.distmode;
+		input.HWenabled = Model.hwmode;
+		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
+		input.skipindels = cmd.hasOption("S") ? true : false;
+		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
+		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
 		input.setVCFPath(cmd.getOptionValue("V"));
 
 		/*
@@ -91,119 +86,6 @@ public class ROHMMCLIRunner {
 		System.exit(0);
 	}
 	
-	public static void setOptions(CommandLine cmd)
-	{
-		
-	}
-
-	public static void hmmModelParser(String modelfile) {
-
-		boolean hwmode = false;
-		boolean distmode = false;
-		double[][] emmatrix = new double[2][3];
-		double[] start = new double[2];
-		double[][] transmatrix = new double[2][2];
-		double minAF = Double.NEGATIVE_INFINITY;
-		double maxAF = Double.POSITIVE_INFINITY;
-		int homcount = Integer.MIN_VALUE;
-		double defprob = Double.POSITIVE_INFINITY;
-		double normfact = Double.NEGATIVE_INFINITY;
-		try {
-			File model = new File(modelfile);
-			if (!model.exists())
-				throw new FileNotFoundException("Model file not found...");
-			FileReader fr = new FileReader(model);
-			BufferedReader br = new BufferedReader(fr);
-			String line = br.readLine();
-			if (!line.equalsIgnoreCase("Model-File")) {
-				IncorrectModelFormat();
-			}
-
-			while ((line = br.readLine()) != null) {
-				String[] argses = line.split("\t");
-
-				String temp = argses[0];
-				switch (temp) {
-				case "HW":
-					hwmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-					break;
-				case "START":
-					start[0] = Double.parseDouble(argses[1]);
-					start[1] = Double.parseDouble(argses[2]);
-					break;
-				case "EMROH":
-					emmatrix[0][0] = Double.parseDouble(argses[1]);
-					emmatrix[0][1] = Double.parseDouble(argses[2]);
-					emmatrix[0][2] = Double.parseDouble(argses[3]);
-					break;
-				case "EMNORM":
-					emmatrix[1][0] = Double.parseDouble(argses[1]);
-					emmatrix[1][1] = Double.parseDouble(argses[2]);
-					emmatrix[1][2] = Double.parseDouble(argses[3]);
-					break;
-				case "TRANSROH":
-					transmatrix[0][0] = Double.parseDouble(argses[1]);
-					transmatrix[0][1] = Double.parseDouble(argses[2]);
-					break;
-				case "TRANSNORM":
-					transmatrix[1][0] = Double.parseDouble(argses[1]);
-					transmatrix[1][1] = Double.parseDouble(argses[2]);
-					break;
-				case "MINAF":
-					minAF = Double.parseDouble(argses[1]);
-					break;
-				case "MAXAF":
-					maxAF = Double.parseDouble(argses[1]);
-					break;
-				case "HOMCOUNT":
-					homcount = Integer.parseInt(argses[1]);
-					break;
-				case "DEFAULTPROB":
-					defprob = Double.parseDouble(argses[1]);
-					break;
-				case "DIST":
-					distmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-					break;
-				case "NORMFACT":
-					normfact = Double.parseDouble(argses[1]);
-					break;
-
-				}
-
-			}
-
-			br.close();
-			fr.close();
-
-			System.err.println(Arrays.toString(emmatrix[0]));
-			System.err.println(Arrays.toString(emmatrix[1]));
-			System.err.println(Arrays.toString(transmatrix[0]));
-			System.err.println(Arrays.toString(transmatrix[1]));
-			System.err.println(Arrays.toString(start));
-			System.err.println(minAF);
-			System.err.println(maxAF);
-			System.err.println(homcount);
-
-			// do something
-			hmm = new HMM(emmatrix, transmatrix, start);
-			input = new Input(hwmode, minAF, maxAF, homcount);
-			if (distmode) {
-				input.setDistEnabled();
-				if (!input.getHWmode())
-					hmm = new HMM(emmatrix, defprob, normfact, start);
-				else
-					hmm = new HMM(defprob, normfact, start);
-			}
-
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
-	private static void IncorrectModelFormat() throws Exception {
-		throw new Exception("Model file format is not correct...");
-	}
-
 	@SuppressWarnings("deprecation")
 	public static void Runner(CommandLine cmd) {
 		

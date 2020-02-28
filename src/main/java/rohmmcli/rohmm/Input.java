@@ -14,18 +14,22 @@ import htsjdk.variant.vcf.VCFFileReader;
 public class Input {
 	// Check for all variables to see if a setter and a getter is present. Fix if
 	// not present.
+	@Deprecated
 	protected TreeMap<Integer, String> inputdata;
 	protected TreeMap<Integer, VariantInfo> inputdatanew;
 	protected boolean HWenabled;
 	protected boolean Distenabled = false;
+	@Deprecated
 	protected double minAFfilter;
+	@Deprecated
 	protected double maxAFfilter;
+	@Deprecated
 	protected int HomCount;
 	protected String contigname;
 	protected String gnomadpath;
 	protected String vcfpath;
 	protected String AFtag;
-	protected double defaultMAF = 0.4;
+	protected double defaultMAF;
 	protected boolean skipindels = false;
 	protected int fillfactor = 1;
 	protected boolean usePLs = true;
@@ -35,15 +39,16 @@ public class Input {
 	protected boolean useUserPLs = false;
 	protected int userPL = 30;
 	protected boolean useFiller = false;
+	@Deprecated
 	protected int oldsampleidx = 0;
 	protected double minisculeformissing = 0.000001;
-	protected boolean forceCalculateAF = true;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
 	protected HashSet<String> sampleset;
 	
 
 	// ROHMMCLI v 0.9g 03/08/2019 Gokalp Celik...
+	@Deprecated
 	public Input(boolean hw, double minaf, double maxaf, int homcount) throws Exception {
 		HWenabled = hw;
 		maxAFfilter = maxaf;
@@ -51,7 +56,12 @@ public class Input {
 		HomCount = homcount;
 
 	}
-
+	
+	public Input()
+	{
+		
+	}
+	
 //	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
 
 	@Deprecated
@@ -309,7 +319,7 @@ public class Input {
 						}
 					}
 
-					if (forceCalculateAF)
+					if (AFtag.equals(null))
 						svi.forceCalculateAF();
 					else
 						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));

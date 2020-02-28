@@ -9,18 +9,44 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 public class Utility {
-	
-	public static void logSysInfo()
-	{
-		System.err.println("ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...");
-		System.err.println("Java Version: " + System.getProperty("java.runtime.version"));
+
+	public static final int INFO = 0;
+	public static final int WARNING = 1;
+	public static final int ERROR = 2;
+	protected static int LOGLEVEL = 0;
+
+	public static void logSysInfo() {
+		
+		log("SYSTEM","ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...", INFO);
+		
+		//System.err.println("ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...");
+		//System.err.println("Java Version: " + System.getProperty("java.runtime.version"));
 	}
-	
-	public static CommandLine parseCommands(String[] args)
-	{
+
+	public static void log(String COMPONENT, String Message, int Level) {
+		
+		if(Level <= LOGLEVEL)
+		{
+			switch(Level)
+			{
+				case INFO:
+					System.err.println("[INFO] "+COMPONENT+": "+Message);
+					break;
+				case WARNING:
+					System.err.println("[WARNING] "+COMPONENT+": "+Message);
+					break;
+				case ERROR:
+					System.err.println("[ERROR] "+COMPONENT+": "+Message);
+					break;
+			}
+		}
+		
+	}
+
+	public static CommandLine parseCommands(String[] args) {
 		Options opts = new Options();
 		HelpFormatter fmtr = new HelpFormatter();
-		
+
 		CommandLine cmd = null;
 		opts.addRequiredOption("hmm", "hmm-file", true,
 				"HMM parameters file. See help file for file format descriptors. REQUIRED");
@@ -77,7 +103,7 @@ public class Utility {
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
 
 		opts.addOption("EAF", "external-file-af", true,
-				"Define an external vcf file for the population allele frequencies");	// Adding this option will enable
+				"Define an external vcf file for the population allele frequencies"); // Adding this option will enable
 																						// users to define an external
 																						// population vcf to set allele
 																						// frequencies if hw is used.
@@ -88,16 +114,18 @@ public class Utility {
 
 		// opts.addRequiredOption("sn", "sample-names",true, "List of sample names
 		// seperated by comma such as sample1,sample2...");
-		
-		opts.addOption("Q","min-qual",true,"Minimum ROH quality to emit");
-		
-		opts.addOption("exome",false,"Activate if the sample is a whole exome analysis");
-		
-		opts.addOption("LOG","log-file",true,"Define a log file to keep record of the run");	 //bunu yapmak lazım yoksa kalırız ortada ilerideki işlerde. 
+
+		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
+
+		opts.addOption("exome", false, "Activate if the sample is a whole exome analysis");
+
+		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
+																								// yoksa kalırız ortada																					// ilerideki işlerde.
 
 		try {
 			CommandLineParser parser = new DefaultParser();
 			cmd = parser.parse(opts, args);
+			LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
 
 		} catch (Exception e) {
 
@@ -108,12 +136,11 @@ public class Utility {
 			pw.close();
 			System.exit(1);
 		}
-		
+
 		return cmd;
 	}
-	
-	public static void logInput(CommandLine cmd)
-	{
+
+	public static void logInput(CommandLine cmd) {
 		System.err.println("VCF file: " + cmd.getOptionValue("V"));
 		System.err.println("GNOMAD path: " + cmd.getOptionValue("G"));
 		System.err.println("Output prefix: " + cmd.getOptionValue("O"));

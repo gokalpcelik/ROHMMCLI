@@ -8,10 +8,15 @@ import java.util.Arrays;
 
 public class Model {
 	
-	public static hmm hmmModelParser(String modelfile) {
+	protected static boolean hwmode;
+	protected static boolean distmode;
+	
+	
+	
+	public static HMM hmmModelParser(String modelfile) {
 
-		boolean hwmode = false;
-		boolean distmode = false;
+		hwmode = false;
+		distmode = false;
 		double[][] emmatrix = new double[2][3];
 		double[] start = new double[2];
 		double[][] transmatrix = new double[2][2];
@@ -28,7 +33,7 @@ public class Model {
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
 			if (!line.equalsIgnoreCase("Model-File")) {
-				IncorrectModelFormat();
+				ExceptionHandler.IncorrectModelFormat();
 			}
 
 			while ((line = br.readLine()) != null) {
@@ -87,21 +92,19 @@ public class Model {
 			br.close();
 			fr.close();
 
-			System.err.println(Arrays.toString(emmatrix[0]));
+			/*System.err.println(Arrays.toString(emmatrix[0]));
 			System.err.println(Arrays.toString(emmatrix[1]));
 			System.err.println(Arrays.toString(transmatrix[0]));
 			System.err.println(Arrays.toString(transmatrix[1]));
 			System.err.println(Arrays.toString(start));
 			System.err.println(minAF);
 			System.err.println(maxAF);
-			System.err.println(homcount);
+			System.err.println(homcount);*/
 
 			// do something
 			HMM hmm = new HMM(emmatrix, transmatrix, start);
-			input = new Input(hwmode, minAF, maxAF, homcount);
 			if (distmode) {
-				input.setDistEnabled();
-				if (!input.getHWmode())
+				if (!hwmode)
 					hmm = new HMM(emmatrix, defprob, normfact, start);
 				else
 					hmm = new HMM(defprob, normfact, start);
@@ -111,6 +114,7 @@ public class Model {
 
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+			return null;
 		}
 	}
 
