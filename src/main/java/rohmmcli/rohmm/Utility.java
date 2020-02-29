@@ -17,7 +17,7 @@ public class Utility {
 
 	public static void logSysInfo() {
 		
-		log("SYSTEM","ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...", INFO);
+		log("SYSTEM","ROHMMCLI v0.9o 29/02/2020 Gokalp Celik...", INFO);
 		
 		//System.err.println("ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...");
 		//System.err.println("Java Version: " + System.getProperty("java.runtime.version"));
