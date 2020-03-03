@@ -1,4 +1,5 @@
 # ROHMMCLI
+![Java CI](https://github.com/kelepiradam/ROHMMCLI/workflows/Java%20CI/badge.svg)
 
 This is a brand new tool designed from the foundations of bcftools roh and H3M2 as a base with many enhancements and portability to any platform..
 
