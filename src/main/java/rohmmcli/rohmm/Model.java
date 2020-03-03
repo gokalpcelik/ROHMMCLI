@@ -4,12 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Arrays;
 
 public class Model {
 	
 	protected static boolean hwmode;
 	protected static boolean distmode;
+	protected static HMM hmm;
+	
+	
+	@SuppressWarnings("unused")
 	
 	
 	
@@ -20,8 +23,11 @@ public class Model {
 		double[][] emmatrix = new double[2][3];
 		double[] start = new double[2];
 		double[][] transmatrix = new double[2][2];
+		@Deprecated
 		double minAF = Double.NEGATIVE_INFINITY;
+		@Deprecated
 		double maxAF = Double.POSITIVE_INFINITY;
+		@Deprecated
 		int homcount = Integer.MIN_VALUE;
 		double defprob = Double.POSITIVE_INFINITY;
 		double normfact = Double.NEGATIVE_INFINITY;
@@ -102,7 +108,7 @@ public class Model {
 			System.err.println(homcount);*/
 
 			// do something
-			HMM hmm = new HMM(emmatrix, transmatrix, start);
+			hmm = new HMM(emmatrix, transmatrix, start);
 			if (distmode) {
 				if (!hwmode)
 					hmm = new HMM(emmatrix, defprob, normfact, start);

@@ -14,15 +14,21 @@ public class Utility {
 	public static final int WARNING = 1;
 	public static final int ERROR = 2;
 	protected static int LOGLEVEL = 0;
-
-	public static void logSysInfo() {
-		
-		log("SYSTEM","ROHMMCLI v0.9o 29/02/2020 Gokalp Celik...", INFO);
-		
-		//System.err.println("ROHMMCLI v 0.9n 01/11/2019 Gokalp Celik...");
-		//System.err.println("Java Version: " + System.getProperty("java.runtime.version"));
-	}
-
+	protected static long START; 
+	protected static long END;
+	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+			"16", "17", "18", "19", "20", "21", "22" };
+	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
+			"chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21",
+			"chr22" };
+	protected static final String[] GRCH37Full = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+			"16", "17", "18", "19", "20", "21", "22" ,"X", "Y"};
+	protected static final String[] HG1938Full = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
+			"chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21",
+			"chr22", "chrX", "chrY"};
+	
+	protected static final String VERSION="0.9p 03/03/2020";
+	
 	public static void log(String COMPONENT, String Message, int Level) {
 		
 		if(Level <= LOGLEVEL)
@@ -42,6 +48,14 @@ public class Utility {
 		}
 		
 	}
+	
+	public static void ENDTIMER()
+	{
+		END = System.currentTimeMillis();
+		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.",INFO);
+	}
+	
+	
 
 	public static CommandLine parseCommands(String[] args) {
 		Options opts = new Options();
@@ -125,14 +139,14 @@ public class Utility {
 		try {
 			CommandLineParser parser = new DefaultParser();
 			cmd = parser.parse(opts, args);
-			LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
+			//LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
 
 		} catch (Exception e) {
 
-			PrintWriter pw = new PrintWriter(System.err);
+			PrintWriter pw = new PrintWriter(System.err, true);
 			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
 			fmtr.printOptions(pw, 80, opts, 0, 10);
-			pw.flush();
+			ENDTIMER();
 			pw.close();
 			System.exit(1);
 		}
