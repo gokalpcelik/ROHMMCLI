@@ -23,7 +23,8 @@ public class Model {
 		switch(model)
 		{
 			case HWMODEL:
-				hmm = null;
+				hmm = null; //buraya bisi koymak lazim
+				
 				break;
 			case HWDISTMODEL:
 				hmm = null;
