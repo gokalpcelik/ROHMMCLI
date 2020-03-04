@@ -32,7 +32,7 @@ public class ROHMMCLIRunner {
 		CommandLine cmd = Utility.parseCommands(args);
 		Model model = new Model();
 		input = new Input();
-		hmm = Model.hmmModelParser(cmd.getOptionValue("hmm"));
+		hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
 
 		input.Distenabled = Model.distmode;
 		input.HWenabled = Model.hwmode;
@@ -72,7 +72,7 @@ public class ROHMMCLIRunner {
 			combine = true;
 
 		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
-		Utility.logInput(cmd);
+		//Utility.logInput(cmd);
 		Runner(cmd);
 
 		/*

@@ -10,10 +10,11 @@ import org.apache.commons.cli.Options;
 
 public class Utility {
 
-	public static final int INFO = 0;
+	public static final int ERROR = 0;
 	public static final int WARNING = 1;
-	public static final int ERROR = 2;
-	protected static int LOGLEVEL = 0;
+	public static final int INFO = 2;
+	public static final int DEBUG = 3;
+	protected static int LOGLEVEL = 3; //for development purposes. Will set to 0 upon release. 
 	protected static long START; 
 	protected static long END;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
@@ -43,6 +44,9 @@ public class Utility {
 					break;
 				case ERROR:
 					System.err.println("[ERROR] "+COMPONENT+": "+Message);
+					break;
+				case DEBUG:
+					System.err.println("[DEBUG] "+COMPONENT+": "+Message);
 					break;
 			}
 		}
@@ -111,7 +115,8 @@ public class Utility {
 
 		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 
-		opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Old but proven");
+
+		opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
@@ -154,6 +159,7 @@ public class Utility {
 		return cmd;
 	}
 
+	@Deprecated
 	public static void logInput(CommandLine cmd) {
 		System.err.println("VCF file: " + cmd.getOptionValue("V"));
 		System.err.println("GNOMAD path: " + cmd.getOptionValue("G"));

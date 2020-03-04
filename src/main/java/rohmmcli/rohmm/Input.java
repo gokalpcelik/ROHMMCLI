@@ -69,7 +69,7 @@ public class Input {
 		inputdata = new TreeMap<>();
 
 		if (useFiller) {
-			System.err.println("Input with Gnomad");
+			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.INFO);
 			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
 			// System.err.println("Generating the input map - GNOMAD phase");
 			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
@@ -255,9 +255,9 @@ public class Input {
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
 
 		if (useFiller) {
-			System.err.println("Input with Gnomad");
+			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.DEBUG);
 			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
-			// System.err.println("Generating the input map - GNOMAD phase");
+			Utility.log(this.getClass().getSimpleName(), "Generating the input map - GNOMAD phase", Utility.DEBUG);
 			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
 			String gnomaditem;
 			int counter = 1;
@@ -274,7 +274,7 @@ public class Input {
 			gnomadrdr.close();
 		}
 
-		// System.err.println("Generating the input map - VCF phase");
+		Utility.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", Utility.DEBUG);
 		
 		VCFReader vcffile = new VCFReader(vcfpath); //this fixes the problem with unindexed and uncompressed vcf files. BCF support coming soon. 
 		VCFFileReader vcfrdr = vcffile.createReader();
@@ -333,7 +333,7 @@ public class Input {
 		}
 		vcfiter.close();
 		vcfrdr.close();
-		// System.err.println("Input map generated...");
+		Utility.log(this.getClass().getSimpleName(), "Input map generated...", Utility.DEBUG);
 
 	}
 
