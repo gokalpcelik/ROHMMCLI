@@ -7,6 +7,28 @@
 # BlueJ files
 *.ctxt
 
+#Eclipse files
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
