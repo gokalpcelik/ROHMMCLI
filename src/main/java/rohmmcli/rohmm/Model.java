@@ -4,22 +4,42 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import htsjdk.samtools.example.ExampleSamUsage;
+
 @SuppressWarnings("unused")
 public class Model {
 	
 	protected static boolean hwmode;
 	protected static boolean distmode;
 	protected static HMM hmm;
-	
+	protected static final String HWMODEL = "MODELHW";
+	protected static final String HWDISTMODEL = "MODELHWDIST";
+	protected static final String XMODEL = "MODELX";
+	protected static final String XDISTMODEL = "MODELXDIST";
 	
 	
 	public static HMM hmmModel(String model) throws Exception{
 
-		if (new File(model).exists())
-			hmm = hmmModelParser(new File(model));
-		else
-			return null;
-
+		switch(model)
+		{
+			case HWMODEL:
+				hmm = null;
+				break;
+			case HWDISTMODEL:
+				hmm = null;
+				break;
+			case XMODEL:
+				hmm = null;
+				break;
+			case XDISTMODEL:
+				hmm = null;
+				break;
+			default:
+				if (new File(model).exists())
+					hmm = hmmModelParser(new File(model));
+				break;
+		}
+			
 		return hmm;
 	}
 	
