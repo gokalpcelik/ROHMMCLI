@@ -28,7 +28,7 @@ public class Input {
 	protected String contigname;
 	protected String gnomadpath;
 	protected String vcfpath;
-	protected String AFtag;
+	protected String AFtag = null;
 	protected double defaultMAF;
 	protected boolean skipindels = false;
 	protected int fillfactor = 1;
@@ -318,7 +318,7 @@ public class Input {
 						}
 					}
 
-					if (AFtag.equals(null))
+					if (AFtag == null)
 						svi.forceCalculateAF();
 					else
 						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));
