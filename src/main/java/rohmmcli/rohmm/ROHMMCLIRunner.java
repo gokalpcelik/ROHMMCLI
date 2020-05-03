@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -18,6 +20,7 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 
+import rohmmcli.gui.*;
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
 
@@ -27,64 +30,71 @@ public class ROHMMCLIRunner {
 
 	public static void main(String[] args) throws Exception {
 		Utility.START = System.currentTimeMillis();
-
 		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v"+ Utility.VERSION +" Gokalp Celik...", Utility.INFO);
-		CommandLine cmd = Utility.parseCommands(args);
-		Model model = new Model();
-		input = new Input();
-		hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
-
-		input.Distenabled = Model.distmode;
-		input.HWenabled = Model.hwmode;
-		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
-		input.skipindels = cmd.hasOption("S") ? true : false;
-		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
-		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-		input.setVCFPath(cmd.getOptionValue("V"));
-
-		/*
-		 * if (cmd.hasOption("FF")) input.fillfactor =
-		 * Integer.parseInt(cmd.getOptionValue("FF"));
-		 */
-
-		if (cmd.hasOption("GT")) {
-			input.usePLs = false;
-			input.useUserPLs = true;
-			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-		} /*
-			 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-			 */ else if (cmd.hasOption("legacy")) {
-			input.usePLs = false;
-			input.useGTs = true;
-		} else if (cmd.hasOption("Custom")) {
-			input.usePLs = false;
-			input.useGTs = false;
-			input.legacywPL = true;
+		
+		if(args.length == 0)
+		{
+			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
+			ROHMMMain.RunGUI();
 		}
+		else {
+			CommandLine cmd = Utility.parseCommands(args);
+			Model model = new Model();
+			input = new Input();
+			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
 
-		if (cmd.hasOption("MFM"))
-			input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
+			input.Distenabled = Model.distmode;
+			input.HWenabled = Model.hwmode;
+			input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
+			input.skipindels = cmd.hasOption("S") ? true : false;
+			input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
+			input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
+			input.setVCFPath(cmd.getOptionValue("V"));
 
-		if (cmd.hasOption("F"))
-			input.useFiller = true;
+			/*
+			 * if (cmd.hasOption("FF")) input.fillfactor =
+			 * Integer.parseInt(cmd.getOptionValue("FF"));
+			 */
 
-		if (cmd.hasOption("combine"))
-			combine = true;
+			if (cmd.hasOption("GT")) {
+				input.usePLs = false;
+				input.useUserPLs = true;
+				input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
+			} /*
+				 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
+				 */ else if (cmd.hasOption("legacy")) {
+				input.usePLs = false;
+				input.useGTs = true;
+			} else if (cmd.hasOption("Custom")) {
+				input.usePLs = false;
+				input.useGTs = false;
+				input.legacywPL = true;
+			}
 
-		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
-		//Utility.logInput(cmd);
-		Runner(cmd);
+			if (cmd.hasOption("MFM"))
+				input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
-		/*
-		 * System.out.println(input.defaultMAF); System.out.println(input.AFtag);
-		 * System.out.println(input.minAFfilter); System.out.println(input.maxAFfilter);
-		 * System.out.println(input.gnomadpath); System.out.println(input.Distenabled);
-		 * System.out.println(input.getHWmode());
-		 */
+			if (cmd.hasOption("F"))
+				input.useFiller = true;
+
+			if (cmd.hasOption("combine"))
+				combine = true;
+
+			input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
+			//Utility.logInput(cmd);
+			Runner(cmd);
+			
+			Utility.ENDTIMER();
+			System.exit(0);
+
+		}
 		
 		
-		Utility.ENDTIMER();
-		System.exit(0);
+		
+		
+		
+		
+		
 	}
 	
 	@SuppressWarnings("deprecation")
