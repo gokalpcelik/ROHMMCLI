@@ -28,7 +28,7 @@ public class Utility {
 			"chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21",
 			"chr22", "chrX", "chrY"};
 	
-	protected static final String VERSION="0.9p 03/03/2020";
+	protected static final String VERSION="0.9r-GUI 03/05/2020";
 	
 	public static void log(String COMPONENT, String Message, int Level) {
 		
