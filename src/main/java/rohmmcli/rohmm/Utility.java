@@ -14,52 +14,47 @@ public class Utility {
 	public static final int WARNING = 1;
 	public static final int INFO = 2;
 	public static final int DEBUG = 3;
-	protected static int LOGLEVEL = 3; //for development purposes. Will set to 0 upon release. 
-	protected static long START; 
+	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
+	protected static long START;
 	protected static long END;
-	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-			"16", "17", "18", "19", "20", "21", "22" };
-	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
-			"chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21",
-			"chr22" };
-	protected static final String[] GRCH37Full = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-			"16", "17", "18", "19", "20", "21", "22" ,"X", "Y"};
-	protected static final String[] HG1938Full = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
-			"chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21",
-			"chr22", "chrX", "chrY"};
-	
-	protected static final String VERSION="0.9r-GUI 03/05/2020";
-	
+	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" };
+	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
+			"chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
+			"chr20", "chr21", "chr22" };
+	protected static final String[] GRCH37Full = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y" };
+	protected static final String[] HG1938Full = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
+			"chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
+			"chr20", "chr21", "chr22", "chrX", "chrY" };
+
+	protected static final String VERSION = "0.9r-GUI 03/05/2020";
+
 	public static void log(String COMPONENT, String Message, int Level) {
-		
-		if(Level <= LOGLEVEL)
-		{
-			switch(Level)
-			{
-				case INFO:
-					System.err.println("[INFO] "+COMPONENT+": "+Message);
-					break;
-				case WARNING:
-					System.err.println("[WARNING] "+COMPONENT+": "+Message);
-					break;
-				case ERROR:
-					System.err.println("[ERROR] "+COMPONENT+": "+Message);
-					break;
-				case DEBUG:
-					System.err.println("[DEBUG] "+COMPONENT+": "+Message);
-					break;
+
+		if (Level <= LOGLEVEL) {
+			switch (Level) {
+			case INFO:
+				System.err.println("[INFO] " + COMPONENT + ": " + Message);
+				break;
+			case WARNING:
+				System.err.println("[WARNING] " + COMPONENT + ": " + Message);
+				break;
+			case ERROR:
+				System.err.println("[ERROR] " + COMPONENT + ": " + Message);
+				break;
+			case DEBUG:
+				System.err.println("[DEBUG] " + COMPONENT + ": " + Message);
+				break;
 			}
 		}
-		
+
 	}
-	
-	public static void ENDTIMER()
-	{
+
+	public static void ENDTIMER() {
 		END = System.currentTimeMillis();
-		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.",INFO);
+		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
-	
-	
 
 	public static CommandLine parseCommands(String[] args) {
 		Options opts = new Options();
@@ -115,7 +110,6 @@ public class Utility {
 
 		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 
-
 		opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
@@ -139,12 +133,15 @@ public class Utility {
 		opts.addOption("exome", false, "Activate if the sample is a whole exome analysis");
 
 		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
-																								// yoksa kalırız ortada																					// ilerideki işlerde.
+																									// yoksa kalırız
+																									// ortada //
+																									// ilerideki
+																									// işlerde.
 
 		try {
 			CommandLineParser parser = new DefaultParser();
 			cmd = parser.parse(opts, args);
-			//LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
+			// LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
 
 		} catch (Exception e) {
 

@@ -38,7 +38,7 @@ public class VCFReader {
 	private String createIndex() {
 		String idxpath = "";
 
-		System.err.println("File index not found. Creating one...");
+		Utility.log(getClass().getSimpleName(), "File index not found. Creating one...", Utility.INFO);
 
 		VCFCodec codec = new VCFCodec();
 
@@ -50,11 +50,10 @@ public class VCFReader {
 				idx.write(new File(idxpath));
 			} catch (Exception e) {
 				e.printStackTrace();
-				// will implement this part if needed. 
-			/*	if(e instanceof UnsortedFileException)
-				{
-					sortVCF();
-				}*/
+				// will implement this part if needed.
+				/*
+				 * if(e instanceof UnsortedFileException) { sortVCF(); }
+				 */
 			}
 
 		} else if (VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
@@ -69,7 +68,7 @@ public class VCFReader {
 
 		}
 
-		System.err.println("Successfully created " + idxpath);
+		Utility.log(getClass().getSimpleName(), "Successfully created " + idxpath, Utility.INFO);
 
 		return idxpath;
 	}

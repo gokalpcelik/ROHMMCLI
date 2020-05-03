@@ -12,9 +12,7 @@ public class Output {
 			double[][] posterior, boolean combine, int ROHLEN, int ROHCOUNT) throws Exception {
 
 		throw new Exception("This method is deprecated already... Please use the new method instead");
-		
 
-		
 //		FileWriter fr = new FileWriter(outputprefix + (combine ? "" : ("-" + contig)) + "_ROH.bed", combine);
 //		BufferedWriter br = new BufferedWriter(fr);
 //
@@ -123,7 +121,13 @@ public class Output {
 			}
 		}
 		if (status == 0)
-			br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + (posteriorprob / rohcount) + "\t"    //burada yapilan salak bir hata yuzunden olayi mahvediyorduk nerdeyese...
+			br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + (posteriorprob / rohcount) + "\t" // burada
+																										// yapilan salak
+																										// bir hata
+																										// yuzunden
+																										// olayi
+																										// mahvediyorduk
+																										// nerdeyese...
 					+ rohcount + "\n");
 
 		br.close();

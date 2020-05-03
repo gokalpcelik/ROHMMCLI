@@ -45,7 +45,6 @@ public class Input {
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
 	protected HashSet<String> sampleset;
-	
 
 	// ROHMMCLI v 0.9g 03/08/2019 Gokalp Celik...
 	@Deprecated
@@ -56,12 +55,11 @@ public class Input {
 		HomCount = homcount;
 
 	}
-	
-	public Input()
-	{
-		
+
+	public Input() {
+
 	}
-	
+
 //	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
 
 	@Deprecated
@@ -264,8 +262,8 @@ public class Input {
 			while ((gnomaditem = gnomaditer.next()) != null) {
 				if (counter % fillfactor == 0) {
 					String[] arr = gnomaditem.split("\t");
-					//if (usePLs || legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
-						inputdatanew.put(Integer.parseInt(arr[1]), ivi);
+					// if (usePLs || legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
+					inputdatanew.put(Integer.parseInt(arr[1]), ivi);
 					counter++;
 				}
 
@@ -275,8 +273,9 @@ public class Input {
 		}
 
 		Utility.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", Utility.DEBUG);
-		
-		VCFReader vcffile = new VCFReader(vcfpath); //this fixes the problem with unindexed and uncompressed vcf files. BCF support coming soon. 
+
+		VCFReader vcffile = new VCFReader(vcfpath); // this fixes the problem with unindexed and uncompressed vcf files.
+													// BCF support coming soon.
 		VCFFileReader vcfrdr = vcffile.createReader();
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
@@ -566,8 +565,7 @@ public class Input {
 
 	public void setSampleSet() {
 		sampleset = new HashSet<>();
-		for(String s : samplenamearr)
-		{
+		for (String s : samplenamearr) {
 			sampleset.add(s);
 		}
 	}
