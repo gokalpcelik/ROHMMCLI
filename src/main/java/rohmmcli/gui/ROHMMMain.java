@@ -1,16 +1,15 @@
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
 import rohmmcli.rohmm.Utility;
-import java.awt.Dimension;
 
 public class ROHMMMain extends JFrame {
 
@@ -18,8 +17,6 @@ public class ROHMMMain extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-
 	/**
 	 * Launch the application.
 	 */
@@ -51,10 +48,19 @@ public class ROHMMMain extends JFrame {
 		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		IOPanel iopane = new IOPanel();
+		OptionPanel optpane = new OptionPanel();
+		tabbedPane.add(iopane);
+		tabbedPane.add(optpane);
+		tabbedPane.setTitleAt(0, "Input/Output");
+		tabbedPane.setTitleAt(1, "Options");
+		getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		pack();
+		
+		
+		
 	}
 
 }
