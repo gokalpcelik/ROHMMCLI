@@ -2,6 +2,7 @@ package rohmmcli.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -21,8 +22,7 @@ public class ROHMMMain extends JFrame {
 	 * Launch the application.
 	 */
 	public static void RunGUI() {
-		SwingUtilities.invokeLater(new Runnable() {
-
+		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				ROHMMMain gui = new ROHMMMain();
@@ -39,16 +39,10 @@ public class ROHMMMain extends JFrame {
 	public ROHMMMain() {
 		setMinimumSize(new Dimension(800, 600));
 		setPreferredSize(new Dimension(800, 600));
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				Utility.ENDTIMER();
-			}
-		});
 		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		
+		addWindowListener(new MainWindowAdapter());
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		IOPanel iopane = new IOPanel();
 		OptionPanel optpane = new OptionPanel();
@@ -61,6 +55,14 @@ public class ROHMMMain extends JFrame {
 		
 		
 		
+	}
+	
+	public class MainWindowAdapter extends WindowAdapter
+	{
+		public void windowClosing(WindowEvent e)
+		{
+			Utility.ENDTIMER();
+		}
 	}
 
 }
