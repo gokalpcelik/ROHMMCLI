@@ -87,5 +87,15 @@ public class VCFReader {
 	protected String getVCFFileName() {
 		return VCFFile.getName();
 	}
+	
+	public static String[] getVCFContigList()
+	{
+		return null;
+	}
+	
+	public static String[] getVCFSampleList()
+	{
+		return null;
+	}
 
 }

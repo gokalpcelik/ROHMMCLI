@@ -24,10 +24,6 @@ import rohmmcli.gui.*;
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
 
-	private static HMM hmm = null;
-	private static Input input = null;
-	private static boolean combine = false;
-
 	public static void main(String[] args) throws Exception {
 		Utility.START = System.currentTimeMillis();
 		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v"+ Utility.VERSION +" Gokalp Celik...", Utility.INFO);
@@ -38,51 +34,12 @@ public class ROHMMCLIRunner {
 			ROHMMMain.RunGUI();
 		}
 		else {
-			CommandLine cmd = Utility.parseCommands(args);
-			Model model = new Model();
-			input = new Input();
-			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
-
-			input.Distenabled = Model.distmode;
-			input.HWenabled = Model.hwmode;
-			input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
-			input.skipindels = cmd.hasOption("S") ? true : false;
-			input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
-			input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-			input.setVCFPath(cmd.getOptionValue("V"));
-
-			/*
-			 * if (cmd.hasOption("FF")) input.fillfactor =
-			 * Integer.parseInt(cmd.getOptionValue("FF"));
-			 */
-
-			if (cmd.hasOption("GT")) {
-				input.usePLs = false;
-				input.useUserPLs = true;
-				input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-			} /*
-				 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-				 */ else if (cmd.hasOption("legacy")) {
-				input.usePLs = false;
-				input.useGTs = true;
-			} else if (cmd.hasOption("Custom")) {
-				input.usePLs = false;
-				input.useGTs = false;
-				input.legacywPL = true;
-			}
-
-			if (cmd.hasOption("MFM"))
-				input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
-
-			if (cmd.hasOption("F"))
-				input.useFiller = true;
-
-			if (cmd.hasOption("combine"))
-				combine = true;
-
-			input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
+			Utility.parseCommands(args);
+			Utility.setInputParams();
+			Utility.setHMMParams();
+			
 			//Utility.logInput(cmd);
-			Runner(cmd);
+			Runner(Utility.cmd);
 			
 			Utility.ENDTIMER();
 			System.exit(0);
@@ -96,7 +53,11 @@ public class ROHMMCLIRunner {
 		
 		
 	}
-	
+	//Depends on Utility Class that provides all the parameters. 
+	public static void newRunner()
+	{
+		
+	}
 	@SuppressWarnings("deprecation")
 	public static void Runner(CommandLine cmd) {
 		
@@ -136,11 +97,10 @@ public class ROHMMCLIRunner {
 		 * input.fillfactor = 1; }
 		 */
 
-		if (cmd.hasOption("S"))
-			input.skipindels = true;
+		
 
 		try {
-			VCFReader vcffile = new VCFReader(input.vcfpath);
+			VCFReader vcffile = new VCFReader(Utility.input.vcfpath);
 			vcfrdr = vcffile.createReader();
 
 			/*
@@ -192,8 +152,8 @@ public class ROHMMCLIRunner {
 			} else
 				samples = alsample.toArray(new String[alsample.size()]);
 
-			input.samplenamearr = samples;
-			input.setSampleSet();
+			Utility.input.samplenamearr = samples;
+			Utility.input.setSampleSet();
 
 			System.err.println("Total number of selected samples " + samples.length);
 			System.err.println("Total number of omitted samples " + omsamples.size());
@@ -212,38 +172,38 @@ public class ROHMMCLIRunner {
 
 					System.err.println("Working on sample number " + count + " of " + samples.length);
 
-					input.oldsampleidx = alsample.indexOf(sample);
+					Utility.input.oldsampleidx = alsample.indexOf(sample);
 
 					for (String contig : contigs) {
 
 						int[] states = null;
 						double[][] posterior = null;
-						input.setContig(contig);
+						Utility.input.setContig(contig);
 						if (cmd.hasOption("G")) {
 							File gnomadfile = new File(cmd.getOptionValue("G") + "/Gnomad_hg19_"
 									+ contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-							input.setGNOMADPath(gnomadfile.getPath());
+							Utility.input.setGNOMADPath(gnomadfile.getPath());
 
 						}
 
-						input.generateInput();
+						Utility.input.generateInput();
 
-						if (input.usePLs || input.useUserPLs || input.legacywPL)
-							hmm.PLmatrix = input.getObservationSetPLs();
+						if (Utility.input.usePLs || Utility.input.useUserPLs || Utility.input.legacywPL)
+							Utility.hmm.PLmatrix = Utility.input.getObservationSetPLs();
 						else
-							hmm.GTs = input.getObservationSet();
+							Utility.hmm.GTs = Utility.input.getObservationSet();
 
-						if (input.getHWmode()) {
-							hmm.MAFs = input.getMAFSet();
+						if (Utility.input.getHWmode()) {
+							Utility.hmm.MAFs = Utility.input.getMAFSet();
 						}
 
-						if (input.Distenabled) {
-							hmm.Dists = input.getDistanceSet();
+						if (Utility.input.Distenabled) {
+							Utility.hmm.Dists = Utility.input.getDistanceSet();
 						}
 
-						states = Viterbi.getViterbiPath(hmm);
+						states = Viterbi.getViterbiPath(Utility.hmm);
 
-						posterior = Viterbi.posterior(hmm);
+						posterior = Viterbi.posterior(Utility.hmm);
 
 						int rohlen = 0;
 						if (cmd.hasOption("MRL"))
@@ -253,10 +213,10 @@ public class ROHMMCLIRunner {
 						if (cmd.hasOption("MSC"))
 							rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
 
-						Output.GenerateOutput(contig, input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, combine, rohlen, rohcount);
+						Output.GenerateOutput(contig, Utility.input, states, (cmd.getOptionValue("O") + "_" + sample),
+								posterior, Utility.combineOutput(), rohlen, rohcount);
 
-						input.killTreeMap();
+						Utility.input.killTreeMap();
 
 					}
 
@@ -267,15 +227,15 @@ public class ROHMMCLIRunner {
 
 				for (String contig : contigs) {
 
-					input.setContig(contig);
+					Utility.input.setContig(contig);
 					if (cmd.hasOption("G")) {
 						File gnomadfile = new File(
 								cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-						input.setGNOMADPath(gnomadfile.getPath());
+						Utility.input.setGNOMADPath(gnomadfile.getPath());
 
 					}
 
-					input.generateInputNew();
+					Utility.input.generateInputNew();
 
 					/*
 					 * if (input.getHWmode()) { hmm.MAFs = input.getMAFSetNew(); }
@@ -283,9 +243,9 @@ public class ROHMMCLIRunner {
 					 * if (input.Distenabled) { hmm.Dists = input.getDistanceSetNew(); }
 					 */
 
-					input.setMAFAndDist(hmm);
+					Utility.input.setMAFAndDist(Utility.hmm);
 
-					System.err.println("Size of the input dataset " + input.getInputDataNew().size());
+					System.err.println("Size of the input dataset " + Utility.input.getInputDataNew().size());
 
 					int sampleindex = 0;
 					for (String sample : samples) {
@@ -298,11 +258,11 @@ public class ROHMMCLIRunner {
 						 * input.getObservationSetNew(sampleindex);
 						 */
 
-						input.setObsAndPLs(hmm, sampleindex);
+						Utility.input.setObsAndPLs(Utility.hmm, sampleindex);
 
-						states = Viterbi.getViterbiPath(hmm);
+						states = Viterbi.getViterbiPath(Utility.hmm);
 
-						posterior = Viterbi.posterior(hmm);
+						posterior = Viterbi.posterior(Utility.hmm);
 
 						int rohlen = 0;
 						if (cmd.hasOption("MRL"))
@@ -316,14 +276,14 @@ public class ROHMMCLIRunner {
 						if(cmd.hasOption("Q"))	
 							qual = Double.parseDouble(cmd.getOptionValue("Q"));
 						
-						Output.GenerateOutputNew(contig, input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, combine, rohlen, rohcount, qual);
+						Output.GenerateOutputNew(contig, Utility.input, states, (cmd.getOptionValue("O") + "_" + sample),
+								posterior, Utility.combineOutput(), rohlen, rohcount, qual);
 
 						sampleindex++;
 
 					}
 
-					input.killTreeMap();
+					Utility.input.killTreeMap();
 				}
 
 			}

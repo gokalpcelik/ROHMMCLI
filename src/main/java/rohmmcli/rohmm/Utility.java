@@ -14,9 +14,15 @@ public class Utility {
 	public static final int WARNING = 1;
 	public static final int INFO = 2;
 	public static final int DEBUG = 3;
+	protected static CommandLine cmd = null;
+	protected static HMM hmm = null;
+	protected static Input input = null;
+	protected static boolean combine = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
 	protected static long END;
+	protected static String VCFPath = null;
+	protected static VCFReader vcfrdr = null;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" };
 	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
@@ -55,12 +61,80 @@ public class Utility {
 		END = System.currentTimeMillis();
 		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
+	
+	public static void setVCFPath(String path)
+	{
+		VCFPath = path;
+	}
+	
+	public static void setInputParams()
+	{
+		input = new Input();
+		
+		input.Distenabled = Model.distmode;
+		input.HWenabled = Model.hwmode;
+		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
+		input.skipindels = cmd.hasOption("S") ? true : false;
+		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
+		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
+		input.setVCFPath(VCFPath == null ? VCFPath : cmd.getOptionValue("V"));
 
-	public static CommandLine parseCommands(String[] args) {
+		/*
+		 * if (cmd.hasOption("FF")) input.fillfactor =
+		 * Integer.parseInt(cmd.getOptionValue("FF"));
+		 */
+
+		if (cmd.hasOption("GT")) {
+			input.usePLs = false;
+			input.useUserPLs = true;
+			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
+		} /*
+			 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
+			 */ else if (Utility.cmd.hasOption("legacy")) {
+			input.usePLs = false;
+			input.useGTs = true;
+		} else if (Utility.cmd.hasOption("Custom")) {
+			input.usePLs = false;
+			input.useGTs = false;
+			input.legacywPL = true;
+		}
+
+		if (Utility.cmd.hasOption("MFM"))
+			input.minisculeformissing = Double.parseDouble(Utility.cmd.getOptionValue("MFM"));
+
+		if (Utility.cmd.hasOption("F"))
+			input.useFiller = true;
+
+		if (Utility.cmd.hasOption("combine"))
+			combine = true;
+
+		input.setDefaultMAF(Double.parseDouble(Utility.cmd.getOptionValue("D", "0.4")));
+		
+		
+	}
+	
+	public static void setHMMParams()
+	{
+		
+		try {
+			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static Boolean combineOutput()
+	{
+		if(cmd.hasOption("combine"))
+			return true;
+		return false;
+	}
+	
+	public static void parseCommands(String[] args) {
 		Options opts = new Options();
 		HelpFormatter fmtr = new HelpFormatter();
 
-		CommandLine cmd = null;
 		opts.addRequiredOption("hmm", "hmm-file", true,
 				"HMM parameters file. See help file for file format descriptors. REQUIRED");
 
@@ -153,16 +227,7 @@ public class Utility {
 			System.exit(1);
 		}
 
-		return cmd;
-	}
-
-	@Deprecated
-	public static void logInput(CommandLine cmd) {
-		System.err.println("VCF file: " + cmd.getOptionValue("V"));
-		System.err.println("GNOMAD path: " + cmd.getOptionValue("G"));
-		System.err.println("Output prefix: " + cmd.getOptionValue("O"));
-		System.err.println("Select Contigs: " + cmd.getOptionValue("C"));
-		System.err.println("AFTAG: " + cmd.getOptionValue("AF", "Force Calculate from sample list"));
+		
 	}
 
 }
