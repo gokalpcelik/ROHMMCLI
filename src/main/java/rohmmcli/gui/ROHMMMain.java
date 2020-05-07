@@ -3,6 +3,7 @@ package rohmmcli.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -39,6 +40,7 @@ public class ROHMMMain extends JFrame {
 	public ROHMMMain() {
 		setMinimumSize(new Dimension(800, 600));
 		setPreferredSize(new Dimension(800, 600));
+		setName("Deneme");
 		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);

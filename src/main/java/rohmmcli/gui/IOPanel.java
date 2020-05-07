@@ -1,50 +1,97 @@
 package rohmmcli.gui;
 
-import javax.swing.JPanel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 public class IOPanel extends JPanel {
-	private JPanel panel_1;
+	protected JPanel panel_1;
+	protected JLabel vcfLabel;
+	protected JPanel panel;
+	protected JTextField vcfpathfield;
+	protected JButton vcfselectbutton;
+	protected JScrollPane scrollPane;
+	protected JList chrlist;
+	protected JScrollPane scrollPane_1;
+	protected JList samplelist;
+	protected JFrame parentFrame;
 
 	/**
 	 * Create the panel.
 	 */
 	public IOPanel() {
 		setLayout(null);
-		
-		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Chromosomes", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(51, 51, 51)));
-		panel.setBounds(12, 46, 120, 406);
+		vcfLabel = new JLabel("Choose VCF File");
+		vcfLabel.setBounds(12, 10, 110, 30);
+		add(vcfLabel);
+		panel = new JPanel();
+		vcfpathfield = new JTextField();
+		vcfpathfield.setBounds(123, 10, 400, 30);
+		add(vcfpathfield);
+		vcfselectbutton = new JButton("Select VCF");
+		vcfselectbutton.setBounds(524, 10, 100, 30);
+		vcfselectbutton.addActionListener(new VCFSelectButtonListener());
+		add(vcfselectbutton);
+		panel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Chromosomes", TitledBorder.CENTER,
+				TitledBorder.TOP, null, new Color(51, 51, 51)));
+		panel.setBounds(12, 60, 120, 406);
 		add(panel);
 		panel.setLayout(new BorderLayout(0, 0));
-		
-		JScrollPane scrollPane = new JScrollPane();
+
+		scrollPane = new JScrollPane();
 		panel.add(scrollPane);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		JList chrlist = new JList();
+
+		chrlist = new JList();
 		scrollPane.setViewportView(chrlist);
-		
+
 		panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Samples", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(51, 51, 51)));
-		panel_1.setBounds(144, 46, 163, 406);
+		panel_1.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Samples", TitledBorder.CENTER,
+				TitledBorder.TOP, null, new Color(51, 51, 51)));
+		panel_1.setBounds(144, 60, 163, 406);
 		add(panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
-		
-		JScrollPane scrollPane_1 = new JScrollPane();
+
+		scrollPane_1 = new JScrollPane();
 		panel_1.add(scrollPane_1);
 		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		JList samplelist = new JList();
+
+		samplelist = new JList();
 		scrollPane_1.setViewportView(samplelist);
 
+	}
+
+	protected JPanel getSelf() {
+		return this;
+	}
+
+	public class VCFSelectButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
+			try {
+				File file = FileSelectorUtil.openFile(parentFrame, "Open VCF File");
+				vcfpathfield.setText(file.getAbsolutePath());
+			} catch (Exception exp) {
+				// TODO: handle exception
+			}
+
+		}
 
 	}
 }
