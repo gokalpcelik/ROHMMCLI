@@ -36,14 +36,14 @@ public class IOPanel extends JPanel {
 	public IOPanel() {
 		setLayout(null);
 		vcfLabel = new JLabel("Choose VCF File");
-		vcfLabel.setBounds(12, 9, 131, 24);
+		vcfLabel.setBounds(12, 9, 120, 24);
 		add(vcfLabel);
 		panel = new JPanel();
 		vcfpathfield = new JTextField();
-		vcfpathfield.setBounds(147, 10, 400, 24);
+		vcfpathfield.setBounds(132, 10, 415, 24);
 		add(vcfpathfield);
 		vcfselectbutton = new JButton("Select VCF");
-		vcfselectbutton.setBounds(559, 10, 100, 24);
+		vcfselectbutton.setBounds(550, 10, 120, 24);
 		vcfselectbutton.addActionListener(new VCFSelectButtonListener());
 		add(vcfselectbutton);
 		panel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Chromosomes", TitledBorder.CENTER,

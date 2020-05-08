@@ -27,6 +27,13 @@
     <artifactId>commons-cli</artifactId>
     <version>1.4</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/com.seaglasslookandfeel.siteskin/seaglass-site-skin -->
+<dependency>
+    <groupId>com.seaglasslookandfeel.siteskin</groupId>
+    <artifactId>seaglass-site-skin</artifactId>
+    <version>1.0</version>
+</dependency>
+
 </dependencies>
 
 
