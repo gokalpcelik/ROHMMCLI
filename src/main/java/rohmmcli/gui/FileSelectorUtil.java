@@ -14,10 +14,9 @@ public class FileSelectorUtil {
 	public static File openFile(Frame parent, String title, String extensions) {
 		FileDialog fd = getFileDialog(parent, title, LOAD);
 		fd.setVisible(true);
-
 		String filepath = fd.getFile();
 
-		if (validateFileExtension(filepath, extensions))
+		if (filepath != null && validateFileExtension(filepath, extensions))
 			return new File(filepath);
 		return null;
 	}

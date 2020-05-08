@@ -20,7 +20,6 @@ import org.apache.commons.cli.Options;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
-
 import rohmmcli.gui.*;
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
@@ -34,7 +33,7 @@ public class ROHMMCLIRunner {
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
 			//UImanager ile platform spesifik yazalım bişiler. 
 			UIManager.put("swing.boldMetal", Boolean.FALSE);
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			ROHMMMain.RunGUI();
 		}
 		else {
