@@ -8,16 +8,18 @@ public class FileSelectorUtil {
 
 	protected static int LOAD = FileDialog.LOAD;
 	protected static int SAVE = FileDialog.SAVE;
-	protected static String VCFEXTENSIONS = ".vcf:.vcf.gz";
+	protected static String VCFEXTENSIONS = ".vcf;.vcf.gz";
 	protected static String BEDEXTENSIONS = ".bed;.bed.gz";
 
 	public static File openFile(Frame parent, String title, String extensions) {
+		
 		FileDialog fd = getFileDialog(parent, title, LOAD);
 		fd.setVisible(true);
 		String filepath = fd.getFile();
-
+		String dirpath = fd.getDirectory();
+		System.err.println(dirpath + filepath);
 		if (filepath != null && validateFileExtension(filepath, extensions))
-			return new File(filepath);
+			return new File(dirpath, filepath);
 		return null;
 	}
 
