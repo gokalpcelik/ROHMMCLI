@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -31,6 +32,8 @@ public class ROHMMCLIRunner {
 		if(args.length == 0)
 		{
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
+			//UImanager ile platform spesifik yazalım bişiler. 
+			//UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 			ROHMMMain.RunGUI();
 		}
 		else {
