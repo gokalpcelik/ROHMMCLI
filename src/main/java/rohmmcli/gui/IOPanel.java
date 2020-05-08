@@ -85,10 +85,11 @@ public class IOPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
 			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Open VCF File");
-				vcfpathfield.setText(file.getAbsolutePath());
+				File file = FileSelectorUtil.openFile(parentFrame, "Open VCF File", FileSelectorUtil.VCFEXTENSIONS);
+				if (file != null)
+					vcfpathfield.setText(file.getAbsolutePath());
 			} catch (Exception exp) {
-				// TODO: handle exception
+				exp.printStackTrace();
 			}
 
 		}
