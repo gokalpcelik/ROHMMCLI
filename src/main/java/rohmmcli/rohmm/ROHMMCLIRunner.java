@@ -33,7 +33,7 @@ public class ROHMMCLIRunner {
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
 			//UImanager ile platform spesifik yazalım bişiler. 
 			UIManager.put("swing.boldMetal", Boolean.FALSE);
-			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			ROHMMMain.RunGUI();
 		}
 		else {
