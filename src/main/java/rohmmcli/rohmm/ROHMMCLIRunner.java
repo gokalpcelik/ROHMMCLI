@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,11 +22,18 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import rohmmcli.gui.*;
+
+import com.formdev.*;
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
 
 	public static void main(String[] args) throws Exception {
 		Utility.START = System.currentTimeMillis();
+		Utility.getOS();
 		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v"+ Utility.VERSION +" Gokalp Celik...", Utility.INFO);
 		
 		if(args.length == 0)
@@ -33,7 +41,18 @@ public class ROHMMCLIRunner {
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
 			//UImanager ile platform spesifik yazalım bişiler. 
 			UIManager.put("swing.boldMetal", Boolean.FALSE);
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			UIManager.setLookAndFeel(new FlatLightLaf());
+//			if(Utility.isMac()) {
+//				UIManager.setLookAndFeel("com.apple.laf.AquaLookAndFeel");
+//			}
+//			else if(Utility.isWindows()) {
+//				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+//			}
+//			else {
+//				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//			}
+				
+			System.err.println(UIManager.getSystemLookAndFeelClassName()); //debug
 			ROHMMMain.RunGUI();
 		}
 		else {

@@ -33,6 +33,8 @@ public class Utility {
 	protected static final String[] HG1938Full = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
 			"chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
 			"chr20", "chr21", "chr22", "chrX", "chrY" };
+	
+	protected static String OSNAME = null;
 
 	protected static final String VERSION = "0.9r-GUI 03/05/2020";
 
@@ -229,5 +231,31 @@ public class Utility {
 
 		
 	}
-
+	
+	public static void getOS()
+	{
+		OSNAME = System.getProperty("os.name").toLowerCase();
+	}
+	
+	public static boolean isMac()
+	{
+		if(OSNAME.contains("mac"))
+			return true;
+		return false;
+	}
+	
+	public static boolean isWindows()
+	{
+		if(OSNAME.contains("win"))
+			return true;
+		return false;
+	}
+	
+	public static boolean isUnix()
+	{
+		if(OSNAME.contains("nux") || OSNAME.contains("nix") || OSNAME.contains("aix") || OSNAME.contains("bsd"))
+			return true;
+		return false;
+	}
+	
 }
