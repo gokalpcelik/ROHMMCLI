@@ -42,17 +42,6 @@ public class ROHMMCLIRunner {
 			//UImanager ile platform spesifik yazalım bişiler. 
 			UIManager.put("swing.boldMetal", Boolean.FALSE);
 			UIManager.setLookAndFeel(new FlatLightLaf());
-//			if(Utility.isMac()) {
-//				UIManager.setLookAndFeel("com.apple.laf.AquaLookAndFeel");
-//			}
-//			else if(Utility.isWindows()) {
-//				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-//			}
-//			else {
-//				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//			}
-				
-			System.err.println(UIManager.getSystemLookAndFeelClassName()); //debug
 			ROHMMMain.RunGUI();
 		}
 		else {

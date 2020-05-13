@@ -51,7 +51,7 @@ public class ROHMMMain extends JFrame {
 		tabbedPane.add(iopane);
 		tabbedPane.add(optpane);
 		tabbedPane.setTitleAt(0, "Input/Output");
-		tabbedPane.setTitleAt(1, "Options");
+		tabbedPane.setTitleAt(1, "Advanced Options");
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		pack();
 		

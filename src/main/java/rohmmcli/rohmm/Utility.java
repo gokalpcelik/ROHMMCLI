@@ -1,6 +1,7 @@
 package rohmmcli.rohmm;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -36,6 +37,8 @@ public class Utility {
 	
 	protected static String OSNAME = null;
 
+	protected static HashMap<String, String> optionMap = null;
+	
 	protected static final String VERSION = "0.9r-GUI 03/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
@@ -92,25 +95,25 @@ public class Utility {
 			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
 		} /*
 			 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-			 */ else if (Utility.cmd.hasOption("legacy")) {
+			 */ else if (cmd.hasOption("legacy")) {
 			input.usePLs = false;
 			input.useGTs = true;
-		} else if (Utility.cmd.hasOption("Custom")) {
+		} else if (cmd.hasOption("Custom")) {
 			input.usePLs = false;
 			input.useGTs = false;
 			input.legacywPL = true;
 		}
 
-		if (Utility.cmd.hasOption("MFM"))
-			input.minisculeformissing = Double.parseDouble(Utility.cmd.getOptionValue("MFM"));
+		if (cmd.hasOption("MFM"))
+			input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
-		if (Utility.cmd.hasOption("F"))
+		if (cmd.hasOption("F"))
 			input.useFiller = true;
 
-		if (Utility.cmd.hasOption("combine"))
+		if (cmd.hasOption("combine"))
 			combine = true;
 
-		input.setDefaultMAF(Double.parseDouble(Utility.cmd.getOptionValue("D", "0.4")));
+		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
 		
 		
 	}
@@ -230,6 +233,13 @@ public class Utility {
 		}
 
 		
+	}
+	
+	public static void setOptionsGUI(String optionname, String value) {
+		if(optionMap == null)
+			optionMap = new HashMap<String, String>();
+		
+		optionMap.put(optionname, value);
 	}
 	
 	public static void getOS()
