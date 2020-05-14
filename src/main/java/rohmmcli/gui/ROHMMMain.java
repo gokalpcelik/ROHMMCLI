@@ -44,6 +44,7 @@ public class ROHMMMain extends JFrame {
 		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		setResizable(false);
 		addWindowListener(new MainWindowAdapter());
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		IOPanel iopane = new IOPanel();

@@ -9,6 +9,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
+
 public class Utility {
 
 	public static final int ERROR = 0;
@@ -70,6 +73,21 @@ public class Utility {
 	public static void setVCFPath(String path)
 	{
 		VCFPath = path;
+	}
+	
+	public static VCFHeader getVCFHeader()
+	{
+		VCFHeader header = null;
+		try {
+			VCFReader vcfReader = new VCFReader(VCFPath);
+			VCFFileReader vcfrdr = vcfReader.createReader();
+			header = vcfrdr.getFileHeader();
+			vcfrdr.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return header;
 	}
 	
 	public static void setInputParams()

@@ -11,5 +11,9 @@ public class GUIOptionStandards {
 	public static final String SKIPINDELS = "-S";
 	public static final String USERDEFINEDGTERROR = "-GT";
 	public static final String MINIMUMROHLENGTH = "-MRL";
+	public static final String SAMPLENAMELIST = "-SN";
+	public static final String LOGLEVEL = "-LL";
+	public static final String MINIMUMROHQUAL = "-Q";
+	public static final String KNOWNSNPPATH = "-G";
 
 }
