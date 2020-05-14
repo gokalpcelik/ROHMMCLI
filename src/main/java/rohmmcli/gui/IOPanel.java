@@ -40,9 +40,9 @@ public class IOPanel extends JPanel {
 	protected JTextField vcfpathfield;
 	protected JButton vcfselectbutton;
 	protected JScrollPane scrollPane;
-	protected JList chrlist;
+	protected JList<String> chrlist;
 	protected JScrollPane scrollPane_1;
-	protected JList samplelist;
+	protected JList<String> samplelist;
 	protected JFrame parentFrame;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
@@ -140,8 +140,8 @@ public class IOPanel extends JPanel {
 					vcfpathfield.setText(file.getAbsolutePath());
 					Utility.setVCFPath(vcfpathfield.getText());
 					VCFHeader header = Utility.getVCFHeader();
-					chrlistmodel = new DefaultListModel<String>();
-					samplenamemodel = new DefaultListModel<String>();
+					chrlistmodel.clear();
+					samplenamemodel.clear();
 					updateChromosomeList(header);
 					updateSampleNameList(header);
 				}
