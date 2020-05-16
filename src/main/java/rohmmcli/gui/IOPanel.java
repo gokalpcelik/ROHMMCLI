@@ -23,6 +23,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.variant.vcf.VCFHeader;
@@ -36,8 +37,14 @@ public class IOPanel extends JPanel {
 	protected JTextField vcfPathField;
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
+	protected JLabel brandLabel;
 	protected JButton outputDirSelectButton;
 	protected JButton vcfSelectButton;
+	protected JButton selectAllChrButton;
+	protected JButton selectNoneChrButton;
+	protected JButton selectAllSampleButton;
+	protected JButton selectNoneSampleButton;
+	protected JButton invertSelectionSampleButton;
 	protected JScrollPane scrollPane;
 	protected JList<String> chrlist;
 	protected JScrollPane scrollPane_1;
@@ -51,6 +58,9 @@ public class IOPanel extends JPanel {
 	 */
 	public IOPanel() {
 		setLayout(null);
+		brandLabel = new JLabel(Utility.VERSION);
+		brandLabel.setBounds(12, 508, 120, 25);
+		add(brandLabel);
 		chrlistmodel = new DefaultListModel<String>();
 		samplenamemodel = new DefaultListModel<String>();
 		// vcfLabel = new JLabel("Choose VCF File");
@@ -65,7 +75,7 @@ public class IOPanel extends JPanel {
 		vcfSelectButton.addActionListener(new VCFSelectButtonListener());
 		// add(vcfselectbutton);
 		panel_0 = new JPanel();
-		panel_0.setBounds(12, 10, 775, 50);
+		panel_0.setBounds(12, 0, 775, 53);
 		panel_0.setBorder(new TitledBorder("VCF Input"));
 		panel_0.setLayout(new GridBagLayout());
 		GridBagConstraints constraint = new GridBagConstraints();
@@ -77,22 +87,36 @@ public class IOPanel extends JPanel {
 		
 		add(panel_0);
 		panel.setBorder(new TitledBorder("Chromosomes"));
-		panel.setBounds(12, 60, 120, 406);
+		panel.setBounds(12, 50, 120, 406);
 		add(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 
 		scrollPane = new JScrollPane();
-		panel.add(scrollPane);
+
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		ListActionListener listaction = new ListActionListener();
+		ChrSampleSelectButtonListener selectbuttonlistener = new ChrSampleSelectButtonListener();
 		chrlist = new JList<String>(chrlistmodel);
 		scrollPane.setViewportView(chrlist);
 		chrlist.addListSelectionListener(listaction);
+		selectAllChrButton = new JButton("Select All");
+		selectAllChrButton.setActionCommand("allchr");
+		selectAllChrButton.setBounds(12, 458, 120, 25);
+		selectNoneChrButton = new JButton("Select None");
+		selectNoneChrButton.setActionCommand("nonechr");
+		selectNoneChrButton.setBounds(12, 483, 120, 25);
+		selectAllChrButton.addActionListener(selectbuttonlistener);
+		selectNoneChrButton.addActionListener(selectbuttonlistener);
+		
+		panel.add(scrollPane);
+		add(selectAllChrButton);
+		add(selectNoneChrButton);
+		
 		panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder("Samples"));
-		panel_1.setBounds(132, 60, 163, 406);
+		panel_1.setBounds(132, 50, 163, 406);
 		add(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		panel_1.setLayout(new BorderLayout(0, 2));
 
 		scrollPane_1 = new JScrollPane();
 		panel_1.add(scrollPane_1);
@@ -101,11 +125,26 @@ public class IOPanel extends JPanel {
 		samplelist = new JList<String>(samplenamemodel);
 		scrollPane_1.setViewportView(samplelist);
 		samplelist.addListSelectionListener(listaction);
+		selectAllSampleButton = new JButton("Select All");
+		selectAllSampleButton.setActionCommand("allsample");
+		selectAllSampleButton.addActionListener(selectbuttonlistener);
+		selectAllSampleButton.setBounds(132, 458, 163, 25);
+		selectNoneSampleButton = new JButton("Select None");
+		selectNoneSampleButton.setActionCommand("nonesample");
+		selectNoneSampleButton.addActionListener(selectbuttonlistener);
+		selectNoneSampleButton.setBounds(132, 483, 163, 25);
+		invertSelectionSampleButton = new JButton("Invert Selection");
+		invertSelectionSampleButton.setActionCommand("invertsample");
+		invertSelectionSampleButton.addActionListener(selectbuttonlistener);
+		invertSelectionSampleButton.setBounds(132, 508, 163, 25);
+		add(selectAllSampleButton);
+		add(selectNoneSampleButton);
+		add(invertSelectionSampleButton);
 		
 		JPanel outpanel = new JPanel(new GridBagLayout());
 		
 		outpanel.setBorder(new TitledBorder("Output Options"));
-		outpanel.setBounds(295, 60, 492, 80);
+		outpanel.setBounds(295, 50, 492, 80);
 		constraint.fill = GridBagConstraints.HORIZONTAL;
 		constraint.gridy = 1;
 		constraint.ipadx = 20;
@@ -165,6 +204,24 @@ public class IOPanel extends JPanel {
 		
 	}
 
+	public class ChrSampleSelectButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			String actionCommand = arg0.getActionCommand();
+			switch(actionCommand) {
+			case "allchr":
+				chrlist.setSelectionInterval(0, chrlist.getModel().getSize()-1);
+				break;
+			case "nonechr":
+				chrlist.clearSelection();
+				break;
+			}
+		}
+		
+	}
+	
 	public class VCFSelectButtonListener implements ActionListener {
 
 		@Override
@@ -189,7 +246,7 @@ public class IOPanel extends JPanel {
 		}
 
 	}
-
+	
 	public class ListActionListener implements ListSelectionListener {
 
 		@Override

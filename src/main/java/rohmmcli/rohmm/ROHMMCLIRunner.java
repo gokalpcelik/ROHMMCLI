@@ -28,52 +28,45 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
 
 	public static void main(String[] args) throws Exception {
 		Utility.START = System.currentTimeMillis();
 		Utility.getOS();
-		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v"+ Utility.VERSION +" Gokalp Celik...", Utility.INFO);
-		
-		if(args.length == 0)
-		{
+		Utility.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + Utility.VERSION + " Gokalp Celik...",
+				Utility.INFO);
+
+		if (args.length == 0) {
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
-			//UImanager ile platform spesifik yazalım bişiler. 
+			// UImanager ile platform spesifik yazalım bişiler.
 			UIManager.put("swing.boldMetal", Boolean.FALSE);
 			UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			ROHMMMain.RunGUI();
-		}
-		else {
+		} else {
 			Utility.parseCommands(args);
 			Utility.setInputParams();
 			Utility.setHMMParams();
-			
-			//Utility.logInput(cmd);
+
+			// Utility.logInput(cmd);
 			Runner(Utility.cmd);
-			
+
 			Utility.endTimer();
 			System.exit(0);
 
 		}
-		
-		
-		
-		
-		
-		
-		
+
 	}
-	//Depends on Utility Class that provides all the parameters. 
-	public static void newRunner()
-	{
-		
+
+	// Depends on Utility Class that provides all the parameters.
+	public static void newRunner() {
+
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void Runner(CommandLine cmd) {
-		
-		
-		
+
 		VCFFileReader vcfrdr = null;
 		/*
 		 * int[] observations = null; int[][] observationPLs = null; double[] mafs =
@@ -107,8 +100,6 @@ public class ROHMMCLIRunner {
 		 * 
 		 * input.fillfactor = 1; }
 		 */
-
-		
 
 		try {
 			VCFReader vcffile = new VCFReader(Utility.input.vcfpath);
@@ -170,10 +161,10 @@ public class ROHMMCLIRunner {
 			System.err.println("Total number of omitted samples " + omsamples.size());
 
 			int count = 1;
-			
-			if(cmd.hasOption("exome"))
+
+			if (cmd.hasOption("exome"))
 				System.err.println("Exome Sample");
-			
+
 			if (cmd.hasOption("OLDCODE")) {
 
 				// Single Sample all contig code path old and slow. May not show much difference
@@ -191,8 +182,9 @@ public class ROHMMCLIRunner {
 						double[][] posterior = null;
 						Utility.input.setContig(contig);
 						if (cmd.hasOption("G")) {
-							File gnomadfile = new File(cmd.getOptionValue("G") + "/Gnomad_hg19_"
-									+ contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
+							File gnomadfile = new File(
+									cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "")
+											+ (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
 							Utility.input.setGNOMADPath(gnomadfile.getPath());
 
 						}
@@ -241,7 +233,8 @@ public class ROHMMCLIRunner {
 					Utility.input.setContig(contig);
 					if (cmd.hasOption("G")) {
 						File gnomadfile = new File(
-								cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
+								cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "")
+										+ (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
 						Utility.input.setGNOMADPath(gnomadfile.getPath());
 
 					}
@@ -282,13 +275,14 @@ public class ROHMMCLIRunner {
 						int rohcount = 0;
 						if (cmd.hasOption("MSC"))
 							rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
-						
-						double qual = 0.0; 
-						if(cmd.hasOption("Q"))	
+
+						double qual = 0.0;
+						if (cmd.hasOption("Q"))
 							qual = Double.parseDouble(cmd.getOptionValue("Q"));
-						
-						Output.GenerateOutputNew(contig, Utility.input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, Utility.combineOutput(), rohlen, rohcount, qual);
+
+						Output.GenerateOutputNew(contig, Utility.input, states,
+								(cmd.getOptionValue("O") + "_" + sample), posterior, Utility.combineOutput(), rohlen,
+								rohcount, qual);
 
 						sampleindex++;
 
