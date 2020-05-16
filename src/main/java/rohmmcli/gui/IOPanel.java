@@ -1,6 +1,7 @@
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -19,10 +20,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
@@ -59,6 +61,7 @@ public class IOPanel extends JPanel {
 	public IOPanel() {
 		setLayout(null);
 		brandLabel = new JLabel(Utility.VERSION);
+		brandLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		brandLabel.setBounds(12, 508, 120, 25);
 		add(brandLabel);
 		chrlistmodel = new DefaultListModel<String>();
@@ -93,7 +96,7 @@ public class IOPanel extends JPanel {
 
 		scrollPane = new JScrollPane();
 
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		ListActionListener listaction = new ListActionListener();
 		ChrSampleSelectButtonListener selectbuttonlistener = new ChrSampleSelectButtonListener();
 		chrlist = new JList<String>(chrlistmodel);
@@ -120,7 +123,7 @@ public class IOPanel extends JPanel {
 
 		scrollPane_1 = new JScrollPane();
 		panel_1.add(scrollPane_1);
-		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		samplelist = new JList<String>(samplenamemodel);
 		scrollPane_1.setViewportView(samplelist);
@@ -194,12 +197,31 @@ public class IOPanel extends JPanel {
 		}
 	}
 	
+	private static <T> void selectionInverter(JList<T> jlist) {
+		
+		int size = jlist.getModel().getSize();
+		ArrayList<Integer> selectedindices = new ArrayList<Integer>();
+		for(int i = 0; i < size; i++) {
+			
+			if(!jlist.isSelectedIndex(i))
+				selectedindices.add(i);
+		}
+		
+		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
+
+	}
+	
 	public class OutputDirSelectButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			System.err.println("outdiraction");
+			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
+			try {
+				//Filedialogların tamamını swing yap geç daha fazla kasmanın alemi yok gibi. 
+
+			} catch (Exception exp) {
+				exp.printStackTrace();
+			}
 		}
 		
 	}
@@ -208,7 +230,6 @@ public class IOPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
 			String actionCommand = arg0.getActionCommand();
 			switch(actionCommand) {
 			case "allchr":
@@ -216,6 +237,15 @@ public class IOPanel extends JPanel {
 				break;
 			case "nonechr":
 				chrlist.clearSelection();
+				break;
+			case "allsample":
+				samplelist.setSelectionInterval(0, samplelist.getModel().getSize()-1);
+				break;
+			case "nonesample":
+				samplelist.clearSelection();
+				break;
+			case "invertsample":
+				selectionInverter(samplelist);
 				break;
 			}
 		}
@@ -228,7 +258,7 @@ public class IOPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
 			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Open VCF File", FileSelectorUtil.VCFEXTENSIONS);
+				File file = FileSelectorUtil.openFile("Open VCF File", FileSelectorUtil.VCFEXTENSIONS);
 				if (file != null) {
 					vcfPathField.setText(file.getAbsolutePath());
 					Utility.setVCFPath(vcfPathField.getText());
@@ -247,16 +277,15 @@ public class IOPanel extends JPanel {
 
 	}
 	
+	
+	
 	public class ListActionListener implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			// TODO Auto-generated method stub
 
-			if (arg0.getSource() == chrlist)
-				System.err.println(chrlist.getSelectedValuesList());
-			else if (arg0.getSource() == samplelist)
-				System.err.println(samplelist.getSelectedValuesList());
+			
 
 		}
 	}

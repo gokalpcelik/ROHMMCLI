@@ -40,8 +40,6 @@ public class ROHMMCLIRunner {
 
 		if (args.length == 0) {
 			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
-			// UImanager ile platform spesifik yazalım bişiler.
-			UIManager.put("swing.boldMetal", Boolean.FALSE);
 			UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			ROHMMMain.RunGUI();
 		} else {
