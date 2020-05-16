@@ -52,7 +52,7 @@ public class ROHMMCLIRunner {
 			//Utility.logInput(cmd);
 			Runner(Utility.cmd);
 			
-			Utility.ENDTIMER();
+			Utility.endTimer();
 			System.exit(0);
 
 		}

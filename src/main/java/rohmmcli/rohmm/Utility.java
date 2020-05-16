@@ -1,6 +1,7 @@
 package rohmmcli.rohmm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -37,11 +38,11 @@ public class Utility {
 	protected static final String[] HG1938Full = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
 			"chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
 			"chr20", "chr21", "chr22", "chrX", "chrY" };
-	
+
 	protected static String OSNAME = null;
 
-	protected static HashMap<String, String> optionMap = null;
-	
+	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
+
 	protected static final String VERSION = "0.9r-GUI 03/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
@@ -65,18 +66,38 @@ public class Utility {
 
 	}
 
-	public static void ENDTIMER() {
+	public static void clearOptionMap() {
+		optionMap.clear();
+	}
+
+	public static void setOption(String key, String value) {
+		optionMap.put(key, value);
+	}
+
+	public static void setGUICMD() {
+
+		ArrayList<String> guiCMD = new ArrayList<>();
+
+		for (String key : optionMap.keySet()) {
+
+			guiCMD.add(key);
+			guiCMD.add(optionMap.get(key));
+		}
+
+		parseCommands(guiCMD.toArray(new String[0]));
+
+	}
+
+	public static void endTimer() {
 		END = System.currentTimeMillis();
 		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
-	
-	public static void setVCFPath(String path)
-	{
+
+	public static void setVCFPath(String path) {
 		VCFPath = path;
 	}
-	
-	public static VCFHeader getVCFHeader()
-	{
+
+	public static VCFHeader getVCFHeader() {
 		VCFHeader header = null;
 		try {
 			VCFReader vcfReader = new VCFReader(VCFPath);
@@ -86,21 +107,20 @@ public class Utility {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
+
 		return header;
 	}
-	
-	public static void setInputParams()
-	{
+
+	public static void setInputParams() {
 		input = new Input();
-		
+
 		input.Distenabled = Model.distmode;
 		input.HWenabled = Model.hwmode;
 		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
 		input.skipindels = cmd.hasOption("S") ? true : false;
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
 		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-		input.setVCFPath(VCFPath == null ? VCFPath : cmd.getOptionValue("V"));
+		input.setVCFPath(VCFPath == null ? cmd.getOptionValue("V") : VCFPath);
 
 		/*
 		 * if (cmd.hasOption("FF")) input.fillfactor =
@@ -132,13 +152,11 @@ public class Utility {
 			combine = true;
 
 		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
-		
-		
+
 	}
-	
-	public static void setHMMParams()
-	{
-		
+
+	public static void setHMMParams() {
+
 		try {
 			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
 		} catch (Exception e) {
@@ -146,14 +164,13 @@ public class Utility {
 			e.printStackTrace();
 		}
 	}
-	
-	public static Boolean combineOutput()
-	{
-		if(cmd.hasOption("combine"))
+
+	public static Boolean combineOutput() {
+		if (cmd.hasOption("combine"))
 			return true;
 		return false;
 	}
-	
+
 	public static void parseCommands(String[] args) {
 		Options opts = new Options();
 		HelpFormatter fmtr = new HelpFormatter();
@@ -245,45 +262,40 @@ public class Utility {
 			PrintWriter pw = new PrintWriter(System.err, true);
 			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
 			fmtr.printOptions(pw, 80, opts, 0, 10);
-			ENDTIMER();
+			endTimer();
 			pw.close();
 			System.exit(1);
 		}
 
-		
 	}
-	
+
 	public static void setOptionsGUI(String optionname, String value) {
-		if(optionMap == null)
+		if (optionMap == null)
 			optionMap = new HashMap<String, String>();
-		
+
 		optionMap.put(optionname, value);
 	}
-	
-	public static void getOS()
-	{
+
+	public static void getOS() {
 		OSNAME = System.getProperty("os.name").toLowerCase();
 	}
-	
-	public static boolean isMac()
-	{
-		if(OSNAME.contains("mac"))
+
+	public static boolean isMac() {
+		if (OSNAME.contains("mac"))
 			return true;
 		return false;
 	}
-	
-	public static boolean isWindows()
-	{
-		if(OSNAME.contains("win"))
+
+	public static boolean isWindows() {
+		if (OSNAME.contains("win"))
 			return true;
 		return false;
 	}
-	
-	public static boolean isUnix()
-	{
-		if(OSNAME.contains("nux") || OSNAME.contains("nix") || OSNAME.contains("aix") || OSNAME.contains("bsd"))
+
+	public static boolean isUnix() {
+		if (OSNAME.contains("nux") || OSNAME.contains("nix") || OSNAME.contains("aix") || OSNAME.contains("bsd"))
 			return true;
 		return false;
 	}
-	
+
 }

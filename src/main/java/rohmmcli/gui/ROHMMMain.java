@@ -3,13 +3,11 @@ package rohmmcli.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 
 import rohmmcli.rohmm.Utility;
 
@@ -64,7 +62,7 @@ public class ROHMMMain extends JFrame {
 	{
 		public void windowClosing(WindowEvent e)
 		{
-			Utility.ENDTIMER();
+			Utility.endTimer();
 		}
 	}
 
