@@ -1,7 +1,6 @@
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -12,6 +11,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -21,7 +21,6 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -46,6 +45,7 @@ public class IOPanel extends JPanel {
 	protected JButton selectNoneChrButton;
 	protected JButton selectAllSampleButton;
 	protected JButton selectNoneSampleButton;
+	protected JButton runInference;
 	protected JButton invertSelectionSampleButton;
 	protected JScrollPane scrollPane;
 	protected JList<String> chrlist;
@@ -144,18 +144,18 @@ public class IOPanel extends JPanel {
 		add(selectNoneSampleButton);
 		add(invertSelectionSampleButton);
 		
-		JPanel outpanel = new JPanel(new GridBagLayout());
+		JPanel outPanel = new JPanel(new GridBagLayout());
 		
-		outpanel.setBorder(new TitledBorder("Output Options"));
-		outpanel.setBounds(295, 50, 492, 80);
+		outPanel.setBorder(new TitledBorder("Output Options"));
+		outPanel.setBounds(295, 50, 492, 80);
 		constraint.fill = GridBagConstraints.HORIZONTAL;
 		constraint.gridy = 1;
 		constraint.ipadx = 20;
 		JLabel prefixwarnlabel = new JLabel("Prefix for Output Files");
 		outputPrefixField = new JTextField();
-		outpanel.add(prefixwarnlabel, constraint);
+		outPanel.add(prefixwarnlabel, constraint);
 		constraint.ipadx = 250;
-		outpanel.add(outputPrefixField, constraint);
+		outPanel.add(outputPrefixField, constraint);
 		
 		outputDirField = new JTextField();
 		constraint.fill = GridBagConstraints.HORIZONTAL;
@@ -163,13 +163,22 @@ public class IOPanel extends JPanel {
 		constraint.ipadx = 20;
 		outputDirSelectButton = new JButton("Select Directory");
 		outputDirSelectButton.addActionListener(new OutputDirSelectButtonListener());
-		outpanel.add(outputDirSelectButton, constraint);
+		outPanel.add(outputDirSelectButton, constraint);
 		constraint.ipadx = 250;
-		outpanel.add(outputDirField, constraint);
+		outPanel.add(outputDirField, constraint);
+		add(outPanel);
+		JPanel hmmPanel = new JPanel(new GridBagLayout());
+		hmmPanel.setBorder(new TitledBorder("HMM Selection"));
+		hmmPanel.setBounds(295,127,492,50);
+		add(hmmPanel);
+		runInference = new JButton("Run ROHMM!");
+		runInference.setBounds(295,177,492,50);
+		add(runInference);
+		
+
 		
 		
 		
-		add(outpanel);
 
 	}
 
@@ -217,8 +226,10 @@ public class IOPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
 			try {
-				//Filedialogların tamamını swing yap geç daha fazla kasmanın alemi yok gibi. 
-
+				File file = FileSelectorUtil.selectDirectory(parentFrame, "Select Output Directory", new File("."));
+				if (file != null) {
+					outputDirField.setText(file.getAbsolutePath());
+				}
 			} catch (Exception exp) {
 				exp.printStackTrace();
 			}
@@ -258,7 +269,7 @@ public class IOPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
 			try {
-				File file = FileSelectorUtil.openFile("Open VCF File", FileSelectorUtil.VCFEXTENSIONS);
+				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(), new File("."));
 				if (file != null) {
 					vcfPathField.setText(file.getAbsolutePath());
 					Utility.setVCFPath(vcfPathField.getText());
