@@ -54,4 +54,4 @@ hs_err_pid*
 /target/
 
 #unnecessary macos files
-.DS_store
+.DS_Store
