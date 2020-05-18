@@ -27,8 +27,12 @@ import javax.swing.event.ListSelectionListener;
 
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import rohmmcli.rohmm.Utility;
+import rohmmcli.rohmm.VCFReader;
 
 @SuppressWarnings("serial")
 public class IOPanel extends JPanel {
@@ -87,7 +91,7 @@ public class IOPanel extends JPanel {
 		panel_0.add(vcfSelectButton, constraint);
 		constraint.ipadx = 563;
 		panel_0.add(vcfPathField, constraint);
-		
+
 		add(panel_0);
 		panel.setBorder(new TitledBorder("Chromosomes"));
 		panel.setBounds(12, 50, 120, 406);
@@ -110,11 +114,11 @@ public class IOPanel extends JPanel {
 		selectNoneChrButton.setBounds(12, 483, 120, 25);
 		selectAllChrButton.addActionListener(selectbuttonlistener);
 		selectNoneChrButton.addActionListener(selectbuttonlistener);
-		
+
 		panel.add(scrollPane);
 		add(selectAllChrButton);
 		add(selectNoneChrButton);
-		
+
 		panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder("Samples"));
 		panel_1.setBounds(132, 50, 163, 406);
@@ -143,9 +147,9 @@ public class IOPanel extends JPanel {
 		add(selectAllSampleButton);
 		add(selectNoneSampleButton);
 		add(invertSelectionSampleButton);
-		
+
 		JPanel outPanel = new JPanel(new GridBagLayout());
-		
+
 		outPanel.setBorder(new TitledBorder("Output Options"));
 		outPanel.setBounds(295, 50, 492, 80);
 		constraint.fill = GridBagConstraints.HORIZONTAL;
@@ -156,7 +160,7 @@ public class IOPanel extends JPanel {
 		outPanel.add(prefixwarnlabel, constraint);
 		constraint.ipadx = 250;
 		outPanel.add(outputPrefixField, constraint);
-		
+
 		outputDirField = new JTextField();
 		constraint.fill = GridBagConstraints.HORIZONTAL;
 		constraint.gridy = 0;
@@ -169,16 +173,11 @@ public class IOPanel extends JPanel {
 		add(outPanel);
 		JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("HMM Selection"));
-		hmmPanel.setBounds(295,127,492,50);
+		hmmPanel.setBounds(295, 127, 492, 50);
 		add(hmmPanel);
 		runInference = new JButton("Run ROHMM!");
-		runInference.setBounds(295,177,492,50);
+		runInference.setBounds(295, 177, 492, 50);
 		add(runInference);
-		
-
-		
-		
-		
 
 	}
 
@@ -186,40 +185,32 @@ public class IOPanel extends JPanel {
 		return this;
 	}
 
-	protected void updateChromosomeList(VCFHeader header) {
-
-		SAMSequenceDictionary dict = header.getSequenceDictionary();
-
-		List<SAMSequenceRecord> lists = dict.getSequences();
-
-		for (SAMSequenceRecord record : lists) {
-			chrlistmodel.addElement(record.getSequenceName());
+	protected void updateChromosomeList(List<String> availableContigList) {
+		for (String contig : availableContigList) {
+			chrlistmodel.addElement(contig);
 		}
-
 	}
 
-	protected void updateSampleNameList(VCFHeader header) {
-		ArrayList<String> samplenamelists = header.getSampleNamesInOrder();
-
-		for (String s : samplenamelists) {
+	protected void updateSampleNameList(List<String> sampleNameList) {
+		for (String s : sampleNameList) {
 			samplenamemodel.addElement(s);
 		}
 	}
-	
+
 	private static <T> void selectionInverter(JList<T> jlist) {
-		
+
 		int size = jlist.getModel().getSize();
 		ArrayList<Integer> selectedindices = new ArrayList<Integer>();
-		for(int i = 0; i < size; i++) {
-			
-			if(!jlist.isSelectedIndex(i))
+		for (int i = 0; i < size; i++) {
+
+			if (!jlist.isSelectedIndex(i))
 				selectedindices.add(i);
 		}
-		
+
 		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
 
 	}
-	
+
 	public class OutputDirSelectButtonListener implements ActionListener {
 
 		@Override
@@ -234,7 +225,7 @@ public class IOPanel extends JPanel {
 				exp.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	public class ChrSampleSelectButtonListener implements ActionListener {
@@ -242,15 +233,15 @@ public class IOPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			String actionCommand = arg0.getActionCommand();
-			switch(actionCommand) {
+			switch (actionCommand) {
 			case "allchr":
-				chrlist.setSelectionInterval(0, chrlist.getModel().getSize()-1);
+				chrlist.setSelectionInterval(0, chrlist.getModel().getSize() - 1);
 				break;
 			case "nonechr":
 				chrlist.clearSelection();
 				break;
 			case "allsample":
-				samplelist.setSelectionInterval(0, samplelist.getModel().getSize()-1);
+				samplelist.setSelectionInterval(0, samplelist.getModel().getSize() - 1);
 				break;
 			case "nonesample":
 				samplelist.clearSelection();
@@ -260,24 +251,28 @@ public class IOPanel extends JPanel {
 				break;
 			}
 		}
-		
+
 	}
-	
+
 	public class VCFSelectButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
 			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(), new File("."));
+				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(),
+						new File("."));
 				if (file != null) {
 					vcfPathField.setText(file.getAbsolutePath());
 					Utility.setVCFPath(vcfPathField.getText());
-					VCFHeader header = Utility.getVCFHeader();
 					chrlistmodel.clear();
 					samplenamemodel.clear();
-					updateChromosomeList(header);
-					updateSampleNameList(header);
+					updateChromosomeList(Utility.getAvailableContigsList());
+					updateSampleNameList(Utility.getSampleNameList());
+					if(Utility.isHumanSample())
+						System.err.println("Found Human Sample");
+						
+					// rdr.close();
 				}
 
 			} catch (Exception exp) {
@@ -287,16 +282,12 @@ public class IOPanel extends JPanel {
 		}
 
 	}
-	
-	
-	
+
 	public class ListActionListener implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			// TODO Auto-generated method stub
-
-			
 
 		}
 	}
