@@ -269,10 +269,6 @@ public class IOPanel extends JPanel {
 					samplenamemodel.clear();
 					updateChromosomeList(Utility.getAvailableContigsList());
 					updateSampleNameList(Utility.getSampleNameList());
-					if(Utility.isHumanSample())
-						System.err.println("Found Human Sample");
-						
-					// rdr.close();
 				}
 
 			} catch (Exception exp) {
