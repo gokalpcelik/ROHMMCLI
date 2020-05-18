@@ -60,7 +60,7 @@ public class ROHMMCLIRunner {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void Runner(@SuppressWarnings("exports") CommandLine cmd) {
+	public static void Runner(CommandLine cmd) {
 
 		VCFFileReader vcfrdr = null;
 		/*
