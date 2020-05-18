@@ -31,7 +31,6 @@ public class Utility {
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
 	protected static long END;
-	protected static boolean ISHUMANSAMPLE = false;
 	protected static String VCFPath = null;
 	protected static VCFReader vcfrdr = null;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
@@ -72,9 +71,6 @@ public class Utility {
 
 	}
 	
-	public static boolean isHumanSample() {
-		return ISHUMANSAMPLE;
-	}
 
 	public static void clearOptionMap() {
 		optionMap.clear();
@@ -144,15 +140,6 @@ public class Utility {
 		for (SAMSequenceRecord record : lists) {
 
 			String sequencename = record.getSequenceName();
-			if ((sequencename.equalsIgnoreCase("chr1") || sequencename.equalsIgnoreCase("1"))
-					&& (record.getAssembly().equalsIgnoreCase("hg19") || record.getAssembly().equalsIgnoreCase("hg38")
-							|| record.getAssembly().equalsIgnoreCase("b37") || record.getSequenceLength() == 249250621
-							|| record.getSequenceLength() == 248956422)
-							|| record.getAssembly().contains("38")
-							|| record.getAssembly().contains("19")
-							|| record.getAssembly().contains("37")) {
-				ISHUMANSAMPLE = true;
-			}
 			CloseableIterator<VariantContext> iter = rdr.query(sequencename, 1, Integer.MAX_VALUE);
 			if (iter.hasNext()) {
 				availableContigs.add(sequencename);
