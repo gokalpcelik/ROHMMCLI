@@ -23,11 +23,8 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import rohmmcli.gui.*;
 
-import com.formdev.*;
-import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
-import com.formdev.flatlaf.FlatLightLaf;
+
 
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
@@ -63,7 +60,7 @@ public class ROHMMCLIRunner {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void Runner(CommandLine cmd) {
+	public static void Runner(@SuppressWarnings("exports") CommandLine cmd) {
 
 		VCFFileReader vcfrdr = null;
 		/*
