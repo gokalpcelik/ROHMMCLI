@@ -8,7 +8,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 
 import rohmmcli.rohmm.Utility;
 
@@ -39,9 +38,11 @@ public class ROHMMMain extends JFrame {
 	public ROHMMMain() {
 		setMinimumSize(new Dimension(800, 600));
 		setPreferredSize(new Dimension(800, 600));
+		setName("Deneme");
 		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		setResizable(false);
 		addWindowListener(new MainWindowAdapter());
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		IOPanel iopane = new IOPanel();
@@ -49,7 +50,7 @@ public class ROHMMMain extends JFrame {
 		tabbedPane.add(iopane);
 		tabbedPane.add(optpane);
 		tabbedPane.setTitleAt(0, "Input/Output");
-		tabbedPane.setTitleAt(1, "Options");
+		tabbedPane.setTitleAt(1, "Advanced Options");
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		pack();
 		
@@ -61,7 +62,7 @@ public class ROHMMMain extends JFrame {
 	{
 		public void windowClosing(WindowEvent e)
 		{
-			Utility.ENDTIMER();
+			Utility.endTimer();
 		}
 	}
 
