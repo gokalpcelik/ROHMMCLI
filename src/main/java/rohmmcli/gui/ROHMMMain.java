@@ -9,7 +9,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
-import rohmmcli.rohmm.Utility;
+import rohmmcli.rohmm.OverSeer;
 
 public class ROHMMMain extends JFrame {
 
@@ -62,7 +62,7 @@ public class ROHMMMain extends JFrame {
 	{
 		public void windowClosing(WindowEvent e)
 		{
-			Utility.endTimer();
+			OverSeer.endTimer();
 		}
 	}
 

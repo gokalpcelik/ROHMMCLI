@@ -30,24 +30,24 @@ import com.formdev.flatlaf.FlatIntelliJLaf;
 public class ROHMMCLIRunner {
 
 	public static void main(String[] args) throws Exception {
-		Utility.START = System.currentTimeMillis();
-		Utility.getOS();
-		Utility.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + Utility.VERSION + " Gokalp Celik...",
-				Utility.INFO);
+		OverSeer.START = System.currentTimeMillis();
+		OverSeer.getOS();
+		OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + OverSeer.VERSION + " Gokalp Celik...",
+				OverSeer.INFO);
 
 		if (args.length == 0) {
-			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
+			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", OverSeer.INFO);
 			UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			ROHMMMain.RunGUI();
 		} else {
-			Utility.parseCommands(args);
-			Utility.setInputParams();
-			Utility.setHMMParams();
+			OverSeer.parseCommands(args);
+			OverSeer.setInputParams();
+			OverSeer.setHMMParams();
 
 			// Utility.logInput(cmd);
-			Runner(Utility.cmd);
+			Runner(OverSeer.cmd);
 
-			Utility.endTimer();
+			OverSeer.endTimer();
 			System.exit(0);
 
 		}
@@ -74,16 +74,16 @@ public class ROHMMCLIRunner {
 
 		switch (contigparam) {
 		case "GRCh37":
-			contigs = Utility.GRCH37NoXY;
+			contigs = OverSeer.GRCH37NoXY;
 			break;
 		case "hg19":
-			contigs = Utility.HG1938NoXY;
+			contigs = OverSeer.HG1938NoXY;
 			break;
 		case "hg38":
-			contigs = Utility.HG1938NoXY;
+			contigs = OverSeer.HG1938NoXY;
 			break;
 		case "GRCh38":
-			contigs = Utility.HG1938NoXY;
+			contigs = OverSeer.HG1938NoXY;
 			break;
 		default:
 			contigs = cmd.getOptionValue("C").split(",");
@@ -97,8 +97,8 @@ public class ROHMMCLIRunner {
 		 */
 
 		try {
-			VCFReader vcffile = new VCFReader(Utility.input.vcfpath);
-			vcfrdr = vcffile.createReader();
+			
+			vcfrdr = OverSeer.getVCFFileReader();
 
 			/*
 			 * if (cmd.hasOption("F")) { CloseableIterator<VariantContext> counter =
@@ -149,8 +149,8 @@ public class ROHMMCLIRunner {
 			} else
 				samples = alsample.toArray(new String[alsample.size()]);
 
-			Utility.input.samplenamearr = samples;
-			Utility.input.setSampleSet();
+			OverSeer.input.samplenamearr = samples;
+			OverSeer.input.setSampleSet();
 
 			System.err.println("Total number of selected samples " + samples.length);
 			System.err.println("Total number of omitted samples " + omsamples.size());
@@ -169,39 +169,39 @@ public class ROHMMCLIRunner {
 
 					System.err.println("Working on sample number " + count + " of " + samples.length);
 
-					Utility.input.oldsampleidx = alsample.indexOf(sample);
+					OverSeer.input.oldsampleidx = alsample.indexOf(sample);
 
 					for (String contig : contigs) {
 
 						int[] states = null;
 						double[][] posterior = null;
-						Utility.input.setContig(contig);
+						OverSeer.input.setContig(contig);
 						if (cmd.hasOption("G")) {
 							File gnomadfile = new File(
 									cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "")
 											+ (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-							Utility.input.setGNOMADPath(gnomadfile.getPath());
+							OverSeer.input.setGNOMADPath(gnomadfile.getPath());
 
 						}
 
-						Utility.input.generateInput();
+						OverSeer.input.generateInput();
 
-						if (Utility.input.usePLs || Utility.input.useUserPLs || Utility.input.legacywPL)
-							Utility.hmm.PLmatrix = Utility.input.getObservationSetPLs();
+						if (OverSeer.input.usePLs || OverSeer.input.useUserPLs || OverSeer.input.legacywPL)
+							OverSeer.hmm.PLmatrix = OverSeer.input.getObservationSetPLs();
 						else
-							Utility.hmm.GTs = Utility.input.getObservationSet();
+							OverSeer.hmm.GTs = OverSeer.input.getObservationSet();
 
-						if (Utility.input.getHWmode()) {
-							Utility.hmm.MAFs = Utility.input.getMAFSet();
+						if (OverSeer.input.getHWmode()) {
+							OverSeer.hmm.MAFs = OverSeer.input.getMAFSet();
 						}
 
-						if (Utility.input.Distenabled) {
-							Utility.hmm.Dists = Utility.input.getDistanceSet();
+						if (OverSeer.input.Distenabled) {
+							OverSeer.hmm.Dists = OverSeer.input.getDistanceSet();
 						}
 
-						states = Viterbi.getViterbiPath(Utility.hmm);
+						states = Viterbi.getViterbiPath(OverSeer.hmm);
 
-						posterior = Viterbi.posterior(Utility.hmm);
+						posterior = Viterbi.posterior(OverSeer.hmm);
 
 						int rohlen = 0;
 						if (cmd.hasOption("MRL"))
@@ -211,10 +211,10 @@ public class ROHMMCLIRunner {
 						if (cmd.hasOption("MSC"))
 							rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
 
-						Output.GenerateOutput(contig, Utility.input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, Utility.combineOutput(), rohlen, rohcount);
+						Output.GenerateOutput(contig, OverSeer.input, states, (cmd.getOptionValue("O") + "_" + sample),
+								posterior, OverSeer.combineOutput(), rohlen, rohcount);
 
-						Utility.input.killTreeMap();
+						OverSeer.input.killTreeMap();
 
 					}
 
@@ -225,16 +225,16 @@ public class ROHMMCLIRunner {
 
 				for (String contig : contigs) {
 
-					Utility.input.setContig(contig);
+					OverSeer.input.setContig(contig);
 					if (cmd.hasOption("G")) {
 						File gnomadfile = new File(
 								cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "")
 										+ (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-						Utility.input.setGNOMADPath(gnomadfile.getPath());
+						OverSeer.input.setGNOMADPath(gnomadfile.getPath());
 
 					}
 
-					Utility.input.generateInputNew();
+					OverSeer.input.generateInputNew();
 
 					/*
 					 * if (input.getHWmode()) { hmm.MAFs = input.getMAFSetNew(); }
@@ -242,9 +242,9 @@ public class ROHMMCLIRunner {
 					 * if (input.Distenabled) { hmm.Dists = input.getDistanceSetNew(); }
 					 */
 
-					Utility.input.setMAFAndDist(Utility.hmm);
+					OverSeer.input.setMAFAndDist(OverSeer.hmm);
 
-					System.err.println("Size of the input dataset " + Utility.input.getInputDataNew().size());
+					System.err.println("Size of the input dataset " + OverSeer.input.getInputDataNew().size());
 
 					int sampleindex = 0;
 					for (String sample : samples) {
@@ -257,11 +257,11 @@ public class ROHMMCLIRunner {
 						 * input.getObservationSetNew(sampleindex);
 						 */
 
-						Utility.input.setObsAndPLs(Utility.hmm, sampleindex);
+						OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
 
-						states = Viterbi.getViterbiPath(Utility.hmm);
+						states = Viterbi.getViterbiPath(OverSeer.hmm);
 
-						posterior = Viterbi.posterior(Utility.hmm);
+						posterior = Viterbi.posterior(OverSeer.hmm);
 
 						int rohlen = 0;
 						if (cmd.hasOption("MRL"))
@@ -275,15 +275,15 @@ public class ROHMMCLIRunner {
 						if (cmd.hasOption("Q"))
 							qual = Double.parseDouble(cmd.getOptionValue("Q"));
 
-						Output.GenerateOutputNew(contig, Utility.input, states,
-								(cmd.getOptionValue("O") + "_" + sample), posterior, Utility.combineOutput(), rohlen,
+						Output.GenerateOutputNew(contig, OverSeer.input, states,
+								(cmd.getOptionValue("O") + "_" + sample), posterior, OverSeer.combineOutput(), rohlen,
 								rohcount, qual);
 
 						sampleindex++;
 
 					}
 
-					Utility.input.killTreeMap();
+					OverSeer.input.killTreeMap();
 				}
 
 			}

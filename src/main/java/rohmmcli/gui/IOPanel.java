@@ -1,7 +1,6 @@
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -10,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -26,7 +27,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import rohmmcli.rohmm.Utility;
+import rohmmcli.rohmm.OverSeer;
 
 @SuppressWarnings("serial")
 public class IOPanel extends JPanel {
@@ -36,6 +37,9 @@ public class IOPanel extends JPanel {
 	protected JTextField vcfPathField;
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
+	protected JTextField knownVariantField;
+	protected JRadioButton knownVariantInclusivePolicy;
+	protected JRadioButton knowVariantExclusivePolicy;
 	protected JLabel brandLabel;
 	protected JButton outputDirSelectButton;
 	protected JButton vcfSelectButton;
@@ -61,7 +65,7 @@ public class IOPanel extends JPanel {
 	 */
 	public IOPanel() {
 		setLayout(null);
-		brandLabel = new JLabel(Utility.VERSION);
+		brandLabel = new JLabel(OverSeer.VERSION);
 		brandLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		brandLabel.setBounds(12, 508, 120, 25);
 		add(brandLabel);
@@ -72,6 +76,7 @@ public class IOPanel extends JPanel {
 		// add(vcfLabel);
 		panel = new JPanel();
 		vcfPathField = new JTextField();
+		vcfPathField.setEditable(false);
 		// vcfpathfield.setBounds(132, 10, 415, 24);
 		// add(vcfpathfield);
 		
@@ -86,12 +91,14 @@ public class IOPanel extends JPanel {
 		panel_0.setBounds(12, 0, 775, 53);
 		panel_0.setBorder(new TitledBorder("VCF Input"));
 		panel_0.setLayout(new GridBagLayout());
-		GridBagConstraints constraint = new GridBagConstraints();
-		constraint.fill = GridBagConstraints.HORIZONTAL;
-		constraint.ipadx = 30;
-		panel_0.add(vcfSelectButton, constraint);
-		constraint.ipadx = 563;
-		panel_0.add(vcfPathField, constraint);
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 0.5;
+		c.weighty = 0.5;
+		c.ipadx = 30;
+		panel_0.add(vcfSelectButton, c);
+		c.ipadx = 563;
+		panel_0.add(vcfPathField, c);
 
 		add(panel_0);
 		panel.setBorder(new TitledBorder("Chromosomes"));
@@ -153,40 +160,62 @@ public class IOPanel extends JPanel {
 
 		outPanel.setBorder(new TitledBorder("Output Options"));
 		outPanel.setBounds(295, 50, 492, 80);
-		constraint.fill = GridBagConstraints.HORIZONTAL;
-		constraint.gridy = 1;
-		constraint.ipadx = 20;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 0.5;
+		c.weighty = 0.5;
+		c.gridy = 1;
+		c.ipadx = 20;
 		JLabel prefixwarnlabel = new JLabel("Prefix for Output Files");
 		outputPrefixField = new JTextField();
-		outPanel.add(prefixwarnlabel, constraint);
-		constraint.ipadx = 250;
-		outPanel.add(outputPrefixField, constraint);
+		outPanel.add(prefixwarnlabel, c);
+		c.ipadx = 250;
+		outPanel.add(outputPrefixField, c);
 
 		outputDirField = new JTextField();
-		constraint.fill = GridBagConstraints.HORIZONTAL;
-		constraint.gridy = 0;
-		constraint.ipadx = 20;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
+		c.ipadx = 20;
 		outputDirSelectButton = new JButton("Select Directory");
 		outputDirSelectButton.setActionCommand("selectoutputdir");
 		outputDirSelectButton.addActionListener(ioButtonListener);
-		outPanel.add(outputDirSelectButton, constraint);
-		constraint.ipadx = 250;
-		outPanel.add(outputDirField, constraint);
+		outPanel.add(outputDirSelectButton, c);
+		c.ipadx = 250;
+		outPanel.add(outputDirField, c);
 		add(outPanel);
-		JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(295, 127, 492, 150);
+		filterPanel.setBounds(295, 127, 492, 100);
 		skipIndels = new JCheckBox("Skip Indels");
-		filterPanel.add(skipIndels);
+		c.weightx = 0.5;
+		c.gridy = 0;
+		filterPanel.add(skipIndels,c);
 		filterUsingKnown = new JCheckBox("Use known set of variants to filter");
-		filterPanel.add(filterUsingKnown);
+		c.gridy = 0;
+		filterPanel.add(filterUsingKnown,c);
 		selectKnownVariantButton = new JButton("Select Known Variants");
 		selectKnownVariantButton.setActionCommand("selectknown");
+		selectKnownVariantButton.addActionListener(selectbuttonlistener);
+		c.ipadx = 15;
+		c.gridy = 1;
+		filterPanel.add(selectKnownVariantButton,c);
+		knownVariantField = new JTextField();
+		c.gridy = 1;
+		filterPanel.add(knownVariantField,c);
+		ButtonGroup knownVariantRadioGroup = new ButtonGroup();
+		knownVariantInclusivePolicy = new JRadioButton("Include high quality unknown variants");
+		knownVariantInclusivePolicy.setSelected(true);
+		knowVariantExclusivePolicy = new JRadioButton("Exclude unknown variants");
+		knownVariantRadioGroup.add(knownVariantInclusivePolicy);
+		knownVariantRadioGroup.add(knowVariantExclusivePolicy);
+		c.gridy = 2;
+		filterPanel.add(knowVariantExclusivePolicy,c);
+		c.gridy = 2;
+		filterPanel.add(knownVariantInclusivePolicy,c);
 		
 		add(filterPanel);
 		JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 275, 492, 150);
+		hmmPanel.setBounds(295, 225, 492, 150);
 		add(hmmPanel);
 		runInference = new JButton("Run ROHMM!");
 		runInference.setBounds(295, 427, 492, 50);
@@ -264,11 +293,11 @@ public class IOPanel extends JPanel {
 						new File("."));
 				if (file != null) {
 					vcfPathField.setText(file.getAbsolutePath());
-					Utility.setVCFPath(vcfPathField.getText());
+					OverSeer.setVCFPath(file);
 					chrlistmodel.clear();
 					samplenamemodel.clear();
-					updateChromosomeList(Utility.getAvailableContigsList());
-					updateSampleNameList(Utility.getSampleNameList());
+					updateChromosomeList(OverSeer.getAvailableContigsList());
+					updateSampleNameList(OverSeer.getSampleNameList());
 				}
 
 			} catch (Exception exp) {

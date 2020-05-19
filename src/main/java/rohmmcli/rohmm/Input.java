@@ -67,7 +67,7 @@ public class Input {
 		inputdata = new TreeMap<>();
 
 		if (useFiller) {
-			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.INFO);
+			OverSeer.log(this.getClass().getSimpleName(), "Fill with GNOMAD", OverSeer.INFO);
 			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
 			// System.err.println("Generating the input map - GNOMAD phase");
 			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
@@ -253,9 +253,9 @@ public class Input {
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
 
 		if (useFiller) {
-			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.DEBUG);
+			OverSeer.log(this.getClass().getSimpleName(), "Fill with GNOMAD", OverSeer.DEBUG);
 			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
-			Utility.log(this.getClass().getSimpleName(), "Generating the input map - GNOMAD phase", Utility.DEBUG);
+			OverSeer.log(this.getClass().getSimpleName(), "Generating the input map - GNOMAD phase", OverSeer.DEBUG);
 			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
 			String gnomaditem;
 			int counter = 1;
@@ -272,11 +272,10 @@ public class Input {
 			gnomadrdr.close();
 		}
 
-		Utility.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", Utility.DEBUG);
+		OverSeer.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", OverSeer.DEBUG);
 
-		VCFReader vcffile = new VCFReader(vcfpath); // this fixes the problem with unindexed and uncompressed vcf files.
-													// BCF support coming soon.
-		VCFFileReader vcfrdr = vcffile.createReader();
+		 // this fixes the problem with unindexed and uncompressed vcf files.											// BCF support coming soon.
+		VCFFileReader vcfrdr = OverSeer.getVCFFileReader();
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
 		// vcfreading
@@ -332,7 +331,7 @@ public class Input {
 		}
 		vcfiter.close();
 		vcfrdr.close();
-		Utility.log(this.getClass().getSimpleName(), "Input map generated...", Utility.DEBUG);
+		OverSeer.log(this.getClass().getSimpleName(), "Input map generated...", OverSeer.DEBUG);
 
 	}
 

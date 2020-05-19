@@ -1,5 +1,6 @@
 package rohmmcli.rohmm;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,13 +12,13 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-import htsjdk.samtools.SAMSequenceRecord;
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
-public class Utility {
+//OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions. 
+//Consult OverSeer.class whenever a parameter needs to be set or changed. 
+//Other classes should not be used freely...
+public class OverSeer {
 
 	public static final int ERROR = 0;
 	public static final int WARNING = 1;
@@ -98,64 +99,31 @@ public class Utility {
 		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
 
-	public static void setVCFPath(String path) {
-		VCFPath = path;
+	public static void setVCFPath(File vcffile) {
+		try {
+		VCFPath = vcffile.getAbsolutePath();
+		vcfrdr = new VCFReader(vcffile);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 
 	public static VCFHeader getVCFHeader() {
-		VCFHeader header = null;
-		try {
-			VCFReader vcfReader = new VCFReader(VCFPath);
-			VCFFileReader vcfrdr = vcfReader.createReader();
-			header = vcfrdr.getFileHeader();
-			vcfrdr.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-		return header;
+		return vcfrdr != null ? vcfrdr.getHeader() : null;
 	}
 
 	public static VCFFileReader getVCFFileReader() {
-		try {
-			VCFReader vcfReader = new VCFReader(VCFPath);
-			VCFFileReader vcfrdr = vcfReader.createReader();
-			return vcfrdr;
-		} catch (Exception e) {
-			// TODO: handle exception
-			return null;
-		}
-
+		return vcfrdr != null ? vcfrdr.getReader() : null;
 	}
 
 	public static List<String> getAvailableContigsList() {
-
-		ArrayList<String> availableContigs = new ArrayList<String>();
-
-		VCFFileReader rdr = getVCFFileReader();
-
-		List<SAMSequenceRecord> lists = rdr.getFileHeader().getSequenceDictionary().getSequences();
-
-		for (SAMSequenceRecord record : lists) {
-
-			String sequencename = record.getSequenceName();
-			CloseableIterator<VariantContext> iter = rdr.query(sequencename, 1, Integer.MAX_VALUE);
-			if (iter.hasNext()) {
-				availableContigs.add(sequencename);
-			}
-
-			iter.close();
-
-		}
-		if (availableContigs.size() > 0)
-			return availableContigs;
-
-		return null;
-
+		return vcfrdr != null ? vcfrdr.getAvailableContigsList() : null;
 	}
 
 	public static List<String> getSampleNameList() {
-		return getVCFHeader().getSampleNamesInOrder();
+		return vcfrdr != null ? vcfrdr.getVCFSampleList() : null;
 	}
 
 	public static void setInputParams() {

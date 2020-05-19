@@ -2,27 +2,42 @@ package rohmmcli.rohmm;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
+import htsjdk.samtools.SAMSequenceRecord;
+import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.FileExtensions;
+import htsjdk.tribble.exception.UnsortedFileException;
 import htsjdk.tribble.index.Index;
 import htsjdk.tribble.index.IndexFactory;
 import htsjdk.tribble.index.IndexFactory.IndexBalanceApproach;
 import htsjdk.tribble.index.IndexFactory.IndexType;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 
 public class VCFReader {
 
 	protected File VCFFile;
 	protected File VCFIndex;
+	protected VCFFileReader vcfReader;
 
-	public VCFReader(String vcfpath) throws FileNotFoundException {
-		VCFFile = new File(vcfpath);
+	public VCFReader(File VCF) throws FileNotFoundException {
+		VCFFile = VCF;
 
 		if (!vcfIndexExists()) {
 			VCFIndex = new File(createIndex());
 		}
 
+		vcfReader = createReader();
+
+	}
+
+	protected void closeVCFReader() {
+		vcfReader.close();
+		vcfReader = null;
 	}
 
 	private boolean vcfIndexExists() {
@@ -38,7 +53,7 @@ public class VCFReader {
 	private String createIndex() {
 		String idxpath = "";
 
-		Utility.log(getClass().getSimpleName(), "File index not found. Creating one...", Utility.INFO);
+		OverSeer.log(getClass().getSimpleName(), "File index not found. Creating one...", OverSeer.INFO);
 
 		VCFCodec codec = new VCFCodec();
 
@@ -49,11 +64,13 @@ public class VCFReader {
 				Index idx = IndexFactory.createDynamicIndex(VCFFile, codec, IndexBalanceApproach.FOR_SEEK_TIME);
 				idx.write(new File(idxpath));
 			} catch (Exception e) {
-				e.printStackTrace();
-				// will implement this part if needed.
-				/*
-				 * if(e instanceof UnsortedFileException) { sortVCF(); }
-				 */
+				if (e instanceof UnsortedFileException) {
+					OverSeer.log(getClass().getSimpleName(),
+							"VCF File is not sorted. Sorting function is currently not implemented. Please sort your vcf using a proper tool.",
+							OverSeer.ERROR);
+				} else
+					e.printStackTrace();
+
 			}
 
 		} else if (VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
@@ -68,7 +85,7 @@ public class VCFReader {
 
 		}
 
-		Utility.log(getClass().getSimpleName(), "Successfully created " + idxpath, Utility.INFO);
+		OverSeer.log(getClass().getSimpleName(), "Successfully created " + idxpath, OverSeer.INFO);
 
 		return idxpath;
 	}
@@ -79,8 +96,20 @@ public class VCFReader {
 		// implement if needed...
 		return sortedVCFpath;
 	}
-
-	protected VCFFileReader createReader() {
+	
+	protected VCFHeader getHeader() {
+	
+		if(vcfReader != null)
+			return vcfReader.getFileHeader();
+		else 
+			return null;
+	}
+	
+	protected VCFFileReader getReader() {
+		return vcfReader;
+	}
+	
+	private VCFFileReader createReader() {
 		return new VCFFileReader(VCFFile, VCFIndex);
 	}
 
@@ -88,14 +117,34 @@ public class VCFReader {
 		return VCFFile.getName();
 	}
 	
-	public static String[] getVCFContigList()
-	{
+	protected List<String> getAvailableContigsList() {
+
+		ArrayList<String> availableContigs = new ArrayList<String>();
+
+		
+
+		List<SAMSequenceRecord> lists = vcfReader.getFileHeader().getSequenceDictionary().getSequences();
+
+		for (SAMSequenceRecord record : lists) {
+
+			String sequencename = record.getSequenceName();
+			CloseableIterator<VariantContext> iter = vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
+			if (iter.hasNext()) {
+				availableContigs.add(sequencename);
+			}
+
+			iter.close();
+
+		}
+		if (availableContigs.size() > 0)
+			return availableContigs;
+
 		return null;
+
 	}
-	
-	public static String[] getVCFSampleList()
-	{
-		return null;
+
+	protected List<String> getVCFSampleList() {
+		return getHeader().getSampleNamesInOrder();
 	}
 
 }
