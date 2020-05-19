@@ -23,7 +23,8 @@ public class VCFReader {
 	protected File VCFFile;
 	protected File VCFIndex;
 	protected VCFFileReader vcfReader;
-
+	protected boolean hasPLTag = false;
+	protected boolean hasADTag = false;
 	public VCFReader(File VCF) throws FileNotFoundException {
 		VCFFile = VCF;
 
@@ -39,6 +40,8 @@ public class VCFReader {
 		vcfReader.close();
 		vcfReader = null;
 	}
+	
+
 
 	private boolean vcfIndexExists() {
 		if (VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
@@ -130,6 +133,15 @@ public class VCFReader {
 			String sequencename = record.getSequenceName();
 			CloseableIterator<VariantContext> iter = vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
 			if (iter.hasNext()) {
+				
+				VariantContext temp = iter.next();
+				
+				if(temp.getGenotype(0).hasLikelihoods())
+					hasPLTag = true;
+				
+				if(temp.getGenotype(0).hasAD())
+					hasADTag = true;
+				
 				availableContigs.add(sequencename);
 			}
 

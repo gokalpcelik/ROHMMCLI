@@ -39,7 +39,10 @@ public class IOPanel extends JPanel {
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
 	protected JRadioButton knownVariantInclusivePolicy;
-	protected JRadioButton knowVariantExclusivePolicy;
+	protected JRadioButton knownVariantExclusivePolicy;
+	protected JRadioButton useDefaultAlleleDistributionPolicy;
+	protected JRadioButton useDefaultAlleleFrequencyPolicy;
+	protected JRadioButton useCustomModelPolicy;
 	protected JLabel brandLabel;
 	protected JButton outputDirSelectButton;
 	protected JButton vcfSelectButton;
@@ -79,9 +82,9 @@ public class IOPanel extends JPanel {
 		vcfPathField.setEditable(false);
 		// vcfpathfield.setBounds(132, 10, 415, 24);
 		// add(vcfpathfield);
-		
+
 		IOFileDialogButtonListener ioButtonListener = new IOFileDialogButtonListener();
-		
+
 		vcfSelectButton = new JButton("Select VCF");
 		vcfSelectButton.setActionCommand("selectinputvcf");
 		// vcfselectbutton.setBounds(550, 10, 120, 24);
@@ -188,34 +191,49 @@ public class IOPanel extends JPanel {
 		skipIndels = new JCheckBox("Skip Indels");
 		c.weightx = 0.5;
 		c.gridy = 0;
-		filterPanel.add(skipIndels,c);
+		filterPanel.add(skipIndels, c);
 		filterUsingKnown = new JCheckBox("Use known set of variants to filter");
 		c.gridy = 0;
-		filterPanel.add(filterUsingKnown,c);
+		filterPanel.add(filterUsingKnown, c);
 		selectKnownVariantButton = new JButton("Select Known Variants");
 		selectKnownVariantButton.setActionCommand("selectknown");
 		selectKnownVariantButton.addActionListener(selectbuttonlistener);
 		c.ipadx = 15;
 		c.gridy = 1;
-		filterPanel.add(selectKnownVariantButton,c);
+		filterPanel.add(selectKnownVariantButton, c);
 		knownVariantField = new JTextField();
 		c.gridy = 1;
-		filterPanel.add(knownVariantField,c);
+		filterPanel.add(knownVariantField, c);
 		ButtonGroup knownVariantRadioGroup = new ButtonGroup();
 		knownVariantInclusivePolicy = new JRadioButton("Include high quality unknown variants");
 		knownVariantInclusivePolicy.setSelected(true);
-		knowVariantExclusivePolicy = new JRadioButton("Exclude unknown variants");
+		knownVariantExclusivePolicy = new JRadioButton("Exclude unknown variants");
 		knownVariantRadioGroup.add(knownVariantInclusivePolicy);
-		knownVariantRadioGroup.add(knowVariantExclusivePolicy);
+		knownVariantRadioGroup.add(knownVariantExclusivePolicy);
 		c.gridy = 2;
-		filterPanel.add(knowVariantExclusivePolicy,c);
+		filterPanel.add(knownVariantExclusivePolicy, c);
 		c.gridy = 2;
-		filterPanel.add(knownVariantInclusivePolicy,c);
-		
+		filterPanel.add(knownVariantInclusivePolicy, c);
+
 		add(filterPanel);
 		JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 225, 492, 150);
+		hmmPanel.setBounds(295, 225, 492, 100);
+		useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
+		useDefaultAlleleDistributionPolicy.setSelected(true);
+		useDefaultAlleleFrequencyPolicy = new JRadioButton("Use Default Allele Frequency Model");
+		useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Experimental)");
+		ButtonGroup hmmModelRadioGroup = new ButtonGroup();
+		hmmModelRadioGroup.add(useDefaultAlleleDistributionPolicy);
+		hmmModelRadioGroup.add(useDefaultAlleleFrequencyPolicy);
+		hmmModelRadioGroup.add(useCustomModelPolicy);
+		c.weightx = 0.5;
+		c.gridy = 0;
+		hmmPanel.add(useDefaultAlleleDistributionPolicy, c);
+		c.gridy = 1;
+		hmmPanel.add(useDefaultAlleleFrequencyPolicy, c);
+		c.gridy = 2;
+		hmmPanel.add(useCustomModelPolicy, c);
 		add(hmmPanel);
 		runInference = new JButton("Run ROHMM!");
 		runInference.setBounds(295, 427, 492, 50);
@@ -252,16 +270,16 @@ public class IOPanel extends JPanel {
 		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
 
 	}
-	
+
 	public class IOFileDialogButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
-			
+
 			String actionCommand = e.getActionCommand();
-			
-			switch(actionCommand) {
+
+			switch (actionCommand) {
 			case "selectoutputdir":
 				OutputDirSelectButtonAction();
 				break;
@@ -273,9 +291,9 @@ public class IOPanel extends JPanel {
 			default:
 				break;
 			}
-			
+
 		}
-		
+
 		public void OutputDirSelectButtonAction() {
 			try {
 				File file = FileSelectorUtil.selectDirectory(parentFrame, "Select Output Directory", new File("."));
@@ -286,7 +304,7 @@ public class IOPanel extends JPanel {
 				exp.printStackTrace();
 			}
 		}
-		
+
 		public void VCFSelectButtonAction() {
 			try {
 				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(),
@@ -304,10 +322,8 @@ public class IOPanel extends JPanel {
 				exp.printStackTrace();
 			}
 		}
-		
+
 	}
-
-
 
 	public class ChrSampleSelectButtonListener implements ActionListener {
 
@@ -334,8 +350,6 @@ public class IOPanel extends JPanel {
 		}
 
 	}
-
-
 
 	public class ListActionListener implements ListSelectionListener {
 
