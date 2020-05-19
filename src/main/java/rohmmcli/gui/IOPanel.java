@@ -1,6 +1,7 @@
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -43,11 +45,14 @@ public class IOPanel extends JPanel {
 	protected JButton selectNoneSampleButton;
 	protected JButton runInference;
 	protected JButton invertSelectionSampleButton;
+	protected JButton selectKnownVariantButton;
 	protected JScrollPane scrollPane;
 	protected JList<String> chrlist;
 	protected JScrollPane scrollPane_1;
 	protected JList<String> samplelist;
 	protected JFrame parentFrame;
+	protected JCheckBox skipIndels;
+	protected JCheckBox filterUsingKnown;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
 
@@ -69,9 +74,13 @@ public class IOPanel extends JPanel {
 		vcfPathField = new JTextField();
 		// vcfpathfield.setBounds(132, 10, 415, 24);
 		// add(vcfpathfield);
+		
+		IOFileDialogButtonListener ioButtonListener = new IOFileDialogButtonListener();
+		
 		vcfSelectButton = new JButton("Select VCF");
+		vcfSelectButton.setActionCommand("selectinputvcf");
 		// vcfselectbutton.setBounds(550, 10, 120, 24);
-		vcfSelectButton.addActionListener(new VCFSelectButtonListener());
+		vcfSelectButton.addActionListener(ioButtonListener);
 		// add(vcfselectbutton);
 		panel_0 = new JPanel();
 		panel_0.setBounds(12, 0, 775, 53);
@@ -158,17 +167,29 @@ public class IOPanel extends JPanel {
 		constraint.gridy = 0;
 		constraint.ipadx = 20;
 		outputDirSelectButton = new JButton("Select Directory");
-		outputDirSelectButton.addActionListener(new OutputDirSelectButtonListener());
+		outputDirSelectButton.setActionCommand("selectoutputdir");
+		outputDirSelectButton.addActionListener(ioButtonListener);
 		outPanel.add(outputDirSelectButton, constraint);
 		constraint.ipadx = 250;
 		outPanel.add(outputDirField, constraint);
 		add(outPanel);
+		JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
+		filterPanel.setBounds(295, 127, 492, 150);
+		skipIndels = new JCheckBox("Skip Indels");
+		filterPanel.add(skipIndels);
+		filterUsingKnown = new JCheckBox("Use known set of variants to filter");
+		filterPanel.add(filterUsingKnown);
+		selectKnownVariantButton = new JButton("Select Known Variants");
+		selectKnownVariantButton.setActionCommand("selectknown");
+		
+		add(filterPanel);
 		JPanel hmmPanel = new JPanel(new GridBagLayout());
-		hmmPanel.setBorder(new TitledBorder("HMM Selection"));
-		hmmPanel.setBounds(295, 127, 492, 50);
+		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
+		hmmPanel.setBounds(295, 275, 492, 150);
 		add(hmmPanel);
 		runInference = new JButton("Run ROHMM!");
-		runInference.setBounds(295, 177, 492, 50);
+		runInference.setBounds(295, 427, 492, 50);
 		add(runInference);
 
 	}
@@ -202,12 +223,31 @@ public class IOPanel extends JPanel {
 		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
 
 	}
-
-	public class OutputDirSelectButtonListener implements ActionListener {
+	
+	public class IOFileDialogButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
+			
+			String actionCommand = e.getActionCommand();
+			
+			switch(actionCommand) {
+			case "selectoutputdir":
+				OutputDirSelectButtonAction();
+				break;
+			case "selectinputvcf":
+				VCFSelectButtonAction();
+				break;
+			case "selectknown":
+				break;
+			default:
+				break;
+			}
+			
+		}
+		
+		public void OutputDirSelectButtonAction() {
 			try {
 				File file = FileSelectorUtil.selectDirectory(parentFrame, "Select Output Directory", new File("."));
 				if (file != null) {
@@ -217,8 +257,28 @@ public class IOPanel extends JPanel {
 				exp.printStackTrace();
 			}
 		}
+		
+		public void VCFSelectButtonAction() {
+			try {
+				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(),
+						new File("."));
+				if (file != null) {
+					vcfPathField.setText(file.getAbsolutePath());
+					Utility.setVCFPath(vcfPathField.getText());
+					chrlistmodel.clear();
+					samplenamemodel.clear();
+					updateChromosomeList(Utility.getAvailableContigsList());
+					updateSampleNameList(Utility.getSampleNameList());
+				}
 
+			} catch (Exception exp) {
+				exp.printStackTrace();
+			}
+		}
+		
 	}
+
+
 
 	public class ChrSampleSelectButtonListener implements ActionListener {
 
@@ -246,30 +306,7 @@ public class IOPanel extends JPanel {
 
 	}
 
-	public class VCFSelectButtonListener implements ActionListener {
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
-			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(),
-						new File("."));
-				if (file != null) {
-					vcfPathField.setText(file.getAbsolutePath());
-					Utility.setVCFPath(vcfPathField.getText());
-					chrlistmodel.clear();
-					samplenamemodel.clear();
-					updateChromosomeList(Utility.getAvailableContigsList());
-					updateSampleNameList(Utility.getSampleNameList());
-				}
-
-			} catch (Exception exp) {
-				exp.printStackTrace();
-			}
-
-		}
-
-	}
 
 	public class ListActionListener implements ListSelectionListener {
 
