@@ -11,7 +11,7 @@ public class Model {
 	
 	protected static boolean hwmode;
 	protected static boolean distmode;
-	protected static HMM hmm;
+	protected static HMM hmm = null;
 	protected static final String HWMODEL = "MODELHW";
 	protected static final String HWDISTMODEL = "MODELHWDIST";
 	protected static final String XMODEL = "MODELX";
