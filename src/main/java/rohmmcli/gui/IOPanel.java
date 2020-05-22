@@ -219,10 +219,17 @@ public class IOPanel extends JPanel {
 		JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
 		hmmPanel.setBounds(295, 225, 492, 100);
+		HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
 		useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
+		useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
+		useDefaultAlleleDistributionPolicy.addActionListener(hmmRadioButtonListener);
 		useDefaultAlleleDistributionPolicy.setSelected(true);
 		useDefaultAlleleFrequencyPolicy = new JRadioButton("Use Default Allele Frequency Model");
-		useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Experimental)");
+		useDefaultAlleleFrequencyPolicy.setActionCommand("usedefaultallelefrequency");
+		useDefaultAlleleFrequencyPolicy.addActionListener(hmmRadioButtonListener);
+		useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Set options from 'Advanced Options')");
+		useCustomModelPolicy.setActionCommand("usecustom");
+		useCustomModelPolicy.addActionListener(hmmRadioButtonListener);
 		ButtonGroup hmmModelRadioGroup = new ButtonGroup();
 		hmmModelRadioGroup.add(useDefaultAlleleDistributionPolicy);
 		hmmModelRadioGroup.add(useDefaultAlleleFrequencyPolicy);
@@ -235,8 +242,9 @@ public class IOPanel extends JPanel {
 		c.gridy = 2;
 		hmmPanel.add(useCustomModelPolicy, c);
 		add(hmmPanel);
-		runInference = new JButton("Run ROHMM!");
-		runInference.setBounds(295, 427, 492, 50);
+		runInference = new JButton(">>> Run ROHMM! <<<");
+		runInference.setBounds(295, 483, 492, 50);
+		runInference.addActionListener(new ROHMMRunnerButtonListener());
 		add(runInference);
 
 	}
@@ -324,6 +332,16 @@ public class IOPanel extends JPanel {
 		}
 
 	}
+	
+	public class HMMRadioButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 
 	public class ChrSampleSelectButtonListener implements ActionListener {
 
@@ -349,6 +367,16 @@ public class IOPanel extends JPanel {
 			}
 		}
 
+	}
+	
+	public class ROHMMRunnerButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 
 	public class ListActionListener implements ListSelectionListener {

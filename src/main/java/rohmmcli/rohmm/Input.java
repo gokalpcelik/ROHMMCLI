@@ -241,7 +241,7 @@ public class Input {
 		}
 
 		vcfiter.close();
-		vcfrdr.close();
+		//vcfrdr.close();
 		// System.err.println("Input map generated...");
 
 	}
@@ -330,7 +330,7 @@ public class Input {
 
 		}
 		vcfiter.close();
-		vcfrdr.close();
+		//vcfrdr.close();
 		OverSeer.log(this.getClass().getSimpleName(), "Input map generated...", OverSeer.DEBUG);
 
 	}

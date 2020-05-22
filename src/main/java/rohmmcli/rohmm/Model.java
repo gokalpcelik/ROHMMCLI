@@ -9,8 +9,8 @@ import htsjdk.samtools.example.ExampleSamUsage;
 @SuppressWarnings("unused")
 public class Model {
 	
-	protected static boolean hwmode;
-	protected static boolean distmode;
+	protected static boolean hwmode = false;
+	protected static boolean distmode = false;
 	protected static HMM hmm = null;
 	protected static final String HWMODEL = "MODELHW";
 	protected static final String HWDISTMODEL = "MODELHWDIST";
@@ -50,8 +50,8 @@ public class Model {
 		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
 		double defprob = 0.1;
 		double normfact = 100000;
-		
-		if(!distenabled)
+		distmode = distenabled;
+		if(!distmode)
 			hmm = new HMM(emmatrix, transmatrix, start);
 		else
 			hmm = new HMM(emmatrix, defprob, normfact, start);
@@ -62,8 +62,8 @@ public class Model {
 		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
 		double defprob = 0.1;
 		double normfact = 100000;
-		
-		if(!distenabled)
+		distmode = distenabled;
+		if(!distmode)
 			hmm = new HMM(null, transmatrix, start);
 		else
 			hmm = new HMM(defprob, normfact, start);

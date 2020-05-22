@@ -135,8 +135,9 @@ public class OverSeer {
 		input.skipindels = cmd.hasOption("S") ? true : false;
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
 		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-		input.setVCFPath(VCFPath == null ? cmd.getOptionValue("V") : VCFPath);
-
+		VCFPath = cmd.getOptionValue("V");
+		setVCFPath(new File(VCFPath));
+		input.setVCFPath(VCFPath);
 		/*
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
@@ -184,6 +185,10 @@ public class OverSeer {
 		if (cmd.hasOption("combine"))
 			return true;
 		return false;
+	}
+	
+	public static void closeVCFReader() {
+		vcfrdr.closeVCFReader();
 	}
 
 	public static void parseCommands(String[] args) {

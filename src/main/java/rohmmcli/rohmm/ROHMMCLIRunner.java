@@ -41,12 +41,13 @@ public class ROHMMCLIRunner {
 			ROHMMMain.RunGUI();
 		} else {
 			OverSeer.parseCommands(args);
-			OverSeer.setInputParams();
 			OverSeer.setHMMParams();
+			OverSeer.setInputParams();
+			
 
 			// Utility.logInput(cmd);
 			Runner(OverSeer.cmd);
-
+			OverSeer.closeVCFReader();
 			OverSeer.endTimer();
 			System.exit(0);
 
@@ -117,7 +118,7 @@ public class ROHMMCLIRunner {
 
 			ArrayList<String> alsample = vcfrdr.getFileHeader().getSampleNamesInOrder();
 
-			vcfrdr.close();
+			//vcfrdr.close();
 
 			String[] samples;
 			ArrayList<String> omsamples = new ArrayList<>();
