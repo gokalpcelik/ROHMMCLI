@@ -62,6 +62,7 @@ public class ROHMMMain extends JFrame {
 	{
 		public void windowClosing(WindowEvent e)
 		{
+			OverSeer.closeVCFReader();
 			OverSeer.endTimer();
 		}
 	}

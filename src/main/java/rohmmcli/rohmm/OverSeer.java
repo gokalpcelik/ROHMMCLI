@@ -1,6 +1,10 @@
 package rohmmcli.rohmm;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,29 +52,28 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
 
-	public static final String VERSION = "0.9r-GUI 03/05/2020";
+	public static final String VERSION = "0.9s-GUI 23/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
 		if (Level <= LOGLEVEL) {
 			switch (Level) {
 			case INFO:
-				System.err.println("[INFO] " + COMPONENT + ": " + Message);
+				System.err.println("[INFO] [" + COMPONENT + "]: " + Message);
 				break;
 			case WARNING:
-				System.err.println("[WARNING] " + COMPONENT + ": " + Message);
+				System.err.println("[WARNING] [" + COMPONENT + "]: " + Message);
 				break;
 			case ERROR:
-				System.err.println("[ERROR] " + COMPONENT + ": " + Message);
+				System.err.println("[ERROR] [" + COMPONENT + "]: " + Message);
 				break;
 			case DEBUG:
-				System.err.println("[DEBUG] " + COMPONENT + ": " + Message);
+				System.err.println("[DEBUG] [" + COMPONENT + "]: " + Message);
 				break;
 			}
 		}
 
 	}
-	
 
 	public static void clearOptionMap() {
 		optionMap.clear();
@@ -96,15 +99,14 @@ public class OverSeer {
 
 	public static void endTimer() {
 		END = System.currentTimeMillis();
-		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
+		log("SYSTEM", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
 
 	public static void setVCFPath(File vcffile) {
 		try {
-		VCFPath = vcffile.getAbsolutePath();
-		vcfrdr = new VCFReader(vcffile);
-		}
-		catch (Exception e) {
+			VCFPath = vcffile.getAbsolutePath();
+			vcfrdr = new VCFReader(vcffile);
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
@@ -122,8 +124,80 @@ public class OverSeer {
 		return vcfrdr != null ? vcfrdr.getAvailableContigsList() : null;
 	}
 
+	public static String[] setContigList() {
+
+		String[] contigs = null;
+
+		if (cmd.hasOption("C")) {
+
+			String contigparam = cmd.getOptionValue("C");
+
+			switch (contigparam) {
+			case "GRCh37":
+				contigs = GRCH37NoXY;
+				break;
+			case "hg19":
+				contigs = HG1938NoXY;
+				break;
+			case "hg38":
+				contigs = HG1938NoXY;
+				break;
+			case "GRCh38":
+				contigs = HG1938NoXY;
+				break;
+			default:
+				contigs = cmd.getOptionValue("C").split(",");
+				break;
+			}
+		} else {
+			contigs = getAvailableContigsList().toArray(new String[0]);
+		}
+		return contigs;
+	}
+
 	public static List<String> getSampleNameList() {
 		return vcfrdr != null ? vcfrdr.getVCFSampleList() : null;
+	}
+
+	public static String[] setSampleNameList() throws IOException {
+
+		String[] samples = new String[0];
+		ArrayList<String> omsamples = new ArrayList<>();
+		ArrayList<String> alsample = (ArrayList<String>) getSampleNameList();
+		if (cmd.hasOption("SL")) {
+			File f = new File(cmd.getOptionValue("SL"));
+			try {
+				FileReader fr = new FileReader(f);
+				BufferedReader br = new BufferedReader(fr);
+
+				String line;
+
+				ArrayList<String> templist = new ArrayList<>();
+
+				while ((line = br.readLine()) != null) {
+					if (alsample.contains(line))
+						templist.add(line);
+					else
+						omsamples.add(line);
+				}
+
+				br.close();
+				fr.close();
+
+				templist.trimToSize();
+				omsamples.trimToSize();
+				samples = templist.toArray(new String[0]);
+			} catch (FileNotFoundException e) {
+				log("SYSTEM", "Sample list file not found. Selecting all available samples", OverSeer.WARNING);
+				samples = alsample.toArray(new String[0]);
+				return samples;
+
+			}
+		} else if (cmd.hasOption("SN")) {
+			samples = cmd.getOptionValue("SN").split(",");
+		}
+
+		return samples;
 	}
 
 	public static void setInputParams() {
@@ -186,9 +260,11 @@ public class OverSeer {
 			return true;
 		return false;
 	}
-	
+
 	public static void closeVCFReader() {
-		vcfrdr.closeVCFReader();
+		log("SYSTEM", "Closing all IO..", OverSeer.INFO);
+		if (vcfrdr != null)
+			vcfrdr.closeVCFReader();
 	}
 
 	public static void parseCommands(String[] args) {

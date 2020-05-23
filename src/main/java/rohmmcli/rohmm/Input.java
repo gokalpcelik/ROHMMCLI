@@ -568,9 +568,4 @@ public class Input {
 			sampleset.add(s);
 		}
 	}
-
-	public void scanVCF() {
-
-	}
-
 }
