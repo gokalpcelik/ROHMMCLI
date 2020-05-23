@@ -138,7 +138,7 @@ public class ROHMMCLIRunner {
 
 				}
 
-				OverSeer.input.generateInputNew();
+				OverSeer.input.generateInput();
 				OverSeer.input.setMAFAndDist(OverSeer.hmm);
 
 				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Size of the input dataset " + OverSeer.input.getInputDataNew().size(), OverSeer.INFO);

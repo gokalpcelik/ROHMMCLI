@@ -208,24 +208,27 @@ public class OverSeer {
 		input.Distenabled = Model.distmode;
 		input.HWenabled = Model.hwmode;
 		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
-		input.skipindels = cmd.hasOption("S") ? true : false;
+		input.skipindels = cmd.hasOption("S");
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
-		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
+		input.skipzeroaf = cmd.hasOption("SZ");
 		VCFPath = cmd.getOptionValue("V");
 		setVCFPath(new File(VCFPath));
 		input.setVCFPath(VCFPath);
+		
+		input.useADs = cmd.hasOption("AD");
+		input.ADThreshold = input.useADs ? Double.parseDouble(cmd.getOptionValue("AD")) : 0.2;
 		/*
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
 		 */
-
+		input.userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
+		
 		if (cmd.hasOption("GT")) {
 			input.usePLs = false;
 			input.useUserPLs = true;
 			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-		} /*
-			 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-			 */ else if (cmd.hasOption("legacy")) {
+		} 
+			else if (cmd.hasOption("legacy")) {
 			input.usePLs = false;
 			input.useGTs = true;
 		} else if (cmd.hasOption("Custom")) {
@@ -234,8 +237,8 @@ public class OverSeer {
 			input.legacywPL = true;
 		}
 
-		if (cmd.hasOption("MFM"))
-			input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
+		//if (cmd.hasOption("MFM"))
+		//	input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
 		if (cmd.hasOption("F"))
 			input.useFiller = true;
@@ -298,15 +301,13 @@ public class OverSeer {
 
 		opts.addOption("S", "skip-indels", false, "Skip indels and use SNPs only");
 
-		opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
+		//opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
 
-		opts.addOption("GT", true, "Use GTs only with the given uncertainity level. 30 is recommended (equals 1e-3).");
-
-		/*
-		 * opts.addOption("AD", true,
-		 * "Use Allelic Depths to decide genotype using binomial test with a given probability. 0.2 is recommended."
-		 * );
-		 */
+		opts.addOption("GT", true, "Use Empirical error rate only for all sites. 30 is recommended (equals 1e-3).");
+		
+		opts.addOption("ER", "error-rate", true, "Empirical error rate for misgenotyped alleles. Phred scaled. 30 is recommended (equals 1e-3).");
+		
+		opts.addOption("AD", true, "Use Allelic Balance Threshold to decide genotype. 0.2 is recommended.");
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
 
@@ -322,7 +323,7 @@ public class OverSeer {
 
 		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 
-		opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
+		//opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
