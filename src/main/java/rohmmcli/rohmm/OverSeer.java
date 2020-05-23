@@ -195,6 +195,8 @@ public class OverSeer {
 			}
 		} else if (cmd.hasOption("SN")) {
 			samples = cmd.getOptionValue("SN").split(",");
+		} else {
+			samples = alsample.toArray(new String[0]);
 		}
 
 		return samples;
@@ -280,7 +282,7 @@ public class OverSeer {
 
 		opts.addRequiredOption("O", "Output-File-Prefix", true, "Output file prefix for bed files. REQUIRED");
 
-		opts.addRequiredOption("C", "Contig-String", true,
+		opts.addOption("C", "Contig-String", true,
 				"Comma-seperated contig selection string such as chr1,chr2,chr3...");
 
 		opts.addOption("AF", "AF-Tag", true,
