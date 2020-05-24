@@ -1,5 +1,6 @@
 package rohmmcli.rohmm;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -39,7 +40,7 @@ public class Input {
 	protected boolean useGTs = false; // legacy
 	protected boolean useUserPLs = false;
 	protected int userPL = 30;
-	protected boolean useFiller = false;
+	protected boolean spikeIn = false;
 	@Deprecated
 	protected int oldsampleidx = 0;
 	protected double minisculeformissing = 0.000001;
@@ -63,7 +64,7 @@ public class Input {
 
 //	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
 
-	//@Deprecated
+	// @Deprecated
 	/*
 	 * public void generateInput() throws Exception { inputdata = new TreeMap<>();
 	 * 
@@ -203,27 +204,38 @@ public class Input {
 	public void generateInput() throws Exception {
 
 		inputdatanew = new TreeMap<>();
+		ArrayList<Integer> nonSpikedFilter = new ArrayList<Integer>();
 
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
 
-		if (useFiller) {
-			OverSeer.log(this.getClass().getSimpleName(), "Fill with GNOMAD", OverSeer.DEBUG);
-			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
-			OverSeer.log(this.getClass().getSimpleName(), "Generating the input map - GNOMAD phase", OverSeer.DEBUG);
-			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
-			String gnomaditem;
-			int counter = 1;
-			while ((gnomaditem = gnomaditer.next()) != null) {
-				if (counter % fillfactor == 0) {
-					String[] arr = gnomaditem.split("\t");
-					// if (usePLs || legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
-					inputdatanew.put(Integer.parseInt(arr[1]), ivi);
-					counter++;
-				}
+		/*
+		 * if (spikeIn) { OverSeer.log(this.getClass().getSimpleName(),
+		 * "Fill with GNOMAD", OverSeer.DEBUG); TabixReader gnomadrdr = new
+		 * TabixReader(gnomadpath, gnomadpath + ".tbi");
+		 * OverSeer.log(this.getClass().getSimpleName(),
+		 * "Generating the input map - GNOMAD phase", OverSeer.DEBUG);
+		 * TabixReader.Iterator gnomaditer =
+		 * gnomadrdr.query(contigname.replaceAll("chr", "")); String gnomaditem; int
+		 * counter = 1; while ((gnomaditem = gnomaditer.next()) != null) { if (counter %
+		 * fillfactor == 0) { String[] arr = gnomaditem.split("\t"); // if (usePLs ||
+		 * legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
+		 * inputdatanew.put(Integer.parseInt(arr[1]), ivi); counter++; }
+		 * 
+		 * }
+		 * 
+		 * gnomadrdr.close(); }
+		 */
 
+		if (OverSeer.knownVariant != null) {
+			if (spikeIn) {
+				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext())
+					inputdatanew.put(OverSeer.knownVariant.getNextPos(), ivi);
+			} else {
+				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext())
+					nonSpikedFilter.add(OverSeer.knownVariant.getNextPos());
 			}
-
-			gnomadrdr.close();
 		}
 
 		OverSeer.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", OverSeer.DEBUG);
@@ -234,14 +246,24 @@ public class Input {
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
 		// vcfreading
+		int sizecheck = inputdatanew.size() == 0 ? nonSpikedFilter.size() : inputdatanew.size();
+		// System.err.println(inputdatanew.size());
 
 		while (vcfiter.hasNext()) {
 			VariantContext temp = vcfiter.next();
 
 			// insertgenotypecheck and classificationcode here when working with real
 			// samples not from 1000G
-			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()) { // MAF > 0.0 olayini
-																									// kaldirdik
+			Integer tempstart = temp.getStart();
+
+			// System.err.println(tempstart + " " + inputdatanew.containsKey(tempstart) + "
+			// " + inputdatanew.keySet().contains(tempstart));
+
+			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
+					&& (sizecheck != 0 ? (OverSeer.filterUnknowns
+							? (spikeIn ? inputdatanew.containsKey(tempstart) : nonSpikedFilter.contains(tempstart))
+							: true) : true)) { // MAF > 0.0 olayini
+				// kaldirdik
 
 				int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), sampleset); // durumdu...
 
@@ -289,8 +311,9 @@ public class Input {
 				} else if (!skipzeroaf)
 					inputdatanew.put(temp.getStart(), ivi);
 			}
-
+		
 		}
+		nonSpikedFilter = null;
 		vcfiter.close();
 		// vcfrdr.close();
 		OverSeer.log(this.getClass().getSimpleName(), "Input map generated...", OverSeer.DEBUG);

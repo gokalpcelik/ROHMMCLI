@@ -16,6 +16,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import htsjdk.samtools.util.FileExtensions;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
@@ -32,11 +33,13 @@ public class OverSeer {
 	protected static HMM hmm = null;
 	protected static Input input = null;
 	protected static boolean combine = false;
+	protected static boolean filterUnknowns = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
 	protected static long END;
 	protected static String VCFPath = null;
 	protected static VCFReader vcfrdr = null;
+	protected static KnownVariant knownVariant = null;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" };
 	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
@@ -52,7 +55,7 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
 
-	public static final String VERSION = "0.9s-GUI 23/05/2020";
+	public static final String VERSION = "0.9t-GUI 24/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -241,7 +244,13 @@ public class OverSeer {
 		//	input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
 		if (cmd.hasOption("F"))
-			input.useFiller = true;
+			input.spikeIn = true;
+		
+		if(cmd.hasOption("G"))
+			setKnownVariant();
+		
+		filterUnknowns = cmd.hasOption("FilterUnknowns");
+			
 
 		if (cmd.hasOption("combine"))
 			combine = true;
@@ -260,6 +269,17 @@ public class OverSeer {
 		}
 	}
 
+	private static void setKnownVariant() {
+		File knownVariantFile = new File(cmd.getOptionValue("G"));
+		if(knownVariantFile.exists()) {
+			if(knownVariantFile.getAbsolutePath().endsWith(FileExtensions.BED) || knownVariantFile.getAbsolutePath().endsWith("bed.gz")) {
+				knownVariant = new BEDTypeKnownVariant(knownVariantFile);
+			} else {
+				knownVariant = new VCFTypeKnownVariant(knownVariantFile);
+			}
+		}
+	}
+	
 	public static Boolean combineOutput() {
 		if (cmd.hasOption("combine"))
 			return true;
@@ -297,7 +317,7 @@ public class OverSeer {
 
 		opts.addOption("D", true, "Default MAF for sites missing MAF. Default 0.4");
 
-		opts.addOption("F", "Use-GNOMAD-Filler", false, "Use GNOMAD SNP sites as filler.");
+		opts.addOption("F", "spike-in", false, "Spike in known sites as HOMREF even if they are not called.");
 
 		opts.addOption("S", "skip-indels", false, "Skip indels and use SNPs only");
 
@@ -318,8 +338,8 @@ public class OverSeer {
 		opts.addOption("MSC", "minimum-site-count", true,
 				"Minimum number of sites to report a region as ROH. Default 0");
 
-		opts.addOption("Custom", false,
-				"Use MAFs to determine proper homozygosity signals and use PLs for uncertainity");
+		opts.addOption("FilterUnknowns", false,
+				"Filter unknown sites when using known sites option");
 
 		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 

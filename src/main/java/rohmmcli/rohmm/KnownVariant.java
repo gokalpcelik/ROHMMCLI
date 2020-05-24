@@ -1,5 +1,7 @@
 package rohmmcli.rohmm;
 
+import htsjdk.tribble.Feature;
+
 public interface KnownVariant {
 		
 	boolean hasNext();
@@ -11,6 +13,6 @@ public interface KnownVariant {
 	void close();
 	
 	void createIterator(String contig, int start, int end);
-	
+
 
 }

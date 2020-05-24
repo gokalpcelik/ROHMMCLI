@@ -131,12 +131,14 @@ public class ROHMMCLIRunner {
 			for (String contig : contigs) {
 
 				OverSeer.input.setContig(contig);
-				if (cmd.hasOption("G")) {
-					File gnomadfile = new File(cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "")
-							+ (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-					OverSeer.input.setGNOMADPath(gnomadfile.getPath());
-
-				}
+				/*
+				 * if (cmd.hasOption("G")) { File gnomadfile = new File(cmd.getOptionValue("G")
+				 * + "/Gnomad_hg19_" + contig.replaceAll("chr", "") + (cmd.hasOption("exome") ?
+				 * "_exome.bed.gz" : ".bed.gz"));
+				 * OverSeer.input.setGNOMADPath(gnomadfile.getPath());
+				 * 
+				 * }
+				 */
 
 				OverSeer.input.generateInput();
 				OverSeer.input.setMAFAndDist(OverSeer.hmm);
