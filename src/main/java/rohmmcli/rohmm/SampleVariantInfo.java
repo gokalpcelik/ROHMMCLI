@@ -61,8 +61,8 @@ public class SampleVariantInfo implements VariantInfo {
 		return AF;
 	}
 
-	public void addAF(double AF) {
-		this.AF = AF;
+	public void addAF(double allelefreq) {
+		AF = allelefreq;
 	}
 
 	public void forceCalculateAF() {

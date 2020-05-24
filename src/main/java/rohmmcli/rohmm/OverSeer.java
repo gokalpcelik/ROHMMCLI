@@ -34,6 +34,7 @@ public class OverSeer {
 	protected static Input input = null;
 	protected static boolean combine = false;
 	protected static boolean filterUnknowns = false;
+	protected static boolean DMAF = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
 	protected static long END;
@@ -249,6 +250,8 @@ public class OverSeer {
 		if(cmd.hasOption("G"))
 			setKnownVariant();
 		
+		DMAF = cmd.hasOption("DefaultMAF");
+		
 		filterUnknowns = cmd.hasOption("FilterUnknowns");
 			
 
@@ -312,7 +315,9 @@ public class OverSeer {
 
 		opts.addOption("AF", "AF-Tag", true,
 				"Allele Frequency tag for site filtering. If not declared AF will be calculated from the genotype counts of the samples.");
-
+		
+		opts.addOption("DefaultMAF", false, "Disable AF calculation and use a fixed default value for MAF in HW models");
+		
 		opts.addOption("help", false, "Display this text...");
 
 		opts.addOption("combine", false, "Combine Bed file outputs into single file..");

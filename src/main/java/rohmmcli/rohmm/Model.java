@@ -62,6 +62,7 @@ public class Model {
 		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
 		double defprob = 0.1;
 		double normfact = 100000;
+		hwmode = true;
 		distmode = distenabled;
 		if(!distmode)
 			hmm = new HMM(null, transmatrix, start);

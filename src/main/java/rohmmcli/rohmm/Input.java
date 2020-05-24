@@ -15,14 +15,8 @@ public class Input {
 	@Deprecated
 	protected TreeMap<Integer, String> inputdata;
 	protected TreeMap<Integer, VariantInfo> inputdatanew;
-	protected boolean HWenabled;
+	protected boolean HWenabled = false;
 	protected boolean Distenabled = false;
-	@Deprecated
-	protected double minAFfilter;
-	@Deprecated
-	protected double maxAFfilter;
-	@Deprecated
-	protected int HomCount;
 	protected String contigname;
 	protected String gnomadpath;
 	protected String vcfpath;
@@ -47,15 +41,6 @@ public class Input {
 	protected HashSet<String> sampleset;
 
 	// ROHMMCLI v 0.9g 03/08/2019 Gokalp Celik...
-	@Deprecated
-	public Input(boolean hw, double minaf, double maxaf, int homcount) throws Exception {
-		HWenabled = hw;
-		maxAFfilter = maxaf;
-		minAFfilter = minaf;
-		HomCount = homcount;
-
-	}
-
 	public Input() {
 
 	}
@@ -302,7 +287,10 @@ public class Input {
 					}
 
 					if (AFtag == null)
-						svi.forceCalculateAF();
+						if(!OverSeer.DMAF)
+							svi.forceCalculateAF();
+						else 
+							svi.addAF(defaultMAF);
 					else
 						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));
 
