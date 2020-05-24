@@ -1,17 +1,11 @@
 package rohmmcli.rohmm;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 
 import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.tribble.Feature;
-import htsjdk.tribble.annotation.Strand;
 import htsjdk.tribble.bed.BEDFeature;
-import htsjdk.tribble.bed.FullBEDFeature.Exon;
-import htsjdk.variant.variantcontext.VariantContext;
 
 public class BEDTypeKnownVariant implements KnownVariant {
 	

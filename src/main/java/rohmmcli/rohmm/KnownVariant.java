@@ -1,7 +1,5 @@
 package rohmmcli.rohmm;
 
-import htsjdk.tribble.Feature;
-
 public interface KnownVariant {
 		
 	boolean hasNext();

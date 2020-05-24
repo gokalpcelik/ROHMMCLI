@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.tribble.readers.TabixReader;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;

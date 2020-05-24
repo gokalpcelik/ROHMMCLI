@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.tribble.Feature;
 import htsjdk.variant.variantcontext.VariantContext;
 
 public class VCFTypeKnownVariant implements KnownVariant {
