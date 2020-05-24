@@ -31,8 +31,7 @@ public class VCFReader {
 		if (!vcfIndexExists()) {
 			VCFIndex = new File(createIndex());
 		}
-
-		vcfReader = createReader();
+		createReader();
 
 	}
 
@@ -49,7 +48,6 @@ public class VCFReader {
 		} else if (VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
 			VCFIndex = new File(VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
 		}
-
 		return VCFIndex.exists();
 	}
 
@@ -112,8 +110,8 @@ public class VCFReader {
 		return vcfReader;
 	}
 	
-	private VCFFileReader createReader() {
-		return new VCFFileReader(VCFFile, VCFIndex);
+	private void createReader() {
+		vcfReader =  new VCFFileReader(VCFFile, VCFIndex);
 	}
 
 	protected String getVCFFileName() {
