@@ -45,7 +45,7 @@ public class ROHMMCLIRunner {
 
 			// Utility.logInput(cmd);
 			Runner(OverSeer.cmd);
-			OverSeer.closeVCFReader();
+			OverSeer.closeAllReaders();
 			OverSeer.endTimer();
 			System.exit(0);
 

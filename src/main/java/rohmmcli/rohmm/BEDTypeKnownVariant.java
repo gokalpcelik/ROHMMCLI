@@ -37,7 +37,8 @@ public class BEDTypeKnownVariant implements KnownVariant {
 	@Override
 	public void closeIterator() {
 		// TODO Auto-generated method stub
-		iter.close();
+		if(iter != null)
+			iter.close();
 		iter = null;
 
 	}

@@ -32,7 +32,8 @@ public class VCFTypeKnownVariant implements KnownVariant {
 
 	@Override
 	public void closeIterator() {
-		iter.close();
+		if(iter != null)
+			iter.close();
 		iter = null;
 
 	}

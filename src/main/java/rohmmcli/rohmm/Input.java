@@ -1,6 +1,5 @@
 package rohmmcli.rohmm;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -203,7 +202,7 @@ public class Input {
 	public void generateInput() throws Exception {
 
 		inputdatanew = new TreeMap<>();
-		ArrayList<Integer> nonSpikedFilter = new ArrayList<Integer>();
+		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<Integer, String>();
 
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
 
@@ -230,10 +229,12 @@ public class Input {
 				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
 				while (OverSeer.knownVariant.hasNext())
 					inputdatanew.put(OverSeer.knownVariant.getNextPos(), ivi);
+				OverSeer.knownVariant.closeIterator();
 			} else {
 				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
 				while (OverSeer.knownVariant.hasNext())
-					nonSpikedFilter.add(OverSeer.knownVariant.getNextPos());
+					nonSpikedFilter.put(OverSeer.knownVariant.getNextPos(),null);
+				OverSeer.knownVariant.closeIterator();
 			}
 		}
 
@@ -260,7 +261,7 @@ public class Input {
 
 			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
 					&& (sizecheck != 0 ? (OverSeer.filterUnknowns
-							? (spikeIn ? inputdatanew.containsKey(tempstart) : nonSpikedFilter.contains(tempstart))
+							? (spikeIn ? inputdatanew.containsKey(tempstart) : nonSpikedFilter.containsKey(tempstart))
 							: true) : true)) { // MAF > 0.0 olayini
 				// kaldirdik
 

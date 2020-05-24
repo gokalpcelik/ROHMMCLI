@@ -286,10 +286,12 @@ public class OverSeer {
 		return false;
 	}
 
-	public static void closeVCFReader() {
+	public static void closeAllReaders() {
 		log("SYSTEM", "Closing all IO..", OverSeer.INFO);
 		if (vcfrdr != null)
 			vcfrdr.closeVCFReader();
+		if(knownVariant != null)
+			knownVariant.close();
 	}
 
 	public static void parseCommands(String[] args) {
