@@ -1,12 +1,10 @@
 package rohmmcli.rohmm;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.tribble.readers.TabixReader;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -17,14 +15,8 @@ public class Input {
 	@Deprecated
 	protected TreeMap<Integer, String> inputdata;
 	protected TreeMap<Integer, VariantInfo> inputdatanew;
-	protected boolean HWenabled;
+	protected boolean HWenabled = false;
 	protected boolean Distenabled = false;
-	@Deprecated
-	protected double minAFfilter;
-	@Deprecated
-	protected double maxAFfilter;
-	@Deprecated
-	protected int HomCount;
 	protected String contigname;
 	protected String gnomadpath;
 	protected String vcfpath;
@@ -33,12 +25,14 @@ public class Input {
 	protected boolean skipindels = false;
 	protected int fillfactor = 1;
 	protected boolean usePLs = true;
-	protected boolean useADs = false; // maybe deprecated??
+	protected boolean useADs = false;
+	protected double ADThreshold = 0.2;// maybe deprecated??
+	protected int depthThreshold = 10;
 	protected boolean legacywPL = false;
 	protected boolean useGTs = false; // legacy
 	protected boolean useUserPLs = false;
 	protected int userPL = 30;
-	protected boolean useFiller = false;
+	protected boolean spikeIn = false;
 	@Deprecated
 	protected int oldsampleidx = 0;
 	protected double minisculeformissing = 0.000001;
@@ -47,247 +41,214 @@ public class Input {
 	protected HashSet<String> sampleset;
 
 	// ROHMMCLI v 0.9g 03/08/2019 Gokalp Celik...
-	@Deprecated
-	public Input(boolean hw, double minaf, double maxaf, int homcount) throws Exception {
-		HWenabled = hw;
-		maxAFfilter = maxaf;
-		minAFfilter = minaf;
-		HomCount = homcount;
-
-	}
-
 	public Input() {
 
 	}
 
 //	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
 
-	@Deprecated
+	// @Deprecated
+	/*
+	 * public void generateInput() throws Exception { inputdata = new TreeMap<>();
+	 * 
+	 * if (useFiller) { OverSeer.log(this.getClass().getSimpleName(),
+	 * "Fill with GNOMAD", OverSeer.INFO); TabixReader gnomadrdr = new
+	 * TabixReader(gnomadpath, gnomadpath + ".tbi"); //
+	 * System.err.println("Generating the input map - GNOMAD phase");
+	 * TabixReader.Iterator gnomaditer =
+	 * gnomadrdr.query(contigname.replaceAll("chr", "")); String gnomaditem;
+	 * 
+	 * String info = "0,255,255" + (HWenabled ? "#" + minisculeformissing : "");
+	 * String info2 = "0" + (HWenabled ? "#" + minisculeformissing : ""); String
+	 * info3 = "0," + userPL + "," + userPL + (HWenabled ? "#" + minisculeformissing
+	 * : ""); int counter = 1; while ((gnomaditem = gnomaditer.next()) != null) { if
+	 * (counter % fillfactor == 0) { String[] arr = gnomaditem.split("\t"); if
+	 * (usePLs || legacywPL) inputdata.put(Integer.parseInt(arr[1]), info); // use
+	 * alternate // 0,30,30 else if (useUserPLs)
+	 * inputdata.put(Integer.parseInt(arr[1]), info3); // added else
+	 * inputdata.put(Integer.parseInt(arr[1]), info2); counter++; }
+	 * 
+	 * }
+	 * 
+	 * gnomadrdr.close(); }
+	 * 
+	 * // System.err.println("Generating the input map - VCF phase"); VCFFileReader
+	 * vcfrdr = new VCFFileReader(new File(vcfpath), new File(vcfpath + ".tbi"));
+	 * CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr,
+	 * contigname); // int homcounter = 0; // vcfreading
+	 * 
+	 * while (vcfiter.hasNext()) { VariantContext temp = vcfiter.next();
+	 * 
+	 * double MAF = defaultMAF;
+	 * 
+	 * try { MAF = temp.getAttributeAsDouble(AFtag, defaultMAF); } catch (Exception
+	 * e) { // MAF = defaultMAF; }
+	 * 
+	 * // insertgenotypecheck and classificationcode here when working with real //
+	 * samples not from 1000G if (temp.isBiallelic() && temp.isNotFiltered() &&
+	 * (skipindels ? !temp.isIndel() : true)) { // MAF > 0.0 // olayini // kaldirdik
+	 * // luzumsuz bir // durumdu...
+	 * 
+	 * if (usePLs && temp.getGenotype(oldsampleidx).hasPL()) {
+	 * 
+	 * int[] PLs = temp.getGenotype(oldsampleidx).getPL();
+	 * 
+	 * inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2] +
+	 * (HWenabled ? "#" + MAF : "")); } else if (useUserPLs) { if
+	 * (temp.getGenotype(oldsampleidx).isHet()) { inputdata.put(temp.getStart(),
+	 * userPL + ",0," + userPL + (HWenabled ? "#" + MAF : "")); } else if
+	 * (temp.getGenotype(oldsampleidx).isHomRef()) { inputdata.put(temp.getStart(),
+	 * "0," + userPL + "," + userPL + (HWenabled ? "#" + MAF : "")); } else if
+	 * (temp.getGenotype(oldsampleidx).isHomVar()) { inputdata.put(temp.getStart(),
+	 * userPL + "," + userPL + ",0" + (HWenabled ? "#" + MAF : "")); }
+	 * 
+	 * } // not yet implemented do something else if (useADs &&
+	 * temp.getGenotype(oldsampleidx).hasAD()) ; // not yet implemented do something
+	 * 
+	 * // this part is legacy now. May be removed completely in the final version.
+	 * Keep // in mind. This part will be modified and merged to useADs completely.
+	 * else if (useGTs) {
+	 * 
+	 * 
+	 * boolean isHomVar = false; boolean isHomRef = false;
+	 * 
+	 * if (temp.getGenotype(sampleindex).isHomVar() && MAF > 0.5) { isHomRef = true;
+	 * } else if (temp.getGenotype(sampleindex).isHomRef() && MAF > 0.5) { isHomVar
+	 * = true; } else if (temp.getGenotype(sampleindex).isHom() && MAF == 0.5)
+	 * isHomVar = true;
+	 * 
+	 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(),
+	 * "1"); } else if (isHomRef) { BAFmap.put(temp.getStart(), "0"); } else if
+	 * (isHomVar) { BAFmap.put(temp.getStart(), "2");
+	 * 
+	 * }
+	 * 
+	 * if (temp.getGenotype(oldsampleidx).isHet()) inputdata.put(temp.getStart(),
+	 * "1"); else if (temp.getGenotype(oldsampleidx).isHomVar())
+	 * inputdata.put(temp.getStart(), "2"); else inputdata.put(temp.getStart(),
+	 * "0");
+	 * 
+	 * }
+	 * 
+	 * else if (legacywPL) {
+	 * 
+	 * int[] PLs = new int[3]; if (temp.getGenotype(oldsampleidx).hasPL()) {
+	 * 
+	 * PLs = temp.getGenotype(oldsampleidx).getPL(); }
+	 * 
+	 * if (temp.getGenotype(oldsampleidx).isHomVar() && MAF > 0.5) {
+	 * 
+	 * if (useUserPLs) { PLs[0] = 0; PLs[1] = userPL; PLs[2] = userPL; } else {
+	 * PLs[0] ^= PLs[2]; PLs[2] ^= PLs[0]; PLs[0] ^= PLs[2]; }
+	 * 
+	 * } else if (temp.getGenotype(oldsampleidx).isHomRef() && MAF < 0.5) { if
+	 * (useUserPLs) { PLs[0] = 0; PLs[1] = userPL; PLs[2] = userPL; } } else if
+	 * (temp.getGenotype(oldsampleidx).isHomRef() && MAF > 0.5) { if (useUserPLs) {
+	 * PLs[0] = userPL; PLs[1] = userPL; PLs[2] = 0; } else { PLs[0] ^= PLs[2];
+	 * PLs[2] ^= PLs[0]; PLs[0] ^= PLs[2]; }
+	 * 
+	 * } else if (temp.getGenotype(oldsampleidx).isHomVar() && MAF < 0.5) {
+	 * 
+	 * if (useUserPLs) { PLs[0] = userPL; PLs[1] = userPL; PLs[2] = 0; }
+	 * 
+	 * } else if (temp.getGenotype(oldsampleidx).isHom() && MAF == 0.5)
+	 * 
+	 * inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2]);
+	 * 
+	 * }
+	 * 
+	 * 
+	 * else if (useGTs) {
+	 * 
+	 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(), "1"
+	 * + (HWenabled ? "#" + MAF : "")); homcounter = 0; } else if
+	 * (temp.getGenotype(sampleindex).isHomRef()) { // do something extra here if
+	 * needed. May // need to check // this thing out....
+	 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } else if
+	 * (temp.getGenotype(sampleindex).isHomVar()) {
+	 * 
+	 * if (MAF <= minAFfilter) BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#" +
+	 * MAF : "")); else if (MAF > minAFfilter && MAF <= maxAFfilter && homcounter <
+	 * HomCount) { BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : ""));
+	 * homcounter++; } else if (MAF > minAFfilter && MAF <= maxAFfilter &&
+	 * homcounter >= HomCount) { BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#"
+	 * + MAF : "")); homcounter++; } else if (MAF > maxAFfilter) {
+	 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } } }
+	 * 
+	 * 
+	 * } }
+	 * 
+	 * vcfiter.close(); // vcfrdr.close(); //
+	 * System.err.println("Input map generated...");
+	 * 
+	 * }
+	 */
+
 	public void generateInput() throws Exception {
-		inputdata = new TreeMap<>();
-
-		if (useFiller) {
-			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.INFO);
-			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
-			// System.err.println("Generating the input map - GNOMAD phase");
-			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
-			String gnomaditem;
-
-			String info = "0,255,255" + (HWenabled ? "#" + minisculeformissing : "");
-			String info2 = "0" + (HWenabled ? "#" + minisculeformissing : "");
-			String info3 = "0," + userPL + "," + userPL + (HWenabled ? "#" + minisculeformissing : "");
-			int counter = 1;
-			while ((gnomaditem = gnomaditer.next()) != null) {
-				if (counter % fillfactor == 0) {
-					String[] arr = gnomaditem.split("\t");
-					if (usePLs || legacywPL)
-						inputdata.put(Integer.parseInt(arr[1]), info); // use alternate
-					// 0,30,30
-					else if (useUserPLs)
-						inputdata.put(Integer.parseInt(arr[1]), info3); // added
-					else
-						inputdata.put(Integer.parseInt(arr[1]), info2);
-					counter++;
-				}
-
-			}
-
-			gnomadrdr.close();
-		}
-
-		// System.err.println("Generating the input map - VCF phase");
-		VCFFileReader vcfrdr = new VCFFileReader(new File(vcfpath), new File(vcfpath + ".tbi"));
-		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
-		// int homcounter = 0;
-		// vcfreading
-
-		while (vcfiter.hasNext()) {
-			VariantContext temp = vcfiter.next();
-
-			double MAF = defaultMAF;
-
-			try {
-				MAF = temp.getAttributeAsDouble(AFtag, defaultMAF);
-			} catch (Exception e) {
-				// MAF = defaultMAF;
-			}
-
-			// insertgenotypecheck and classificationcode here when working with real
-			// samples not from 1000G
-			if (temp.isBiallelic() && temp.isNotFiltered() && (skipindels ? !temp.isIndel() : true)) { // MAF > 0.0
-																										// olayini
-																										// kaldirdik
-																										// luzumsuz bir
-																										// durumdu...
-
-				if (usePLs && temp.getGenotype(oldsampleidx).hasPL()) {
-
-					int[] PLs = temp.getGenotype(oldsampleidx).getPL();
-
-					inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2] + (HWenabled ? "#" + MAF : ""));
-				} else if (useUserPLs) {
-					if (temp.getGenotype(oldsampleidx).isHet()) {
-						inputdata.put(temp.getStart(), userPL + ",0," + userPL + (HWenabled ? "#" + MAF : ""));
-					} else if (temp.getGenotype(oldsampleidx).isHomRef()) {
-						inputdata.put(temp.getStart(), "0," + userPL + "," + userPL + (HWenabled ? "#" + MAF : ""));
-					} else if (temp.getGenotype(oldsampleidx).isHomVar()) {
-						inputdata.put(temp.getStart(), userPL + "," + userPL + ",0" + (HWenabled ? "#" + MAF : ""));
-					}
-
-				}
-				// not yet implemented do something
-				else if (useADs && temp.getGenotype(oldsampleidx).hasAD())
-					;
-				// not yet implemented do something
-
-				// this part is legacy now. May be removed completely in the final version. Keep
-				// in mind. This part will be modified and merged to useADs completely.
-				else if (useGTs) {
-
-					/*
-					 * boolean isHomVar = false; boolean isHomRef = false;
-					 * 
-					 * if (temp.getGenotype(sampleindex).isHomVar() && MAF > 0.5) { isHomRef = true;
-					 * } else if (temp.getGenotype(sampleindex).isHomRef() && MAF > 0.5) { isHomVar
-					 * = true; } else if (temp.getGenotype(sampleindex).isHom() && MAF == 0.5)
-					 * isHomVar = true;
-					 * 
-					 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(),
-					 * "1"); } else if (isHomRef) { BAFmap.put(temp.getStart(), "0"); } else if
-					 * (isHomVar) { BAFmap.put(temp.getStart(), "2");
-					 * 
-					 * }
-					 */
-					if (temp.getGenotype(oldsampleidx).isHet())
-						inputdata.put(temp.getStart(), "1");
-					else if (temp.getGenotype(oldsampleidx).isHomVar())
-						inputdata.put(temp.getStart(), "2");
-					else
-						inputdata.put(temp.getStart(), "0");
-
-				}
-
-				else if (legacywPL) {
-
-					int[] PLs = new int[3];
-					if (temp.getGenotype(oldsampleidx).hasPL()) {
-
-						PLs = temp.getGenotype(oldsampleidx).getPL();
-					}
-
-					if (temp.getGenotype(oldsampleidx).isHomVar() && MAF > 0.5) {
-
-						if (useUserPLs) {
-							PLs[0] = 0;
-							PLs[1] = userPL;
-							PLs[2] = userPL;
-						} else {
-							PLs[0] ^= PLs[2];
-							PLs[2] ^= PLs[0];
-							PLs[0] ^= PLs[2];
-						}
-
-					} else if (temp.getGenotype(oldsampleidx).isHomRef() && MAF < 0.5) {
-						if (useUserPLs) {
-							PLs[0] = 0;
-							PLs[1] = userPL;
-							PLs[2] = userPL;
-						}
-					} else if (temp.getGenotype(oldsampleidx).isHomRef() && MAF > 0.5) {
-						if (useUserPLs) {
-							PLs[0] = userPL;
-							PLs[1] = userPL;
-							PLs[2] = 0;
-						} else {
-							PLs[0] ^= PLs[2];
-							PLs[2] ^= PLs[0];
-							PLs[0] ^= PLs[2];
-						}
-
-					} else if (temp.getGenotype(oldsampleidx).isHomVar() && MAF < 0.5) {
-
-						if (useUserPLs) {
-							PLs[0] = userPL;
-							PLs[1] = userPL;
-							PLs[2] = 0;
-						}
-
-					} else if (temp.getGenotype(oldsampleidx).isHom() && MAF == 0.5)
-
-						inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2]);
-
-				}
-
-				/*
-				 * else if (useGTs) {
-				 * 
-				 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(), "1"
-				 * + (HWenabled ? "#" + MAF : "")); homcounter = 0; } else if
-				 * (temp.getGenotype(sampleindex).isHomRef()) { // do something extra here if
-				 * needed. May // need to check // this thing out....
-				 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } else if
-				 * (temp.getGenotype(sampleindex).isHomVar()) {
-				 * 
-				 * if (MAF <= minAFfilter) BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#" +
-				 * MAF : "")); else if (MAF > minAFfilter && MAF <= maxAFfilter && homcounter <
-				 * HomCount) { BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : ""));
-				 * homcounter++; } else if (MAF > minAFfilter && MAF <= maxAFfilter &&
-				 * homcounter >= HomCount) { BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#"
-				 * + MAF : "")); homcounter++; } else if (MAF > maxAFfilter) {
-				 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } } }
-				 */
-
-			}
-		}
-
-		vcfiter.close();
-		vcfrdr.close();
-		// System.err.println("Input map generated...");
-
-	}
-
-	public void generateInputNew() throws Exception {
 
 		inputdatanew = new TreeMap<>();
+		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<Integer, String>();
 
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
 
-		if (useFiller) {
-			Utility.log(this.getClass().getSimpleName(), "Fill with GNOMAD", Utility.DEBUG);
-			TabixReader gnomadrdr = new TabixReader(gnomadpath, gnomadpath + ".tbi");
-			Utility.log(this.getClass().getSimpleName(), "Generating the input map - GNOMAD phase", Utility.DEBUG);
-			TabixReader.Iterator gnomaditer = gnomadrdr.query(contigname.replaceAll("chr", ""));
-			String gnomaditem;
-			int counter = 1;
-			while ((gnomaditem = gnomaditer.next()) != null) {
-				if (counter % fillfactor == 0) {
-					String[] arr = gnomaditem.split("\t");
-					// if (usePLs || legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
-					inputdatanew.put(Integer.parseInt(arr[1]), ivi);
-					counter++;
-				}
+		/*
+		 * if (spikeIn) { OverSeer.log(this.getClass().getSimpleName(),
+		 * "Fill with GNOMAD", OverSeer.DEBUG); TabixReader gnomadrdr = new
+		 * TabixReader(gnomadpath, gnomadpath + ".tbi");
+		 * OverSeer.log(this.getClass().getSimpleName(),
+		 * "Generating the input map - GNOMAD phase", OverSeer.DEBUG);
+		 * TabixReader.Iterator gnomaditer =
+		 * gnomadrdr.query(contigname.replaceAll("chr", "")); String gnomaditem; int
+		 * counter = 1; while ((gnomaditem = gnomaditer.next()) != null) { if (counter %
+		 * fillfactor == 0) { String[] arr = gnomaditem.split("\t"); // if (usePLs ||
+		 * legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
+		 * inputdatanew.put(Integer.parseInt(arr[1]), ivi); counter++; }
+		 * 
+		 * }
+		 * 
+		 * gnomadrdr.close(); }
+		 */
 
+		if (OverSeer.knownVariant != null) {
+			if (spikeIn) {
+				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext())
+					inputdatanew.put(OverSeer.knownVariant.getNextPos(), ivi);
+				OverSeer.knownVariant.closeIterator();
+			} else {
+				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext())
+					nonSpikedFilter.put(OverSeer.knownVariant.getNextPos(),null);
+				OverSeer.knownVariant.closeIterator();
 			}
-
-			gnomadrdr.close();
 		}
 
-		Utility.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", Utility.DEBUG);
+		OverSeer.log(this.getClass().getSimpleName(), "Generating the input map - VCF phase", OverSeer.DEBUG);
 
-		VCFReader vcffile = new VCFReader(vcfpath); // this fixes the problem with unindexed and uncompressed vcf files.
-													// BCF support coming soon.
-		VCFFileReader vcfrdr = vcffile.createReader();
+		// this fixes the problem with unindexed and uncompressed vcf files. // BCF
+		// support coming soon.
+		VCFFileReader vcfrdr = OverSeer.getVCFFileReader();
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
 		// vcfreading
+		int sizecheck = inputdatanew.size() == 0 ? nonSpikedFilter.size() : inputdatanew.size();
+		// System.err.println(inputdatanew.size());
 
 		while (vcfiter.hasNext()) {
 			VariantContext temp = vcfiter.next();
 
 			// insertgenotypecheck and classificationcode here when working with real
 			// samples not from 1000G
-			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()) { // MAF > 0.0 olayini
-																									// kaldirdik
+			Integer tempstart = temp.getStart();
+
+			// System.err.println(tempstart + " " + inputdatanew.containsKey(tempstart) + "
+			// " + inputdatanew.keySet().contains(tempstart));
+
+			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
+					&& (sizecheck != 0 ? (OverSeer.filterUnknowns
+							? (spikeIn ? inputdatanew.containsKey(tempstart) : nonSpikedFilter.containsKey(tempstart))
+							: true) : true)) { // MAF > 0.0 olayini
+				// kaldirdik
 
 				int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), sampleset); // durumdu...
 
@@ -298,17 +259,24 @@ public class Input {
 						Genotype tempg = temp.getGenotype(samplenamearr[spos]);
 
 						if (tempg.isCalled()) {
+							if (tempg.hasLikelihoods() && !svi.FakePL)
+								svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
+							if (tempg.isHet()) {
+								if (useADs) {
+									if (isBalanced(tempg)) {
+										svi.addGenotype(1, spos);
+									} else if (isRefBiased(tempg)) {
+										svi.addGenotype(0, spos);
+										svi.addBalancedHomRefPL(spos);
+									} else {
+										svi.addGenotype(2, spos);
+										svi.addBalancedHomVarPL(spos);
+									}
+								} else {
+									svi.addGenotype(1, spos);
+								}
 
-							if (tempg.hasLikelihoods())
-								svi.addPL(tempg.getLikelihoods().getAsPLs(), spos); // this change makes it compatible
-																					// with
-																					// freebayes like callers that emit
-																					// GL
-																					// instead of PL
-
-							if (tempg.isHet())
-								svi.addGenotype(1, spos);
-							else if (tempg.isHomVar())
+							} else if (tempg.isHomVar())
 								svi.addGenotype(2, spos);
 							else
 								svi.addGenotype(0, spos);
@@ -319,7 +287,10 @@ public class Input {
 					}
 
 					if (AFtag == null)
-						svi.forceCalculateAF();
+						if(!OverSeer.DMAF)
+							svi.forceCalculateAF();
+						else 
+							svi.addAF(defaultMAF);
 					else
 						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));
 
@@ -328,32 +299,18 @@ public class Input {
 				} else if (!skipzeroaf)
 					inputdatanew.put(temp.getStart(), ivi);
 			}
-
+		
 		}
+		nonSpikedFilter = null;
 		vcfiter.close();
-		vcfrdr.close();
-		Utility.log(this.getClass().getSimpleName(), "Input map generated...", Utility.DEBUG);
+		// vcfrdr.close();
+		OverSeer.log(this.getClass().getSimpleName(), "Input map generated...", OverSeer.DEBUG);
 
 	}
 
 	// needed for fast whole contig query.
 	public CloseableIterator<VariantContext> queryWholeContig(VCFFileReader vcfrdr, String contig) {
 		return vcfrdr.query(contig, 1, Integer.MAX_VALUE);
-	}
-
-	public int countVariants(VCFFileReader vcfrdr) {
-		int count = 0;
-
-		CloseableIterator<VariantContext> iter = vcfrdr.iterator();
-
-		while (iter.hasNext())
-			count++;
-
-		iter.close();
-
-		vcfrdr.close();
-		return count;
-
 	}
 
 	public Input setVCFPath(String path) {
@@ -563,15 +520,41 @@ public class Input {
 
 	}
 
+	private boolean isBalanced(Genotype gt) {
+
+		if (gt.hasAD()) {
+			try {
+				int ref = gt.getAD()[0];
+				int alt = gt.getAD()[1];
+				double refratio = (double) ref / ref + alt;
+				double altratio = (double) alt / ref + alt;
+				if (Math.min(refratio, altratio) < ADThreshold)
+					return false;
+			} catch (Exception e) {
+				return true;
+			}
+		}
+		return true;
+	}
+
+	private boolean isRefBiased(Genotype gt) {
+		if (gt.hasAD()) {
+			try {
+				int ref = gt.getAD()[0];
+				int alt = gt.getAD()[1];
+				if (ref > alt)
+					return true;
+			} catch (Exception e) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void setSampleSet() {
 		sampleset = new HashSet<>();
 		for (String s : samplenamearr) {
 			sampleset.add(s);
 		}
 	}
-
-	public void scanVCF() {
-
-	}
-
 }

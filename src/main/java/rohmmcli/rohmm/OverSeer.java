@@ -1,5 +1,10 @@
 package rohmmcli.rohmm;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,13 +16,14 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-import htsjdk.samtools.SAMSequenceRecord;
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.samtools.util.FileExtensions;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
-public class Utility {
+//OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions. 
+//Consult OverSeer.class whenever a parameter needs to be set or changed. 
+//Other classes should not be used freely...
+public class OverSeer {
 
 	public static final int ERROR = 0;
 	public static final int WARNING = 1;
@@ -27,11 +33,14 @@ public class Utility {
 	protected static HMM hmm = null;
 	protected static Input input = null;
 	protected static boolean combine = false;
+	protected static boolean filterUnknowns = false;
+	protected static boolean DMAF = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
 	protected static long END;
 	protected static String VCFPath = null;
 	protected static VCFReader vcfrdr = null;
+	protected static KnownVariant knownVariant = null;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" };
 	protected static final String[] HG1938NoXY = new String[] { "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
@@ -47,29 +56,28 @@ public class Utility {
 
 	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
 
-	public static final String VERSION = "0.9r-GUI 03/05/2020";
+	public static final String VERSION = "0.9t-GUI 24/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
 		if (Level <= LOGLEVEL) {
 			switch (Level) {
 			case INFO:
-				System.err.println("[INFO] " + COMPONENT + ": " + Message);
+				System.err.println("[INFO] [" + COMPONENT + "]: " + Message);
 				break;
 			case WARNING:
-				System.err.println("[WARNING] " + COMPONENT + ": " + Message);
+				System.err.println("[WARNING] [" + COMPONENT + "]: " + Message);
 				break;
 			case ERROR:
-				System.err.println("[ERROR] " + COMPONENT + ": " + Message);
+				System.err.println("[ERROR] [" + COMPONENT + "]: " + Message);
 				break;
 			case DEBUG:
-				System.err.println("[DEBUG] " + COMPONENT + ": " + Message);
+				System.err.println("[DEBUG] [" + COMPONENT + "]: " + Message);
 				break;
 			}
 		}
 
 	}
-	
 
 	public static void clearOptionMap() {
 		optionMap.clear();
@@ -95,67 +103,107 @@ public class Utility {
 
 	public static void endTimer() {
 		END = System.currentTimeMillis();
-		log("[SYSTEM]", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
+		log("SYSTEM", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
 
-	public static void setVCFPath(String path) {
-		VCFPath = path;
+	public static void setVCFPath(File vcffile) {
+		try {
+			VCFPath = vcffile.getAbsolutePath();
+			vcfrdr = new VCFReader(vcffile);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 
 	public static VCFHeader getVCFHeader() {
-		VCFHeader header = null;
-		try {
-			VCFReader vcfReader = new VCFReader(VCFPath);
-			VCFFileReader vcfrdr = vcfReader.createReader();
-			header = vcfrdr.getFileHeader();
-			vcfrdr.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-		return header;
+		return vcfrdr != null ? vcfrdr.getHeader() : null;
 	}
 
 	public static VCFFileReader getVCFFileReader() {
-		try {
-			VCFReader vcfReader = new VCFReader(VCFPath);
-			VCFFileReader vcfrdr = vcfReader.createReader();
-			return vcfrdr;
-		} catch (Exception e) {
-			// TODO: handle exception
-			return null;
-		}
-
+		return vcfrdr != null ? vcfrdr.getReader() : null;
 	}
 
 	public static List<String> getAvailableContigsList() {
+		return vcfrdr != null ? vcfrdr.getAvailableContigsList() : null;
+	}
 
-		ArrayList<String> availableContigs = new ArrayList<String>();
+	public static String[] setContigList() {
 
-		VCFFileReader rdr = getVCFFileReader();
+		String[] contigs = null;
 
-		List<SAMSequenceRecord> lists = rdr.getFileHeader().getSequenceDictionary().getSequences();
+		if (cmd.hasOption("C")) {
 
-		for (SAMSequenceRecord record : lists) {
+			String contigparam = cmd.getOptionValue("C");
 
-			String sequencename = record.getSequenceName();
-			CloseableIterator<VariantContext> iter = rdr.query(sequencename, 1, Integer.MAX_VALUE);
-			if (iter.hasNext()) {
-				availableContigs.add(sequencename);
+			switch (contigparam) {
+			case "GRCh37":
+				contigs = GRCH37NoXY;
+				break;
+			case "hg19":
+				contigs = HG1938NoXY;
+				break;
+			case "hg38":
+				contigs = HG1938NoXY;
+				break;
+			case "GRCh38":
+				contigs = HG1938NoXY;
+				break;
+			default:
+				contigs = cmd.getOptionValue("C").split(",");
+				break;
 			}
-
-			iter.close();
-
+		} else {
+			contigs = getAvailableContigsList().toArray(new String[0]);
 		}
-		if (availableContigs.size() > 0)
-			return availableContigs;
-
-		return null;
-
+		return contigs;
 	}
 
 	public static List<String> getSampleNameList() {
-		return getVCFHeader().getSampleNamesInOrder();
+		return vcfrdr != null ? vcfrdr.getVCFSampleList() : null;
+	}
+
+	public static String[] setSampleNameList() throws IOException {
+
+		String[] samples = new String[0];
+		ArrayList<String> omsamples = new ArrayList<>();
+		ArrayList<String> alsample = (ArrayList<String>) getSampleNameList();
+		if (cmd.hasOption("SL")) {
+			File f = new File(cmd.getOptionValue("SL"));
+			try {
+				FileReader fr = new FileReader(f);
+				BufferedReader br = new BufferedReader(fr);
+
+				String line;
+
+				ArrayList<String> templist = new ArrayList<>();
+
+				while ((line = br.readLine()) != null) {
+					if (alsample.contains(line))
+						templist.add(line);
+					else
+						omsamples.add(line);
+				}
+
+				br.close();
+				fr.close();
+
+				templist.trimToSize();
+				omsamples.trimToSize();
+				samples = templist.toArray(new String[0]);
+			} catch (FileNotFoundException e) {
+				log("SYSTEM", "Sample list file not found. Selecting all available samples", OverSeer.WARNING);
+				samples = alsample.toArray(new String[0]);
+				return samples;
+
+			}
+		} else if (cmd.hasOption("SN")) {
+			samples = cmd.getOptionValue("SN").split(",");
+		} else {
+			samples = alsample.toArray(new String[0]);
+		}
+
+		return samples;
 	}
 
 	public static void setInputParams() {
@@ -164,23 +212,27 @@ public class Utility {
 		input.Distenabled = Model.distmode;
 		input.HWenabled = Model.hwmode;
 		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
-		input.skipindels = cmd.hasOption("S") ? true : false;
+		input.skipindels = cmd.hasOption("S");
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
-		input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-		input.setVCFPath(VCFPath == null ? cmd.getOptionValue("V") : VCFPath);
-
+		input.skipzeroaf = cmd.hasOption("SZ");
+		VCFPath = cmd.getOptionValue("V");
+		setVCFPath(new File(VCFPath));
+		input.setVCFPath(VCFPath);
+		
+		input.useADs = cmd.hasOption("AD");
+		input.ADThreshold = input.useADs ? Double.parseDouble(cmd.getOptionValue("AD")) : 0.2;
 		/*
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
 		 */
-
+		input.userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
+		
 		if (cmd.hasOption("GT")) {
 			input.usePLs = false;
 			input.useUserPLs = true;
 			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-		} /*
-			 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-			 */ else if (cmd.hasOption("legacy")) {
+		} 
+			else if (cmd.hasOption("legacy")) {
 			input.usePLs = false;
 			input.useGTs = true;
 		} else if (cmd.hasOption("Custom")) {
@@ -189,11 +241,19 @@ public class Utility {
 			input.legacywPL = true;
 		}
 
-		if (cmd.hasOption("MFM"))
-			input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
+		//if (cmd.hasOption("MFM"))
+		//	input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
 		if (cmd.hasOption("F"))
-			input.useFiller = true;
+			input.spikeIn = true;
+		
+		if(cmd.hasOption("G"))
+			setKnownVariant();
+		
+		DMAF = cmd.hasOption("DefaultMAF");
+		
+		filterUnknowns = cmd.hasOption("FilterUnknowns");
+			
 
 		if (cmd.hasOption("combine"))
 			combine = true;
@@ -212,10 +272,29 @@ public class Utility {
 		}
 	}
 
+	private static void setKnownVariant() {
+		File knownVariantFile = new File(cmd.getOptionValue("G"));
+		if(knownVariantFile.exists()) {
+			if(knownVariantFile.getAbsolutePath().endsWith(FileExtensions.BED) || knownVariantFile.getAbsolutePath().endsWith("bed.gz")) {
+				knownVariant = new BEDTypeKnownVariant(knownVariantFile);
+			} else {
+				knownVariant = new VCFTypeKnownVariant(knownVariantFile);
+			}
+		}
+	}
+	
 	public static Boolean combineOutput() {
 		if (cmd.hasOption("combine"))
 			return true;
 		return false;
+	}
+
+	public static void closeAllReaders() {
+		log("SYSTEM", "Closing all IO..", OverSeer.INFO);
+		if (vcfrdr != null)
+			vcfrdr.closeVCFReader();
+		if(knownVariant != null)
+			knownVariant.close();
 	}
 
 	public static void parseCommands(String[] args) {
@@ -231,31 +310,31 @@ public class Utility {
 
 		opts.addRequiredOption("O", "Output-File-Prefix", true, "Output file prefix for bed files. REQUIRED");
 
-		opts.addRequiredOption("C", "Contig-String", true,
+		opts.addOption("C", "Contig-String", true,
 				"Comma-seperated contig selection string such as chr1,chr2,chr3...");
 
 		opts.addOption("AF", "AF-Tag", true,
 				"Allele Frequency tag for site filtering. If not declared AF will be calculated from the genotype counts of the samples.");
-
+		
+		opts.addOption("DefaultMAF", false, "Disable AF calculation and use a fixed default value for MAF in HW models");
+		
 		opts.addOption("help", false, "Display this text...");
 
 		opts.addOption("combine", false, "Combine Bed file outputs into single file..");
 
 		opts.addOption("D", true, "Default MAF for sites missing MAF. Default 0.4");
 
-		opts.addOption("F", "Use-GNOMAD-Filler", false, "Use GNOMAD SNP sites as filler.");
+		opts.addOption("F", "spike-in", false, "Spike in known sites as HOMREF even if they are not called.");
 
 		opts.addOption("S", "skip-indels", false, "Skip indels and use SNPs only");
 
-		opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
+		//opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
 
-		opts.addOption("GT", true, "Use GTs only with the given uncertainity level. 30 is recommended (equals 1e-3).");
-
-		/*
-		 * opts.addOption("AD", true,
-		 * "Use Allelic Depths to decide genotype using binomial test with a given probability. 0.2 is recommended."
-		 * );
-		 */
+		opts.addOption("GT", true, "Use Empirical error rate only for all sites. 30 is recommended (equals 1e-3).");
+		
+		opts.addOption("ER", "error-rate", true, "Empirical error rate for misgenotyped alleles. Phred scaled. 30 is recommended (equals 1e-3).");
+		
+		opts.addOption("AD", true, "Use Allelic Balance Threshold to decide genotype. 0.2 is recommended.");
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
 
@@ -266,12 +345,12 @@ public class Utility {
 		opts.addOption("MSC", "minimum-site-count", true,
 				"Minimum number of sites to report a region as ROH. Default 0");
 
-		opts.addOption("Custom", false,
-				"Use MAFs to determine proper homozygosity signals and use PLs for uncertainity");
+		opts.addOption("FilterUnknowns", false,
+				"Filter unknown sites when using known sites option");
 
 		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 
-		opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
+		//opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");

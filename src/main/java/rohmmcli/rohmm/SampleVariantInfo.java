@@ -61,8 +61,8 @@ public class SampleVariantInfo implements VariantInfo {
 		return AF;
 	}
 
-	public void addAF(double AF) {
-		this.AF = AF;
+	public void addAF(double allelefreq) {
+		AF = allelefreq;
 	}
 
 	public void forceCalculateAF() {
@@ -74,5 +74,23 @@ public class SampleVariantInfo implements VariantInfo {
 		PLArray[sampleindex][1] = 255;
 		PLArray[sampleindex][2] = 255;
 	}
-
+	
+	public void addBalancedHomRefPL(int sampleindex) {
+		PLArray[sampleindex][0] = 0;
+		PLArray[sampleindex][1] = FPLV;
+		PLArray[sampleindex][2] = FPLV;
+	}
+	
+	public void addBalancedHetPL(int sampleindex) {
+		PLArray[sampleindex][0] = FPLV;
+		PLArray[sampleindex][1] = 0;
+		PLArray[sampleindex][2] = FPLV;
+	}
+	
+	public void addBalancedHomVarPL(int sampleindex) {
+		PLArray[sampleindex][0] = FPLV;
+		PLArray[sampleindex][1] = FPLV;
+		PLArray[sampleindex][2] = 0;
+	}
+	
 }

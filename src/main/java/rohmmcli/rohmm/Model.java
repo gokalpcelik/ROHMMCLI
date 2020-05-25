@@ -9,9 +9,9 @@ import htsjdk.samtools.example.ExampleSamUsage;
 @SuppressWarnings("unused")
 public class Model {
 	
-	protected static boolean hwmode;
-	protected static boolean distmode;
-	protected static HMM hmm;
+	protected static boolean hwmode = false;
+	protected static boolean distmode = false;
+	protected static HMM hmm = null;
 	protected static final String HWMODEL = "MODELHW";
 	protected static final String HWDISTMODEL = "MODELHWDIST";
 	protected static final String XMODEL = "MODELX";
@@ -23,29 +23,56 @@ public class Model {
 		switch(model)
 		{
 			case HWMODEL:
-				hmm = null; //buraya bisi koymak lazim
-				
+				getDefaultAlleleFrequencyModel(false);
 				break;
 			case HWDISTMODEL:
-				hmm = null;
+				getDefaultAlleleFrequencyModel(true);
 				break;
 			case XMODEL:
-				hmm = null;
+				getDefaultAlleleDistributionModel(false);
 				break;
 			case XDISTMODEL:
-				hmm = null;
+				getDefaultAlleleDistributionModel(true);
 				break;
 			default:
 				if (new File(model).exists())
-					hmm = hmmModelParser(new File(model));
+					hmmModelParser(new File(model));
 				break;
 		}
 			
 		return hmm;
 	}
 	
+	private static void getDefaultAlleleDistributionModel(boolean distenabled) {
+		
+		double[][] emmatrix = {{0.990666,0.0,0.009334},{0.986219,0.007916,0.005865}};
+		double[] start = {0.5,0.5};
+		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
+		double defprob = 0.1;
+		double normfact = 100000;
+		distmode = distenabled;
+		if(!distmode)
+			hmm = new HMM(emmatrix, transmatrix, start);
+		else
+			hmm = new HMM(emmatrix, defprob, normfact, start);
+	}
+	
+	private static void getDefaultAlleleFrequencyModel(boolean distenabled) {
+		double[] start = {0.5,0.5};
+		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
+		double defprob = 0.1;
+		double normfact = 100000;
+		hwmode = true;
+		distmode = distenabled;
+		if(!distmode)
+			hmm = new HMM(null, transmatrix, start);
+		else
+			hmm = new HMM(defprob, normfact, start);
+	}
+	
+	
 
-	public static HMM hmmModelParser(File modelfile) {
+	private static void hmmModelParser(File modelfile) {
 
 		hwmode = false;
 		distmode = false;
@@ -142,12 +169,8 @@ public class Model {
 				else
 					hmm = new HMM(defprob, normfact, start);
 			}
-
-			return hmm;
-
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-			return null;
 		}
 	}
 

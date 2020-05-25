@@ -42,7 +42,7 @@ public class HMM {
 	}
 
 	// Precalculate all genotype likelyhoods so that further calculation is not
-	// necessary
+	// necessary. Similar to bcftools. Numbers greater than 255 are usually meaningless in terms of probability.
 	private void initPLs() {
 		preCalcPL = new double[256];
 
