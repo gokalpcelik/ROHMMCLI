@@ -12,7 +12,7 @@ import htsjdk.variant.vcf.VCFFileReader;
 public class Input {
 	// Check for all variables to see if a setter and a getter is present. Fix if
 	// not present.
-	//protected TreeMap<Integer, String> inputdata;
+	// protected TreeMap<Integer, String> inputdata;
 	protected TreeMap<Integer, VariantInfo> inputData;
 	protected boolean HWenabled = false;
 	protected boolean Distenabled = false;
@@ -34,7 +34,7 @@ public class Input {
 	protected int userPL = 30;
 	protected boolean spikeIn = false;
 
-	//protected int oldsampleidx = 0;
+	// protected int oldsampleidx = 0;
 	protected double minisculeformissing = 0.000001;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
@@ -44,7 +44,6 @@ public class Input {
 	public Input() {
 
 	}
-
 //	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
 
 	// @Deprecated
@@ -186,10 +185,10 @@ public class Input {
 
 	public void generateInput() throws Exception {
 
-		inputData = new TreeMap<Integer, VariantInfo>();
-		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<Integer, String>();
+		this.inputData = new TreeMap<>();
+		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<>();
 
-		ImputeVariantInfo ivi = new ImputeVariantInfo();
+		final ImputeVariantInfo ivi = new ImputeVariantInfo();
 
 		/*
 		 * if (spikeIn) { OverSeer.log(this.getClass().getSimpleName(),
@@ -210,15 +209,17 @@ public class Input {
 		 */
 
 		if (OverSeer.knownVariant != null) {
-			if (spikeIn) {
-				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
-				while (OverSeer.knownVariant.hasNext())
-					inputData.put(OverSeer.knownVariant.getNextPos(), ivi);
+			if (this.spikeIn) {
+				OverSeer.knownVariant.createIterator(this.contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext()) {
+					this.inputData.put(OverSeer.knownVariant.getNextPos(), ivi);
+				}
 				OverSeer.knownVariant.closeIterator();
 			} else {
-				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
-				while (OverSeer.knownVariant.hasNext())
+				OverSeer.knownVariant.createIterator(this.contigname, 1, Integer.MAX_VALUE);
+				while (OverSeer.knownVariant.hasNext()) {
 					nonSpikedFilter.put(OverSeer.knownVariant.getNextPos(), null);
+				}
 				OverSeer.knownVariant.closeIterator();
 			}
 		}
@@ -227,48 +228,50 @@ public class Input {
 
 		// this fixes the problem with unindexed and uncompressed vcf files. // BCF
 		// support coming soon.
-		VCFFileReader vcfrdr = OverSeer.getVCFFileReader();
-		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
+		final VCFFileReader vcfrdr = OverSeer.getVCFFileReader();
+		final CloseableIterator<VariantContext> vcfiter = this.queryWholeContig(vcfrdr, this.contigname);
 		// int homcounter = 0;
 		// vcfreading
-		int sizecheck = inputData.size() == 0 ? nonSpikedFilter.size() : inputData.size();
+		final int sizecheck = this.inputData.size() == 0 ? nonSpikedFilter.size() : this.inputData.size();
 		// System.err.println(inputdatanew.size());
 
 		while (vcfiter.hasNext()) {
-			VariantContext temp = vcfiter.next();
+			final VariantContext temp = vcfiter.next();
 
 			// insertgenotypecheck and classificationcode here when working with real
 			// samples not from 1000G
-			Integer tempstart = temp.getStart();
+			final Integer tempstart = temp.getStart();
 
 			// System.err.println(tempstart + " " + inputdatanew.containsKey(tempstart) + "
 			// " + inputdatanew.keySet().contains(tempstart));
 
-			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
+			if ((this.skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
 					&& (sizecheck != 0
-							? (OverSeer.filterUnknowns
-									? (spikeIn ? inputData.containsKey(tempstart)
-											: nonSpikedFilter.containsKey(tempstart))
-									: true)
+							? OverSeer.filterUnknowns
+									? this.spikeIn ? this.inputData.containsKey(tempstart)
+											: nonSpikedFilter.containsKey(tempstart)
+									: true
 							: true)) { // MAF > 0.0 olayini
 				// kaldirdik
 
-				int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), sampleset); // durumdu...
+				final int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), this.sampleset); // durumdu...
 
 				if (dAF > 0) {
-					SampleVariantInfo svi = new SampleVariantInfo(samplenamearr.length, useUserPLs, userPL);
+					final SampleVariantInfo svi = new SampleVariantInfo(this.samplenamearr.length, this.useUserPLs,
+							this.userPL);
 
-					for (int spos = 0; spos < samplenamearr.length; spos++) {
-						Genotype tempg = temp.getGenotype(samplenamearr[spos]);
+					for (int spos = 0; spos < this.samplenamearr.length; spos++) {
+						final Genotype tempg = temp.getGenotype(this.samplenamearr[spos]);
 
 						if (tempg.isCalled()) {
-							if (tempg.hasLikelihoods() && !svi.FakePL)
+							if (tempg.hasLikelihoods() && !svi.FakePL) {
 								svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
+							}
 							if (tempg.isHet()) {
-								if (useADs) {
-									if (isBalanced(tempg)) {
+								if (this.useADs) {
+									if (this.isBalanced(tempg)) {
 										svi.addGenotype(1, spos);
-									} else if (isRefBiased(tempg)) {
+									} else if (this.isRefBiased(tempg)) {
 										svi.addGenotype(0, spos);
 										svi.addBalancedHomRefPL(spos);
 									} else {
@@ -279,28 +282,32 @@ public class Input {
 									svi.addGenotype(1, spos);
 								}
 
-							} else if (tempg.isHomVar())
+							} else if (tempg.isHomVar()) {
 								svi.addGenotype(2, spos);
-							else
+							} else {
 								svi.addGenotype(0, spos);
+							}
 						} else {
 							svi.addDefaultPL(spos);
 							svi.addGenotype(0, spos);
 						}
 					}
 
-					if (AFtag == null)
-						if (!OverSeer.DMAF)
+					if (this.AFtag == null) {
+						if (!OverSeer.DMAF) {
 							svi.forceCalculateAF();
-						else
-							svi.addAF(defaultMAF);
-					else
-						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));
+						} else {
+							svi.addAF(this.defaultMAF);
+						}
+					} else {
+						svi.addAF(temp.getAttributeAsDouble(this.AFtag, this.defaultMAF));
+					}
 
-					inputData.put(temp.getStart(), svi);
+					this.inputData.put(temp.getStart(), svi);
 
-				} else if (!skipzeroaf)
-					inputData.put(temp.getStart(), ivi);
+				} else if (!this.skipzeroaf) {
+					this.inputData.put(temp.getStart(), ivi);
+				}
 			}
 
 		}
@@ -317,7 +324,7 @@ public class Input {
 	}
 
 	public Input setVCFPath(String path) {
-		vcfpath = path;
+		this.vcfpath = path;
 
 		return this;
 	}
@@ -332,28 +339,27 @@ public class Input {
 	 */
 
 	public Input setGNOMADPath(String path) {
-		gnomadpath = path;
+		this.gnomadpath = path;
 
 		return this;
 	}
 
 	public Input setDefaultMAF(double af) {
-		defaultMAF = af;
+		this.defaultMAF = af;
 
 		return this;
 	}
 
 	public Input setAFTag(String tag) {
-		AFtag = tag;
+		this.AFtag = tag;
 
 		return this;
 	}
 
 	public void setContig(String ctg) {
-		contigname = ctg;
+		this.contigname = ctg;
 
 	}
-
 
 	/*
 	 * public int[] getObservationSet() { int[] obs = new int[inputdata.size()]; int
@@ -362,7 +368,6 @@ public class Input {
 	 * 
 	 * return obs; }
 	 */
-
 
 	/*
 	 * public int[] getObservationSetNew(int sampleindex) { int[] obs = new
@@ -388,7 +393,6 @@ public class Input {
 	 * return obs; }
 	 */
 
-
 	/*
 	 * public int[][] getObservationSetPLsNew(int sampleindex) { int[][] obs = new
 	 * int[inputdatanew.size()][3]; int count = 0; for (Entry<Integer, VariantInfo>
@@ -402,18 +406,19 @@ public class Input {
 	 */
 
 	public void setObsAndPLs(HMM hmm, int sampleindex) {
-		int[] obsgt = new int[inputData.size()];
-		int[][] obspl = new int[inputData.size()][3];
+		final int[] obsgt = new int[this.inputData.size()];
+		final int[][] obspl = new int[this.inputData.size()][3];
 
 		int count = 0;
-		for (Entry<Integer, VariantInfo> e : inputData.entrySet()) {
-			obsgt[count] = !(usePLs || useUserPLs || legacywPL) ? e.getValue().getGenotype(sampleindex) : 0;
-			obspl[count] = (usePLs || useUserPLs || legacywPL) ? e.getValue().getPL(sampleindex) : null;
+		for (final Entry<Integer, VariantInfo> e : this.inputData.entrySet()) {
+			obsgt[count] = (!this.usePLs && !this.useUserPLs && !this.legacywPL) ? e.getValue().getGenotype(sampleindex)
+					: 0;
+			obspl[count] = this.usePLs || this.useUserPLs || this.legacywPL ? e.getValue().getPL(sampleindex) : null;
 			count++;
 		}
 
-		hmm.GTs = !(usePLs || useUserPLs || legacywPL) ? obsgt : null;
-		hmm.PLmatrix = (usePLs || useUserPLs || legacywPL) ? obspl : null;
+		hmm.GTs = (!this.usePLs && !this.useUserPLs && !this.legacywPL) ? obsgt : null;
+		hmm.PLmatrix = this.usePLs || this.useUserPLs || this.legacywPL ? obspl : null;
 	}
 
 	/*
@@ -423,7 +428,6 @@ public class Input {
 	 * 
 	 * return maf; }
 	 */
-
 
 	/*
 	 * public double[] getMAFSetNew() { double[] maf = new
@@ -441,7 +445,6 @@ public class Input {
 	 * return distmap; }
 	 */
 
-
 	/*
 	 * public int[] getDistanceSetNew() { int[] distmap = new
 	 * int[inputdatanew.size()]; int count = 0; int DIST = 0; for (Integer k :
@@ -451,33 +454,33 @@ public class Input {
 	 */
 	public void setMAFAndDist(HMM hmm) {
 
-		if (Distenabled || HWenabled) {
+		if (this.Distenabled || this.HWenabled) {
 			int count = 0;
 			int DIST = 0;
 
-			int[] distmap = new int[inputData.size()];
+			final int[] distmap = new int[this.inputData.size()];
 
-			double[] maf = new double[inputData.size()];
+			final double[] maf = new double[this.inputData.size()];
 
-			for (Entry<Integer, VariantInfo> e : inputData.entrySet()) {
-				int k = e.getKey();
-				distmap[count] = Distenabled ? k - DIST : 0;
+			for (final Entry<Integer, VariantInfo> e : this.inputData.entrySet()) {
+				final int k = e.getKey();
+				distmap[count] = this.Distenabled ? k - DIST : 0;
 				DIST = k;
-				maf[count] = HWenabled ? e.getValue().getAF() : 0.0;
+				maf[count] = this.HWenabled ? e.getValue().getAF() : 0.0;
 				count++;
 			}
 
-			hmm.Dists = Distenabled ? distmap : null;
-			hmm.MAFs = HWenabled ? maf : null;
+			hmm.Dists = this.Distenabled ? distmap : null;
+			hmm.MAFs = this.HWenabled ? maf : null;
 		}
 	}
 
 	public void setDistEnabled() {
-		Distenabled = true;
+		this.Distenabled = true;
 	}
 
 	public boolean getHWmode() {
-		return HWenabled;
+		return this.HWenabled;
 	}
 
 	/*
@@ -485,13 +488,13 @@ public class Input {
 	 */
 
 	public TreeMap<Integer, VariantInfo> getInputDataNew() {
-		return inputData;
+		return this.inputData;
 	}
 
 	public void killTreeMap() {
 
-		//inputdata = null;
-		inputData = null;
+		// inputdata = null;
+		this.inputData = null;
 
 	}
 
@@ -499,13 +502,14 @@ public class Input {
 
 		if (gt.hasAD()) {
 			try {
-				int ref = gt.getAD()[0];
-				int alt = gt.getAD()[1];
-				double refratio = (double) ref / ref + alt;
-				double altratio = (double) alt / ref + alt;
-				if (Math.min(refratio, altratio) < ADThreshold)
+				final int ref = gt.getAD()[0];
+				final int alt = gt.getAD()[1];
+				final double refratio = (double) ref / ref + alt;
+				final double altratio = (double) alt / ref + alt;
+				if (Math.min(refratio, altratio) < this.ADThreshold) {
 					return false;
-			} catch (Exception e) {
+				}
+			} catch (final Exception e) {
 				return true;
 			}
 		}
@@ -515,11 +519,12 @@ public class Input {
 	private boolean isRefBiased(Genotype gt) {
 		if (gt.hasAD()) {
 			try {
-				int ref = gt.getAD()[0];
-				int alt = gt.getAD()[1];
-				if (ref > alt)
+				final int ref = gt.getAD()[0];
+				final int alt = gt.getAD()[1];
+				if (ref > alt) {
 					return true;
-			} catch (Exception e) {
+				}
+			} catch (final Exception e) {
 				return true;
 			}
 		}
@@ -527,9 +532,9 @@ public class Input {
 	}
 
 	public void setSampleSet() {
-		sampleset = new HashSet<>();
-		for (String s : samplenamearr) {
-			sampleset.add(s);
+		this.sampleset = new HashSet<>();
+		for (final String s : this.samplenamearr) {
+			this.sampleset.add(s);
 		}
 	}
 }

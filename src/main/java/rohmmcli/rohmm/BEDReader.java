@@ -25,104 +25,105 @@ public class BEDReader {
 	protected AbstractFeatureReader<BEDFeature, LineIterator> bedReader;
 
 	public BEDReader(File BED) throws FileNotFoundException {
-		BEDFile = BED;
-		if(!bedIndexExists()) {
-			BEDIndex = new File(createIndex());
+		this.BEDFile = BED;
+		if (!this.bedIndexExists()) {
+			this.BEDIndex = new File(this.createIndex());
 		}
-		createReader();
+		this.createReader();
 	}
 
 	protected void closeBEDReader() {
 		try {
-			bedReader.close();
-			bedReader = null;
-		} catch (IOException e) {
+			this.bedReader.close();
+			this.bedReader = null;
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-
 
 	private boolean bedIndexExists() {
-		if(BEDFile.getAbsolutePath().endsWith(FileExtensions.BED)) {
-			tribbletype = true;
-			BEDIndex = new File(BEDFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
-		}	
-		else if(BEDFile.getAbsolutePath().endsWith("bed.gz")) {
-			BEDIndex = new File(BEDFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
+		if (this.BEDFile.getAbsolutePath().endsWith(FileExtensions.BED)) {
+			this.tribbletype = true;
+			this.BEDIndex = new File(this.BEDFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
+		} else if (this.BEDFile.getAbsolutePath().endsWith("bed.gz")) {
+			this.BEDIndex = new File(this.BEDFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
 		}
-		return BEDIndex.exists();
+		return this.BEDIndex.exists();
 	}
 
 	private String createIndex() {
 		String idxpath = "";
 
-		OverSeer.log(getClass().getSimpleName(), "File index not found. Creating one...", OverSeer.INFO);
+		OverSeer.log(this.getClass().getSimpleName(), "File index not found. Creating one...", OverSeer.INFO);
 
-		BEDCodec codec = new BEDCodec();
+		final BEDCodec codec = new BEDCodec();
 
-		if (tribbletype) {
-			idxpath = BEDFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX;
+		if (this.tribbletype) {
+			idxpath = this.BEDFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX;
 
 			try {
-				Index idx = IndexFactory.createDynamicIndex(BEDFile, codec, IndexBalanceApproach.FOR_SEEK_TIME);
+				final Index idx = IndexFactory.createDynamicIndex(this.BEDFile, codec,
+						IndexBalanceApproach.FOR_SEEK_TIME);
 				idx.write(new File(idxpath));
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				if (e instanceof UnsortedFileException) {
-					OverSeer.log(getClass().getSimpleName(),
+					OverSeer.log(this.getClass().getSimpleName(),
 							"BED File is not sorted. Sorting function is currently not implemented. Please sort your vcf using a proper tool.",
 							OverSeer.ERROR);
-				} else
+				} else {
 					e.printStackTrace();
+				}
 
 			}
 
 		} else {
-			idxpath = BEDFile.getAbsolutePath() + FileExtensions.TABIX_INDEX;
+			idxpath = this.BEDFile.getAbsolutePath() + FileExtensions.TABIX_INDEX;
 
 			try {
-				Index idx = IndexFactory.createIndex(BEDFile, codec, IndexType.TABIX);
+				final Index idx = IndexFactory.createIndex(this.BEDFile, codec, IndexType.TABIX);
 				idx.write(new File(idxpath));
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				if (e instanceof UnsortedFileException) {
-					OverSeer.log(getClass().getSimpleName(),
+					OverSeer.log(this.getClass().getSimpleName(),
 							"BED File is not sorted. Sorting function is currently not implemented. Please sort your vcf using a proper tool.",
 							OverSeer.ERROR);
-				} else
-				e.printStackTrace();
+				} else {
+					e.printStackTrace();
+				}
 			}
 
 		}
 
-		OverSeer.log(getClass().getSimpleName(), "Successfully created " + idxpath, OverSeer.INFO);
+		OverSeer.log(this.getClass().getSimpleName(), "Successfully created " + idxpath, OverSeer.INFO);
 
 		return idxpath;
 	}
-	
+
 	protected AbstractFeatureReader<BEDFeature, LineIterator> getReader() {
-		
+
 		try {
-			return bedReader;
-		}
-		catch (Exception e) {
+			return this.bedReader;
+		} catch (final Exception e) {
 			// TODO: handle exception
 			return null;
 		}
 	}
-	
+
 	private void createReader() {
-		if(tribbletype) {
+		if (this.tribbletype) {
 			try {
-				bedReader = new TribbleIndexedFeatureReader<BEDFeature, LineIterator>(BEDFile.getAbsolutePath(), BEDIndex.getAbsolutePath(), new BEDCodec(), true);
-			} catch (IOException e) {
+				this.bedReader = new TribbleIndexedFeatureReader<>(
+						this.BEDFile.getAbsolutePath(), this.BEDIndex.getAbsolutePath(), new BEDCodec(), true);
+			} catch (final IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				bedReader = new TabixFeatureReader<BEDFeature, LineIterator>(BEDFile.getAbsolutePath(), BEDIndex.getAbsolutePath(), new BEDCodec());
-			} catch (IOException e) {
+				this.bedReader = new TabixFeatureReader<>(this.BEDFile.getAbsolutePath(),
+						this.BEDIndex.getAbsolutePath(), new BEDCodec());
+			} catch (final IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

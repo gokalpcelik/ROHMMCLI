@@ -3,7 +3,7 @@ package rohmmcli.gui;
 import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
-
+@Deprecated
 public class VCFFilter extends FileFilter {
 
 	@Override

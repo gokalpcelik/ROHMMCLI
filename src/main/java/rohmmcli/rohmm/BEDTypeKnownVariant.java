@@ -8,15 +8,15 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.tribble.bed.BEDFeature;
 
 public class BEDTypeKnownVariant implements KnownVariant {
-	
+
 	protected BEDReader bedrdr = null;
 	protected CloseableIterator<BEDFeature> iter = null;
-	
+
 	public BEDTypeKnownVariant(File BED) {
 		// TODO Auto-generated constructor stub
 		try {
-			bedrdr = new BEDReader(BED);
-		} catch (FileNotFoundException e) {
+			this.bedrdr = new BEDReader(BED);
+		} catch (final FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -25,21 +25,22 @@ public class BEDTypeKnownVariant implements KnownVariant {
 	@Override
 	public boolean hasNext() {
 		// TODO Auto-generated method stub
-		return iter.hasNext();
+		return this.iter.hasNext();
 	}
 
 	@Override
 	public int getNextPos() {
 		// TODO Auto-generated method stub
-		return iter.next().getStart();
+		return this.iter.next().getStart();
 	}
 
 	@Override
 	public void closeIterator() {
 		// TODO Auto-generated method stub
-		if(iter != null)
-			iter.close();
-		iter = null;
+		if (this.iter != null) {
+			this.iter.close();
+		}
+		this.iter = null;
 
 	}
 
@@ -47,21 +48,20 @@ public class BEDTypeKnownVariant implements KnownVariant {
 	public void createIterator(String contig, int start, int end) {
 		// TODO Auto-generated method stub
 		try {
-			iter = bedrdr.getReader().query(contig, start, end);
-		} catch (IOException e) {
+			this.iter = this.bedrdr.getReader().query(contig, start, end);
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-		closeIterator();
-		bedrdr.closeBEDReader();
-		bedrdr = null;
-		
-	}
+		this.closeIterator();
+		this.bedrdr.closeBEDReader();
+		this.bedrdr = null;
 
+	}
 }

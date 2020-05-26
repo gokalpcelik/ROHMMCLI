@@ -25,136 +25,139 @@ public class VCFReader {
 	protected VCFFileReader vcfReader;
 	protected boolean hasPLTag = false;
 	protected boolean hasADTag = false;
-	public VCFReader(File VCF) throws FileNotFoundException {
-		VCFFile = VCF;
 
-		if (!vcfIndexExists()) {
-			VCFIndex = new File(createIndex());
+	public VCFReader(File VCF) throws FileNotFoundException {
+		this.VCFFile = VCF;
+
+		if (!this.vcfIndexExists()) {
+			this.VCFIndex = new File(this.createIndex());
 		}
-		createReader();
+		this.createReader();
 
 	}
 
 	protected void closeVCFReader() {
-		vcfReader.close();
-		vcfReader = null;
+		this.vcfReader.close();
+		this.vcfReader = null;
 	}
-	
-
 
 	private boolean vcfIndexExists() {
-		if (VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
-			VCFIndex = new File(VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
-		} else if (VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
-			VCFIndex = new File(VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
+		if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
+			this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
+		} else if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
+			this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
 		}
-		return VCFIndex.exists();
+		return this.VCFIndex.exists();
 	}
 
 	private String createIndex() {
 		String idxpath = "";
 
-		OverSeer.log(getClass().getSimpleName(), "File index not found. Creating one...", OverSeer.INFO);
+		OverSeer.log(this.getClass().getSimpleName(), "File index not found. Creating one...", OverSeer.INFO);
 
-		VCFCodec codec = new VCFCodec();
+		final VCFCodec codec = new VCFCodec();
 
-		if (VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
-			idxpath = VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX;
+		if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
+			idxpath = this.VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX;
 
 			try {
-				Index idx = IndexFactory.createDynamicIndex(VCFFile, codec, IndexBalanceApproach.FOR_SEEK_TIME);
+				final Index idx = IndexFactory.createDynamicIndex(this.VCFFile, codec,
+						IndexBalanceApproach.FOR_SEEK_TIME);
 				idx.write(new File(idxpath));
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				if (e instanceof UnsortedFileException) {
-					OverSeer.log(getClass().getSimpleName(),
+					OverSeer.log(this.getClass().getSimpleName(),
 							"VCF File is not sorted. Sorting function is currently not implemented. Please sort your vcf using a proper tool.",
 							OverSeer.ERROR);
-				} else
+				} else {
 					e.printStackTrace();
+				}
 
 			}
 
-		} else if (VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
-			idxpath = VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX;
+		} else if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
+			idxpath = this.VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX;
 
 			try {
-				Index idx = IndexFactory.createIndex(VCFFile, codec, IndexType.TABIX);
+				final Index idx = IndexFactory.createIndex(this.VCFFile, codec, IndexType.TABIX);
 				idx.write(new File(idxpath));
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 
 		}
 
-		OverSeer.log(getClass().getSimpleName(), "Successfully created " + idxpath, OverSeer.INFO);
+		OverSeer.log(this.getClass().getSimpleName(), "Successfully created " + idxpath, OverSeer.INFO);
 
 		return idxpath;
 	}
 
 	@SuppressWarnings("unused")
 	private String sortVCF() {
-		String sortedVCFpath = "";
+		final String sortedVCFpath = "";
 		// implement if needed...
 		return sortedVCFpath;
 	}
-	
+
 	protected VCFHeader getHeader() {
-	
-		if(vcfReader != null)
-			return vcfReader.getFileHeader();
-		else 
+
+		if (this.vcfReader != null) {
+			return this.vcfReader.getFileHeader();
+		} else {
 			return null;
+		}
 	}
-	
+
 	protected VCFFileReader getReader() {
-		return vcfReader;
+		return this.vcfReader;
 	}
-	
+
 	private void createReader() {
-		vcfReader =  new VCFFileReader(VCFFile, VCFIndex);
+		this.vcfReader = new VCFFileReader(this.VCFFile, this.VCFIndex);
 	}
 
 	protected String getVCFFileName() {
-		return VCFFile.getName();
+		return this.VCFFile.getName();
 	}
-	
+
 	protected List<String> getAvailableContigsList() {
 
-		ArrayList<String> availableContigs = new ArrayList<String>();
+		final ArrayList<String> availableContigs = new ArrayList<>();
 
-		
+		final List<SAMSequenceRecord> lists = this.vcfReader.getFileHeader().getSequenceDictionary().getSequences();
 
-		List<SAMSequenceRecord> lists = vcfReader.getFileHeader().getSequenceDictionary().getSequences();
+		for (final SAMSequenceRecord record : lists) {
 
-		for (SAMSequenceRecord record : lists) {
-
-			String sequencename = record.getSequenceName();
-			CloseableIterator<VariantContext> iter = vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
+			final String sequencename = record.getSequenceName();
+			final CloseableIterator<VariantContext> iter = this.vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
 			if (iter.hasNext()) {
-				
-				VariantContext temp = iter.next();
-				
-				if(temp.getGenotype(0).hasLikelihoods())
-					hasPLTag = true;
-				
-				if(temp.getGenotype(0).hasAD())
-					hasADTag = true;
-				
+
+				final VariantContext temp = iter.next();
+
+				if (temp.getGenotype(0).hasLikelihoods()) {
+					this.hasPLTag = true;
+				}
+
+				if (temp.getGenotype(0).hasAD()) {
+					this.hasADTag = true;
+				}
+
 				availableContigs.add(sequencename);
 			}
 
 			iter.close();
 
 		}
-		if (availableContigs.size() > 0)
+		if (availableContigs.size() > 0) {
 			return availableContigs;
+		}
 
 		return null;
 
 	}
 
 	protected List<String> getVCFSampleList() {
-		return getHeader().getSampleNamesInOrder();
+		return this.getHeader().getSampleNamesInOrder();
 	}
 
 }

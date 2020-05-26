@@ -10,16 +10,15 @@ public class Output {
 	public static void generateOutput(String contig, Input in, int[] viterbipath, String outputprefix,
 			double[][] posterior, boolean combine, int ROHLEN, int ROHCOUNT, double ROHQUAL) throws Exception {
 
-		FileWriter fr = new FileWriter(outputprefix + (combine ? "" : ("-" + contig)) + "_ROH.bed", combine);
-		BufferedWriter br = new BufferedWriter(fr);
+		final FileWriter fr = new FileWriter(outputprefix + (combine ? "" : "-" + contig) + "_ROH.bed", combine);
+		final BufferedWriter br = new BufferedWriter(fr);
 
 		// br.write("#" + cmdline + "\n");
 
 		// System.err.println("Generating outputs for contig " + contig);
-
-		int[] positions = new int[in.getInputDataNew().size()];
+		final int[] positions = new int[in.getInputDataNew().size()];
 		int count = 0;
-		for (Entry<?, ?> e : in.getInputDataNew().entrySet()) {
+		for (final Entry<?, ?> e : in.getInputDataNew().entrySet()) {
 			positions[count] = (Integer) e.getKey();
 			count++;
 		}
@@ -32,7 +31,7 @@ public class Output {
 		int rohcount = 0;
 		if (status == 0) {
 			posteriorprob = posteriorprob + posterior[0][0];
-			posteriorpr = posteriorpr + (posterior[1][0]);
+			posteriorpr = posteriorpr + posterior[1][0];
 			rohcount++;
 		}
 
@@ -47,9 +46,9 @@ public class Output {
 			if (status == viterbipath[i]) {
 				end = positions[i];
 			} else {
-				if (status == 0 && (end - start >= ROHLEN) && rohcount >= ROHCOUNT && posteriorprob >= ROHQUAL) {
-					br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + (posteriorprob / rohcount) + "\t"
-							+ rohcount + "\n");
+				if (status == 0 && end - start >= ROHLEN && rohcount >= ROHCOUNT && posteriorprob >= ROHQUAL) {
+					br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" + rohcount
+							+ "\n");
 					posteriorprob = 0;
 					rohcount = 0;
 				}
@@ -58,8 +57,8 @@ public class Output {
 				status = viterbipath[i];
 			}
 		}
-		if (status == 0)
-			br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + (posteriorprob / rohcount) + "\t" // burada
+		if (status == 0) {
+			br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" // burada
 																										// yapilan salak
 																										// bir hata
 																										// yuzunden
@@ -67,6 +66,7 @@ public class Output {
 																										// mahvediyorduk
 																										// nerdeyese...
 					+ rohcount + "\n");
+		}
 
 		br.close();
 		fr.close();

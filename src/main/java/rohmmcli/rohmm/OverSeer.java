@@ -402,6 +402,7 @@ public class OverSeer {
 
 	public static void getOS() {
 		OSNAME = System.getProperty("os.name").toLowerCase();
+		log("System", OSNAME, OverSeer.INFO);
 	}
 
 	public static boolean isMac() {
@@ -410,16 +411,18 @@ public class OverSeer {
 		return false;
 	}
 	
-	protected static boolean isMacMenuBarDarkMode() {
-	    try {
-	        // check for exit status only. Once there are more modes than "dark" and "default", we might need to analyze string contents..
-	        final Process proc = Runtime.getRuntime().exec(new String[] {"defaults", "read", "-g", "AppleInterfaceStyle"});
-	        proc.waitFor(100, TimeUnit.MILLISECONDS);
-	        return proc.exitValue() == 0;
-	    } catch (IOException | InterruptedException | IllegalThreadStateException ex) {
-	        // IllegalThreadStateException thrown by proc.exitValue(), if process didn't terminate
-	        return false;
-	    }
+	protected static boolean isMacDarkMode() {
+		try {
+			// check for exit status only. Once there are more modes than "dark" and
+			// "default", we might need to analyze string contents..
+			final Process themechecker = Runtime.getRuntime().exec("defaults read -g AppleInterfaceStyle");
+			themechecker.waitFor(100, TimeUnit.MILLISECONDS);
+			return themechecker.exitValue() == 0;
+		} catch (Exception e) {
+			// IllegalThreadStateException thrown by proc.exitValue(), if process didn't
+			// terminate
+			return false;
+		}
 	}
 
 	public static boolean isWindows() {

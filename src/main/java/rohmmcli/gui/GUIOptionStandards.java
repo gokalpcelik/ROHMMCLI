@@ -15,5 +15,4 @@ public class GUIOptionStandards {
 	public static final String LOGLEVEL = "-LL";
 	public static final String MINIMUMROHQUAL = "-Q";
 	public static final String KNOWNSNPPATH = "-G";
-
 }

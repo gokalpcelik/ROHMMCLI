@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import htsjdk.samtools.example.ExampleSamUsage;
-
 @SuppressWarnings("unused")
 public class Model {
-	
+
 	protected static boolean hwmode = false;
 	protected static boolean distmode = false;
 	protected static HMM hmm = null;
@@ -16,69 +14,68 @@ public class Model {
 	protected static final String HWDISTMODEL = "MODELHWDIST";
 	protected static final String XMODEL = "MODELX";
 	protected static final String XDISTMODEL = "MODELXDIST";
-	
-	
-	public static HMM hmmModel(String model) throws Exception{
 
-		switch(model)
-		{
-			case HWMODEL:
-				getDefaultAlleleFrequencyModel(false);
-				break;
-			case HWDISTMODEL:
-				getDefaultAlleleFrequencyModel(true);
-				break;
-			case XMODEL:
-				getDefaultAlleleDistributionModel(false);
-				break;
-			case XDISTMODEL:
-				getDefaultAlleleDistributionModel(true);
-				break;
-			default:
-				if (new File(model).exists())
-					hmmModelParser(new File(model));
-				break;
+	public static HMM hmmModel(String model) throws Exception {
+
+		switch (model) {
+		case HWMODEL:
+			getDefaultAlleleFrequencyModel(false);
+			break;
+		case HWDISTMODEL:
+			getDefaultAlleleFrequencyModel(true);
+			break;
+		case XMODEL:
+			getDefaultAlleleDistributionModel(false);
+			break;
+		case XDISTMODEL:
+			getDefaultAlleleDistributionModel(true);
+			break;
+		default:
+			if (new File(model).exists()) {
+				hmmModelParser(new File(model));
+			}
+			break;
 		}
-			
+
 		return hmm;
 	}
-	
+
 	private static void getDefaultAlleleDistributionModel(boolean distenabled) {
-		
-		double[][] emmatrix = {{0.990666,0.0,0.009334},{0.986219,0.007916,0.005865}};
-		double[] start = {0.5,0.5};
-		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
-		double defprob = 0.1;
-		double normfact = 100000;
+
+		final double[][] emmatrix = { { 0.990666, 0.0, 0.009334 }, { 0.986219, 0.007916, 0.005865 } };
+		final double[] start = { 0.5, 0.5 };
+		final double[][] transmatrix = { { 0.999991, 0.000009 }, { 0.000004, 0.999996 } };
+		final double defprob = 0.1;
+		final double normfact = 100000;
 		distmode = distenabled;
-		if(!distmode)
+		if (!distmode) {
 			hmm = new HMM(emmatrix, transmatrix, start);
-		else
+		} else {
 			hmm = new HMM(emmatrix, defprob, normfact, start);
+		}
 	}
-	
+
 	private static void getDefaultAlleleFrequencyModel(boolean distenabled) {
-		double[] start = {0.5,0.5};
-		double[][] transmatrix = {{0.999991,0.000009},{0.000004,0.999996}};
-		double defprob = 0.1;
-		double normfact = 100000;
+		final double[] start = { 0.5, 0.5 };
+		final double[][] transmatrix = { { 0.999991, 0.000009 }, { 0.000004, 0.999996 } };
+		final double defprob = 0.1;
+		final double normfact = 100000;
 		hwmode = true;
 		distmode = distenabled;
-		if(!distmode)
+		if (!distmode) {
 			hmm = new HMM(null, transmatrix, start);
-		else
+		} else {
 			hmm = new HMM(defprob, normfact, start);
+		}
 	}
-	
-	
 
 	private static void hmmModelParser(File modelfile) {
 
 		hwmode = false;
 		distmode = false;
-		double[][] emmatrix = new double[2][3];
-		double[] start = new double[2];
-		double[][] transmatrix = new double[2][2];
+		final double[][] emmatrix = new double[2][3];
+		final double[] start = new double[2];
+		final double[][] transmatrix = new double[2][2];
 		@Deprecated
 		double minAF = Double.NEGATIVE_INFINITY;
 		@Deprecated
@@ -89,61 +86,61 @@ public class Model {
 		double normfact = Double.NEGATIVE_INFINITY;
 		try {
 
-			FileReader fr = new FileReader(modelfile);
-			BufferedReader br = new BufferedReader(fr);
+			final FileReader fr = new FileReader(modelfile);
+			final BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
 			if (!line.equalsIgnoreCase("Model-File")) {
 				ExceptionHandler.IncorrectModelFormat();
 			}
 
 			while ((line = br.readLine()) != null) {
-				String[] argses = line.split("\t");
+				final String[] argses = line.split("\t");
 
-				String temp = argses[0];
+				final String temp = argses[0];
 				switch (temp) {
-					case "HW":
-						hwmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-						break;
-					case "START":
-						start[0] = Double.parseDouble(argses[1]);
-						start[1] = Double.parseDouble(argses[2]);
-						break;
-					case "EMROH":
-						emmatrix[0][0] = Double.parseDouble(argses[1]);
-						emmatrix[0][1] = Double.parseDouble(argses[2]);
-						emmatrix[0][2] = Double.parseDouble(argses[3]);
-						break;
-					case "EMNORM":
-						emmatrix[1][0] = Double.parseDouble(argses[1]);
-						emmatrix[1][1] = Double.parseDouble(argses[2]);
-						emmatrix[1][2] = Double.parseDouble(argses[3]);
-						break;
-					case "TRANSROH":
-						transmatrix[0][0] = Double.parseDouble(argses[1]);
-						transmatrix[0][1] = Double.parseDouble(argses[2]);
-						break;
-					case "TRANSNORM":
-						transmatrix[1][0] = Double.parseDouble(argses[1]);
-						transmatrix[1][1] = Double.parseDouble(argses[2]);
-						break;
-					case "MINAF":
-						minAF = Double.parseDouble(argses[1]);
-						break;
-					case "MAXAF":
-						maxAF = Double.parseDouble(argses[1]);
-						break;
-					case "HOMCOUNT":
-						homcount = Integer.parseInt(argses[1]);
-						break;
-					case "DEFAULTPROB":
-						defprob = Double.parseDouble(argses[1]);
-						break;
-					case "DIST":
-						distmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-						break;
-					case "NORMFACT":
-						normfact = Double.parseDouble(argses[1]);
-						break;
+				case "HW":
+					hwmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
+					break;
+				case "START":
+					start[0] = Double.parseDouble(argses[1]);
+					start[1] = Double.parseDouble(argses[2]);
+					break;
+				case "EMROH":
+					emmatrix[0][0] = Double.parseDouble(argses[1]);
+					emmatrix[0][1] = Double.parseDouble(argses[2]);
+					emmatrix[0][2] = Double.parseDouble(argses[3]);
+					break;
+				case "EMNORM":
+					emmatrix[1][0] = Double.parseDouble(argses[1]);
+					emmatrix[1][1] = Double.parseDouble(argses[2]);
+					emmatrix[1][2] = Double.parseDouble(argses[3]);
+					break;
+				case "TRANSROH":
+					transmatrix[0][0] = Double.parseDouble(argses[1]);
+					transmatrix[0][1] = Double.parseDouble(argses[2]);
+					break;
+				case "TRANSNORM":
+					transmatrix[1][0] = Double.parseDouble(argses[1]);
+					transmatrix[1][1] = Double.parseDouble(argses[2]);
+					break;
+				case "MINAF":
+					minAF = Double.parseDouble(argses[1]);
+					break;
+				case "MAXAF":
+					maxAF = Double.parseDouble(argses[1]);
+					break;
+				case "HOMCOUNT":
+					homcount = Integer.parseInt(argses[1]);
+					break;
+				case "DEFAULTPROB":
+					defprob = Double.parseDouble(argses[1]);
+					break;
+				case "DIST":
+					distmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
+					break;
+				case "NORMFACT":
+					normfact = Double.parseDouble(argses[1]);
+					break;
 
 				}
 
@@ -164,12 +161,13 @@ public class Model {
 			// do something
 			hmm = new HMM(emmatrix, transmatrix, start);
 			if (distmode) {
-				if (!hwmode)
+				if (!hwmode) {
 					hmm = new HMM(emmatrix, defprob, normfact, start);
-				else
+				} else {
 					hmm = new HMM(defprob, normfact, start);
+				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}

@@ -8,89 +8,88 @@ public class SampleVariantInfo implements VariantInfo {
 	protected int FPLV;
 	protected double AF;
 	protected double sum = 0.0;
-	
 
-	
 	public SampleVariantInfo(int samplesize, boolean FPL, int fplv) {
-		FakePL = FPL;
-		FPLV = fplv;
-		PLArray = new int[samplesize][3];
-		GenotypeArray = new int[samplesize];
+		this.FakePL = FPL;
+		this.FPLV = fplv;
+		this.PLArray = new int[samplesize][3];
+		this.GenotypeArray = new int[samplesize];
 	}
 
 	public void addPL(int[] PL, int sampleindex) {
-		PLArray[sampleindex][0] = PL[0];
-		PLArray[sampleindex][1] = PL[1];
-		PLArray[sampleindex][2] = PL[2];
+		this.PLArray[sampleindex][0] = PL[0];
+		this.PLArray[sampleindex][1] = PL[1];
+		this.PLArray[sampleindex][2] = PL[2];
 	}
 
 	public void addGenotype(int genotype, int sampleindex) {
-		sum = sum + genotype;
-		GenotypeArray[sampleindex] = genotype;
+		this.sum = this.sum + genotype;
+		this.GenotypeArray[sampleindex] = genotype;
 	}
 
 	@Override
 	public int[] getPL(int sampleindex) {
-		if (FakePL) {
-			int genotype = this.getGenotype(sampleindex);
+		if (this.FakePL) {
+			final int genotype = this.getGenotype(sampleindex);
 			int[] PL = null;
 
 			switch (genotype) {
 			case VariantInfo.HOMREF:
-				PL = new int[] { 0, FPLV, FPLV };
+				PL = new int[] { 0, this.FPLV, this.FPLV };
 				break;
 			case VariantInfo.HET:
-				PL = new int[] { FPLV, 0, FPLV };
+				PL = new int[] { this.FPLV, 0, this.FPLV };
 				break;
 			case VariantInfo.HOMVAR:
-				PL = new int[] { FPLV, FPLV, 0 };
+				PL = new int[] { this.FPLV, this.FPLV, 0 };
 				break;
 			}
 			return PL;
-		} else
-			return PLArray[sampleindex];
+		} else {
+			return this.PLArray[sampleindex];
+		}
 	}
 
 	@Override
 	public int getGenotype(int sampleindex) {
-		return GenotypeArray[sampleindex];
+		return this.GenotypeArray[sampleindex];
 	}
 
 	@Override
 	public double getAF() {
-		return AF;
+		return this.AF;
 	}
 
 	public void addAF(double allelefreq) {
-		AF = allelefreq;
+		this.AF = allelefreq;
 	}
 
 	public void forceCalculateAF() {
-		AF = sum / (GenotypeArray.length * 2);
+		this.AF = this.sum / (this.GenotypeArray.length * 2);
 	}
 
 	public void addDefaultPL(int sampleindex) {
-		PLArray[sampleindex][0] = 0;
-		PLArray[sampleindex][1] = 255;
-		PLArray[sampleindex][2] = 255;
+		this.PLArray[sampleindex][0] = 0;
+		this.PLArray[sampleindex][1] = 255;
+		this.PLArray[sampleindex][2] = 255;
 	}
-	
+
 	public void addBalancedHomRefPL(int sampleindex) {
-		PLArray[sampleindex][0] = 0;
-		PLArray[sampleindex][1] = FPLV;
-		PLArray[sampleindex][2] = FPLV;
+		this.PLArray[sampleindex][0] = 0;
+		this.PLArray[sampleindex][1] = this.FPLV;
+		this.PLArray[sampleindex][2] = this.FPLV;
 	}
-	
+
 	public void addBalancedHetPL(int sampleindex) {
-		PLArray[sampleindex][0] = FPLV;
-		PLArray[sampleindex][1] = 0;
-		PLArray[sampleindex][2] = FPLV;
+		this.PLArray[sampleindex][0] = this.FPLV;
+		this.PLArray[sampleindex][1] = 0;
+		this.PLArray[sampleindex][2] = this.FPLV;
 	}
-	
+
 	public void addBalancedHomVarPL(int sampleindex) {
-		PLArray[sampleindex][0] = FPLV;
-		PLArray[sampleindex][1] = FPLV;
-		PLArray[sampleindex][2] = 0;
+		this.PLArray[sampleindex][0] = this.FPLV;
+		this.PLArray[sampleindex][1] = this.FPLV;
+		this.PLArray[sampleindex][2] = 0;
 	}
-	
+
 }

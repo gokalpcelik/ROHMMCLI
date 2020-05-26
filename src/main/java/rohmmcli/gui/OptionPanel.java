@@ -11,5 +11,4 @@ public class OptionPanel extends JPanel {
 	public OptionPanel() {
 
 	}
-
 }

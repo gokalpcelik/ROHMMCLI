@@ -17,51 +17,45 @@ public class ROHMMMain extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Launch the application.
 	 */
 	public static void RunGUI() {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				ROHMMMain gui = new ROHMMMain();
-				gui.setVisible(true);
-			}
-			
+		EventQueue.invokeLater(() -> {
+			final ROHMMMain gui = new ROHMMMain();
+			gui.setVisible(true);
 		});
-		
+
 	}
 
 	/**
 	 * Create the frame.
 	 */
 	public ROHMMMain() {
-		setMinimumSize(new Dimension(800, 600));
-		setPreferredSize(new Dimension(800, 600));
-		setName("Deneme");
-		setTitle("ROHMM - Flexible HMM Homozygosity Finder");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
-		setResizable(false);
-		addWindowListener(new MainWindowAdapter());
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		IOPanel iopane = new IOPanel();
-		OptionPanel optpane = new OptionPanel();
+		this.setMinimumSize(new Dimension(800, 600));
+		this.setPreferredSize(new Dimension(800, 600));
+		this.setName("Deneme");
+		this.setTitle("ROHMM - Flexible HMM Homozygosity Finder");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null);
+		this.setResizable(false);
+		this.addWindowListener(new MainWindowAdapter());
+		final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		final IOPanel iopane = new IOPanel();
+		final OptionPanel optpane = new OptionPanel();
 		tabbedPane.add(iopane);
 		tabbedPane.add(optpane);
 		tabbedPane.setTitleAt(0, "Input/Output");
 		tabbedPane.setTitleAt(1, "Advanced Options");
-		getContentPane().add(tabbedPane, BorderLayout.CENTER);
-		pack();
-		
-		
-		
+		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		this.pack();
+
 	}
-	
-	public class MainWindowAdapter extends WindowAdapter
-	{
-		public void windowClosing(WindowEvent e)
-		{
+
+	public class MainWindowAdapter extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
 			OverSeer.closeAllReaders();
 			OverSeer.endTimer();
 		}

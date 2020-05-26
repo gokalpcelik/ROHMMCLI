@@ -6,6 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,11 +115,10 @@ public class IOPanel extends JPanel {
 		scrollPane = new JScrollPane();
 
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		ListActionListener listaction = new ListActionListener();
 		ChrSampleSelectButtonListener selectbuttonlistener = new ChrSampleSelectButtonListener();
 		chrlist = new JList<String>(chrlistmodel);
 		scrollPane.setViewportView(chrlist);
-		chrlist.addListSelectionListener(listaction);
+		chrlist.addListSelectionListener(new ChrListSelectionListener());
 		selectAllChrButton = new JButton("Select All");
 		selectAllChrButton.setActionCommand("allchr");
 		selectAllChrButton.setBounds(12, 458, 120, 25);
@@ -141,8 +143,8 @@ public class IOPanel extends JPanel {
 		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		samplelist = new JList<String>(samplenamemodel);
+		samplelist.addListSelectionListener(new SampleListActionListener());
 		scrollPane_1.setViewportView(samplelist);
-		samplelist.addListSelectionListener(listaction);
 		selectAllSampleButton = new JButton("Select All");
 		selectAllSampleButton.setActionCommand("allsample");
 		selectAllSampleButton.addActionListener(selectbuttonlistener);
@@ -197,7 +199,7 @@ public class IOPanel extends JPanel {
 		filterPanel.add(filterUsingKnown, c);
 		selectKnownVariantButton = new JButton("Select Known Variants");
 		selectKnownVariantButton.setActionCommand("selectknown");
-		selectKnownVariantButton.addActionListener(selectbuttonlistener);
+		selectKnownVariantButton.addActionListener(ioButtonListener);
 		c.ipadx = 15;
 		c.gridy = 1;
 		filterPanel.add(selectKnownVariantButton, c);
@@ -276,6 +278,7 @@ public class IOPanel extends JPanel {
 		}
 
 		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
+		
 
 	}
 
@@ -295,6 +298,7 @@ public class IOPanel extends JPanel {
 				VCFSelectButtonAction();
 				break;
 			case "selectknown":
+				KnownSelectButtonAction();
 				break;
 			default:
 				break;
@@ -302,7 +306,7 @@ public class IOPanel extends JPanel {
 
 		}
 
-		public void OutputDirSelectButtonAction() {
+		protected void OutputDirSelectButtonAction() {
 			try {
 				File file = FileSelectorUtil.selectDirectory(parentFrame, "Select Output Directory", new File("."));
 				if (file != null) {
@@ -313,10 +317,9 @@ public class IOPanel extends JPanel {
 			}
 		}
 
-		public void VCFSelectButtonAction() {
+		protected void VCFSelectButtonAction() {
 			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new VCFFilter(),
-						new File("."));
+				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new ROHMMFileSelectionFilter("VCF Files", "vcf", "vcf.gz"), new File("."));
 				if (file != null) {
 					vcfPathField.setText(file.getAbsolutePath());
 					OverSeer.setVCFPath(file);
@@ -331,6 +334,18 @@ public class IOPanel extends JPanel {
 			}
 		}
 
+	}
+	
+	protected void KnownSelectButtonAction() {
+		try {
+			File file = FileSelectorUtil.openFile(parentFrame, "Select Known Variants File...", new ROHMMFileSelectionFilter("BED and VCF Files", "bed", "bed.gz", "vcf", "vcf.gz"), new File("."));
+			if (file != null) {
+
+			}
+
+		} catch (Exception exp) {
+			exp.printStackTrace();
+		}
 	}
 	
 	public class HMMRadioButtonListener implements ActionListener {
@@ -378,14 +393,45 @@ public class IOPanel extends JPanel {
 		}
 		
 	}
+	
 
-	public class ListActionListener implements ListSelectionListener {
+	protected class ChrListSelectionListener implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			// TODO Auto-generated method stub
-
+			String chrstring = "";
+			if(arg0.getValueIsAdjusting()) {
+				for(String s : chrlist.getSelectedValuesList())
+				{
+					chrstring += s + ",";
+				}
+				
+				chrstring = chrstring.substring(0,chrstring.length()-1);
+			}
+			System.err.println(chrstring);
+			OverSeer.setOption(GUIOptionStandards.CONTIGS, chrstring);
 		}
+	}
+	
+	protected class SampleListActionListener implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			// TODO Auto-generated method stub
+			String samplestring = "";
+			if(arg0.getValueIsAdjusting()) {
+				for(String s : samplelist.getSelectedValuesList())
+				{
+					samplestring += s + ",";
+				}
+				
+				samplestring = samplestring.substring(0,samplestring.length()-1);
+			}
+			System.err.println(samplestring);
+			OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
+		}
+		
 	}
 
 }
