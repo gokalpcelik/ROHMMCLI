@@ -1,3 +1,9 @@
+/*
+ * Author : Gokalp Celik
+ *
+ * Date : May 26, 2020
+ *
+ */
 package rohmmcli.rohmm;
 
 import java.io.BufferedReader;
@@ -20,9 +26,10 @@ import org.apache.commons.cli.Options;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import rohmmcli.gui.GUIOptionStandards;
 
-//OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions. 
-//Consult OverSeer.class whenever a parameter needs to be set or changed. 
+//OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions.
+//Consult OverSeer.class whenever a parameter needs to be set or changed.
 //Other classes should not be used freely...
 public class OverSeer {
 
@@ -33,8 +40,7 @@ public class OverSeer {
 	protected static CommandLine cmd = null;
 	protected static HMM hmm = null;
 	protected static Input input = null;
-	protected static boolean combine = true;
-	protected static boolean filterUnknowns = false;
+	protected static boolean filterUnknowns = true;
 	protected static boolean DMAF = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
 	protected static long START;
@@ -55,7 +61,9 @@ public class OverSeer {
 
 	protected static String OSNAME = null;
 
-	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
+	protected static List<String> CONTIGLIST = null;
+
+	protected static HashMap<String, String> optionMap = new HashMap<>();
 
 	public static final String VERSION = "0.9t-GUI 26/05/2020";
 
@@ -88,14 +96,19 @@ public class OverSeer {
 		optionMap.put(key, value);
 	}
 
+	public static void removeOption(String key) {
+		optionMap.remove(key);
+	}
+
 	public static void setGUICMD() {
 
-		ArrayList<String> guiCMD = new ArrayList<>();
+		final ArrayList<String> guiCMD = new ArrayList<>();
 
-		for (String key : optionMap.keySet()) {
+		for (final String key : optionMap.keySet()) {
 
 			guiCMD.add(key);
-			guiCMD.add(optionMap.get(key));
+			final String value = optionMap.get(key);
+			guiCMD.add(value != null ? value : "");
 		}
 
 		parseCommands(guiCMD.toArray(new String[0]));
@@ -107,13 +120,14 @@ public class OverSeer {
 		log("SYSTEM", "Total time: " + (double) (END - START) / 1000 + " seconds.", INFO);
 	}
 
-	public static void setVCFPath(File vcffile) {
+	public static void setVCFPath(File vcffile) throws Exception {
 		try {
+			CONTIGLIST = null;
 			VCFPath = vcffile.getAbsolutePath();
 			vcfrdr = new VCFReader(vcffile);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new Exception("Cannot set VCF File path due to problematic file");
 		}
 	}
 
@@ -126,16 +140,21 @@ public class OverSeer {
 	}
 
 	public static List<String> getAvailableContigsList() {
-		return vcfrdr != null ? vcfrdr.getAvailableContigsList() : null;
+		try {
+			CONTIGLIST = CONTIGLIST == null ? vcfrdr.getAvailableContigsList() : CONTIGLIST;
+			return CONTIGLIST != null ? CONTIGLIST : vcfrdr != null ? vcfrdr.getAvailableContigsList() : null;
+		} catch (final Exception e) {
+			return null;
+		}
 	}
 
-	public static String[] setContigList() {
+	public static String[] setContigList() throws Exception {
 
 		String[] contigs = null;
 
 		if (cmd.hasOption("C")) {
 
-			String contigparam = cmd.getOptionValue("C");
+			final String contigparam = cmd.getOptionValue("C");
 
 			switch (contigparam) {
 			case "GRCh37":
@@ -164,26 +183,31 @@ public class OverSeer {
 		return vcfrdr != null ? vcfrdr.getVCFSampleList() : null;
 	}
 
+	public static HashMap<String, String> getOptionMap() {
+		return optionMap;
+	}
+
 	public static String[] setSampleNameList() throws IOException {
 
 		String[] samples = new String[0];
-		ArrayList<String> omsamples = new ArrayList<>();
-		ArrayList<String> alsample = (ArrayList<String>) getSampleNameList();
+		final ArrayList<String> omsamples = new ArrayList<>();
+		final ArrayList<String> alsample = (ArrayList<String>) getSampleNameList();
 		if (cmd.hasOption("SL")) {
-			File f = new File(cmd.getOptionValue("SL"));
+			final File f = new File(cmd.getOptionValue("SL"));
 			try {
-				FileReader fr = new FileReader(f);
-				BufferedReader br = new BufferedReader(fr);
+				final FileReader fr = new FileReader(f);
+				final BufferedReader br = new BufferedReader(fr);
 
 				String line;
 
-				ArrayList<String> templist = new ArrayList<>();
+				final ArrayList<String> templist = new ArrayList<>();
 
 				while ((line = br.readLine()) != null) {
-					if (alsample.contains(line))
+					if (alsample.contains(line)) {
 						templist.add(line);
-					else
+					} else {
 						omsamples.add(line);
+					}
 				}
 
 				br.close();
@@ -192,7 +216,7 @@ public class OverSeer {
 				templist.trimToSize();
 				omsamples.trimToSize();
 				samples = templist.toArray(new String[0]);
-			} catch (FileNotFoundException e) {
+			} catch (final FileNotFoundException e) {
 				log("SYSTEM", "Sample list file not found. Selecting all available samples", OverSeer.WARNING);
 				samples = alsample.toArray(new String[0]);
 				return samples;
@@ -207,7 +231,7 @@ public class OverSeer {
 		return samples;
 	}
 
-	public static void setInputParams() {
+	public static void setInputParams() throws Exception {
 		input = new Input();
 
 		input.Distenabled = Model.distmode;
@@ -217,9 +241,14 @@ public class OverSeer {
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
 		input.skipzeroaf = cmd.hasOption("SZ");
 		VCFPath = cmd.getOptionValue("V");
-		setVCFPath(new File(VCFPath));
+		try {
+			setVCFPath(new File(VCFPath));
+		} catch (final Exception e) {
+			// TODO Auto-generated catch block
+			throw new Exception("VCF Path is not set...");
+		}
 		input.setVCFPath(VCFPath);
-		
+
 		input.useADs = cmd.hasOption("AD");
 		input.ADThreshold = input.useADs ? Double.parseDouble(cmd.getOptionValue("AD")) : 0.2;
 		/*
@@ -227,34 +256,32 @@ public class OverSeer {
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
 		 */
 		input.userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
-		
+
 		if (cmd.hasOption("GT")) {
 			input.usePLs = false;
 			input.useUserPLs = true;
 			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-		} 
+		}
 		/*
 		 * else if (cmd.hasOption("legacy")) { input.usePLs = false; input.useGTs =
 		 * true; } else if (cmd.hasOption("Custom")) { input.usePLs = false;
 		 * input.useGTs = false; input.legacywPL = true; }
 		 */
 
-		//if (cmd.hasOption("MFM"))
-		//	input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
+		// if (cmd.hasOption("MFM"))
+		// input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
 
-		if (cmd.hasOption("F"))
+		if (cmd.hasOption("F")) {
 			input.spikeIn = true;
-		
-		if(cmd.hasOption("G"))
-			setKnownVariant();
-		
-		DMAF = cmd.hasOption("DefaultMAF");
-		
-		filterUnknowns = cmd.hasOption("FilterUnknowns");
-			
+		}
 
-		if (cmd.hasOption("split"))
-			combine = false;
+		if (cmd.hasOption("G")) {
+			setKnownVariant();
+		}
+
+		DMAF = cmd.hasOption("DefaultMAF");
+
+		filterUnknowns = cmd.hasOption("IncludeUnknowns");
 
 		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
 
@@ -264,40 +291,49 @@ public class OverSeer {
 
 		try {
 			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private static void setKnownVariant() {
-		File knownVariantFile = new File(cmd.getOptionValue("G"));
-		if(knownVariantFile.exists()) {
-			if(knownVariantFile.getAbsolutePath().endsWith(FileExtensions.BED) || knownVariantFile.getAbsolutePath().endsWith("bed.gz")) {
+		final File knownVariantFile = new File(cmd.getOptionValue("G"));
+		if (knownVariantFile.exists()) {
+			if (knownVariantFile.getAbsolutePath().endsWith(FileExtensions.BED)
+					|| knownVariantFile.getAbsolutePath().endsWith("bed.gz")) {
 				knownVariant = new BEDTypeKnownVariant(knownVariantFile);
 			} else {
 				knownVariant = new VCFTypeKnownVariant(knownVariantFile);
 			}
 		}
 	}
-	
+
 	public static Boolean combineOutput() {
-		if (cmd.hasOption("combine"))
-			return true;
-		return false;
+		if (cmd.hasOption("split")) {
+			return false;
+		}
+		return true;
 	}
 
 	public static void closeAllReaders() {
 		log("SYSTEM", "Closing all IO..", OverSeer.INFO);
-		if (vcfrdr != null)
-			vcfrdr.closeVCFReader();
-		if(knownVariant != null)
-			knownVariant.close();
+		try {
+			if (vcfrdr != null) {
+				vcfrdr.closeVCFReader();
+			}
+			if (knownVariant != null) {
+				knownVariant.close();
+			}
+		} catch (final Exception e) {
+			// TODO: handle exception
+			log("SYSTEM", "Already Closed...", OverSeer.WARNING);
+		}
 	}
 
 	public static void parseCommands(String[] args) {
-		Options opts = new Options();
-		HelpFormatter fmtr = new HelpFormatter();
+		final Options opts = new Options();
+		final HelpFormatter fmtr = new HelpFormatter();
 
 		opts.addRequiredOption("hmm", "hmm-file", true,
 				"HMM parameters file. See help file for file format descriptors. REQUIRED");
@@ -308,14 +344,14 @@ public class OverSeer {
 
 		opts.addRequiredOption("O", "Output-File-Prefix", true, "Output file prefix for bed files. REQUIRED");
 
-		opts.addOption("C", "Contig-String", true,
-				"Comma-seperated contig selection string such as chr1,chr2,chr3...");
+		opts.addOption("C", "Contig-String", true, "Comma-seperated contig selection string such as chr1,chr2,chr3...");
 
 		opts.addOption("AF", "AF-Tag", true,
 				"Allele Frequency tag for site filtering. If not declared AF will be calculated from the genotype counts of the samples.");
-		
-		opts.addOption("DefaultMAF", false, "Disable AF calculation and use a fixed default value for MAF in HW models");
-		
+
+		opts.addOption("DefaultMAF", false,
+				"Disable AF calculation and use a fixed default value for MAF in HW models");
+
 		opts.addOption("help", false, "Display this text...");
 
 		opts.addOption("split", false, "Split Bed file per contig..");
@@ -326,12 +362,13 @@ public class OverSeer {
 
 		opts.addOption("S", "skip-indels", false, "Skip indels and use SNPs only");
 
-		//opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
+		// opts.addOption("legacy", false, "Use Legacy genotyping mode. Deprecated");
 
 		opts.addOption("GT", true, "Use Empirical error rate only for all sites. 30 is recommended (equals 1e-3).");
-		
-		opts.addOption("ER", "error-rate", true, "Empirical error rate for misgenotyped alleles. Phred scaled. 30 is recommended (equals 1e-3).");
-		
+
+		opts.addOption("ER", "error-rate", true,
+				"Empirical error rate for misgenotyped alleles. Phred scaled. 30 is recommended (equals 1e-3).");
+
 		opts.addOption("AD", true, "Use Allelic Balance Threshold to decide genotype. 0.2 is recommended.");
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
@@ -343,12 +380,14 @@ public class OverSeer {
 		opts.addOption("MSC", "minimum-site-count", true,
 				"Minimum number of sites to report a region as ROH. Default 0");
 
-		opts.addOption("FilterUnknowns", false,
-				"Filter unknown sites when using known sites option");
+		opts.addOption("IncludeUnknowns", false,
+				"Include high quality unknownsites under known sites option active...");
 
-		//opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
+		// opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data
+		// AF probability (experimental)");
 
-		//opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
+		// opts.addOption("OLDCODE", false, "Use old single sample calculation code
+		// path. Deprecated");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
@@ -377,13 +416,13 @@ public class OverSeer {
 																									// işlerde.
 
 		try {
-			CommandLineParser parser = new DefaultParser();
+			final CommandLineParser parser = new DefaultParser();
 			cmd = parser.parse(opts, args);
 			// LOGLEVEL = Integer.parseInt(cmd.getOptionValue("LL", "0"));
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 
-			PrintWriter pw = new PrintWriter(System.err, true);
+			final PrintWriter pw = new PrintWriter(System.err, true);
 			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
 			fmtr.printOptions(pw, 80, opts, 0, 10);
 			endTimer();
@@ -393,47 +432,46 @@ public class OverSeer {
 
 	}
 
-	public static void setOptionsGUI(String optionname, String value) {
-		if (optionMap == null)
-			optionMap = new HashMap<String, String>();
-
-		optionMap.put(optionname, value);
+	public static void resetOptionsGUI() {
+		optionMap.clear();
+		optionMap.put(GUIOptionStandards.HMMMODELFILE, Model.XDISTMODEL);
+		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "1");
+		optionMap.put(GUIOptionStandards.MINIMUMROHQUAL, "0.0");
 	}
 
 	public static void getOS() {
 		OSNAME = System.getProperty("os.name").toLowerCase();
-		log("System", OSNAME, OverSeer.INFO);
+		log("SYSTEM", "Running on " + OSNAME, OverSeer.INFO);
 	}
 
 	public static boolean isMac() {
-		if (OSNAME.contains("mac"))
+		if (OSNAME.contains("mac")) {
 			return true;
+		}
 		return false;
 	}
-	
+
 	protected static boolean isMacDarkMode() {
 		try {
-			// check for exit status only. Once there are more modes than "dark" and
-			// "default", we might need to analyze string contents..
 			final Process themechecker = Runtime.getRuntime().exec("defaults read -g AppleInterfaceStyle");
 			themechecker.waitFor(100, TimeUnit.MILLISECONDS);
 			return themechecker.exitValue() == 0;
-		} catch (Exception e) {
-			// IllegalThreadStateException thrown by proc.exitValue(), if process didn't
-			// terminate
+		} catch (final Exception e) {
 			return false;
 		}
 	}
 
 	public static boolean isWindows() {
-		if (OSNAME.contains("win"))
+		if (OSNAME.contains("win")) {
 			return true;
+		}
 		return false;
 	}
 
 	public static boolean isUnix() {
-		if (OSNAME.contains("nux") || OSNAME.contains("nix") || OSNAME.contains("aix") || OSNAME.contains("bsd"))
+		if (OSNAME.contains("nux") || OSNAME.contains("nix") || OSNAME.contains("aix") || OSNAME.contains("bsd")) {
 			return true;
+		}
 		return false;
 	}
 

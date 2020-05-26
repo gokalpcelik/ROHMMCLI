@@ -1,3 +1,9 @@
+/*
+ * Author : Gokalp Celik
+ *
+ * Date : May 26, 2020
+ *
+ */
 package rohmmcli.gui;
 
 public class GUIOptionStandards {
@@ -15,4 +21,6 @@ public class GUIOptionStandards {
 	public static final String LOGLEVEL = "-LL";
 	public static final String MINIMUMROHQUAL = "-Q";
 	public static final String KNOWNSNPPATH = "-G";
+	public static final String INCLUDEUNKNOWN = "IncludeUnknowns";
+	public static final String SPIKEIN = "-F";
 }

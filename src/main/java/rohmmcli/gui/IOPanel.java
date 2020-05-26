@@ -1,3 +1,9 @@
+/*
+ * Author : Gokalp Celik
+ *
+ * Date : May 26, 2020
+ *
+ */
 package rohmmcli.gui;
 
 import java.awt.BorderLayout;
@@ -6,9 +12,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +44,8 @@ public class IOPanel extends JPanel {
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
-	protected JRadioButton knownVariantInclusivePolicy;
-	protected JRadioButton knownVariantExclusivePolicy;
+	protected JCheckBox knownVariantInclusivePolicy;
+	protected JCheckBox knownVariantSpikeInPolicy;
 	protected JRadioButton useDefaultAlleleDistributionPolicy;
 	protected JRadioButton useDefaultAlleleFrequencyPolicy;
 	protected JRadioButton useCustomModelPolicy;
@@ -70,98 +73,98 @@ public class IOPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public IOPanel() {
-		setLayout(null);
-		brandLabel = new JLabel(OverSeer.VERSION);
-		brandLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		brandLabel.setBounds(12, 508, 120, 25);
-		add(brandLabel);
-		chrlistmodel = new DefaultListModel<String>();
-		samplenamemodel = new DefaultListModel<String>();
+		this.setLayout(null);
+		this.brandLabel = new JLabel(OverSeer.VERSION);
+		this.brandLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		this.brandLabel.setBounds(12, 508, 120, 25);
+		this.add(this.brandLabel);
+		this.chrlistmodel = new DefaultListModel<>();
+		this.samplenamemodel = new DefaultListModel<>();
 		// vcfLabel = new JLabel("Choose VCF File");
 		// vcfLabel.setBounds(12, 9, 120, 24);
 		// add(vcfLabel);
-		panel = new JPanel();
-		vcfPathField = new JTextField();
-		vcfPathField.setEditable(false);
+		this.panel = new JPanel();
+		this.vcfPathField = new JTextField();
+		this.vcfPathField.setEditable(false);
 		// vcfpathfield.setBounds(132, 10, 415, 24);
 		// add(vcfpathfield);
 
-		IOFileDialogButtonListener ioButtonListener = new IOFileDialogButtonListener();
+		final IOFileDialogButtonListener ioButtonListener = new IOFileDialogButtonListener();
 
-		vcfSelectButton = new JButton("Select VCF");
-		vcfSelectButton.setActionCommand("selectinputvcf");
+		this.vcfSelectButton = new JButton("Select VCF");
+		this.vcfSelectButton.setActionCommand("selectinputvcf");
 		// vcfselectbutton.setBounds(550, 10, 120, 24);
-		vcfSelectButton.addActionListener(ioButtonListener);
+		this.vcfSelectButton.addActionListener(ioButtonListener);
 		// add(vcfselectbutton);
-		panel_0 = new JPanel();
-		panel_0.setBounds(12, 0, 775, 53);
-		panel_0.setBorder(new TitledBorder("VCF Input"));
-		panel_0.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		this.panel_0 = new JPanel();
+		this.panel_0.setBounds(12, 0, 775, 53);
+		this.panel_0.setBorder(new TitledBorder("VCF Input"));
+		this.panel_0.setLayout(new GridBagLayout());
+		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 0.5;
 		c.weighty = 0.5;
 		c.ipadx = 30;
-		panel_0.add(vcfSelectButton, c);
+		this.panel_0.add(this.vcfSelectButton, c);
 		c.ipadx = 563;
-		panel_0.add(vcfPathField, c);
+		this.panel_0.add(this.vcfPathField, c);
 
-		add(panel_0);
-		panel.setBorder(new TitledBorder("Chromosomes"));
-		panel.setBounds(12, 50, 120, 406);
-		add(panel);
-		panel.setLayout(new BorderLayout(0, 0));
+		this.add(this.panel_0);
+		this.panel.setBorder(new TitledBorder("Chromosomes"));
+		this.panel.setBounds(12, 50, 120, 406);
+		this.add(this.panel);
+		this.panel.setLayout(new BorderLayout(0, 0));
 
-		scrollPane = new JScrollPane();
+		this.scrollPane = new JScrollPane();
 
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		ChrSampleSelectButtonListener selectbuttonlistener = new ChrSampleSelectButtonListener();
-		chrlist = new JList<String>(chrlistmodel);
-		scrollPane.setViewportView(chrlist);
-		chrlist.addListSelectionListener(new ChrListSelectionListener());
-		selectAllChrButton = new JButton("Select All");
-		selectAllChrButton.setActionCommand("allchr");
-		selectAllChrButton.setBounds(12, 458, 120, 25);
-		selectNoneChrButton = new JButton("Select None");
-		selectNoneChrButton.setActionCommand("nonechr");
-		selectNoneChrButton.setBounds(12, 483, 120, 25);
-		selectAllChrButton.addActionListener(selectbuttonlistener);
-		selectNoneChrButton.addActionListener(selectbuttonlistener);
+		this.scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		final ChrSampleSelectButtonListener selectbuttonlistener = new ChrSampleSelectButtonListener();
+		this.chrlist = new JList<>(this.chrlistmodel);
+		this.scrollPane.setViewportView(this.chrlist);
+		this.chrlist.addListSelectionListener(new ChrListSelectionListener());
+		this.selectAllChrButton = new JButton("Select All");
+		this.selectAllChrButton.setActionCommand("allchr");
+		this.selectAllChrButton.setBounds(12, 458, 120, 25);
+		this.selectNoneChrButton = new JButton("Select None");
+		this.selectNoneChrButton.setActionCommand("nonechr");
+		this.selectNoneChrButton.setBounds(12, 483, 120, 25);
+		this.selectAllChrButton.addActionListener(selectbuttonlistener);
+		this.selectNoneChrButton.addActionListener(selectbuttonlistener);
 
-		panel.add(scrollPane);
-		add(selectAllChrButton);
-		add(selectNoneChrButton);
+		this.panel.add(this.scrollPane);
+		this.add(this.selectAllChrButton);
+		this.add(this.selectNoneChrButton);
 
-		panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder("Samples"));
-		panel_1.setBounds(132, 50, 163, 406);
-		add(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 2));
+		this.panel_1 = new JPanel();
+		this.panel_1.setBorder(new TitledBorder("Samples"));
+		this.panel_1.setBounds(132, 50, 163, 406);
+		this.add(this.panel_1);
+		this.panel_1.setLayout(new BorderLayout(0, 2));
 
-		scrollPane_1 = new JScrollPane();
-		panel_1.add(scrollPane_1);
-		scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		this.scrollPane_1 = new JScrollPane();
+		this.panel_1.add(this.scrollPane_1);
+		this.scrollPane_1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		samplelist = new JList<String>(samplenamemodel);
-		samplelist.addListSelectionListener(new SampleListActionListener());
-		scrollPane_1.setViewportView(samplelist);
-		selectAllSampleButton = new JButton("Select All");
-		selectAllSampleButton.setActionCommand("allsample");
-		selectAllSampleButton.addActionListener(selectbuttonlistener);
-		selectAllSampleButton.setBounds(132, 458, 163, 25);
-		selectNoneSampleButton = new JButton("Select None");
-		selectNoneSampleButton.setActionCommand("nonesample");
-		selectNoneSampleButton.addActionListener(selectbuttonlistener);
-		selectNoneSampleButton.setBounds(132, 483, 163, 25);
-		invertSelectionSampleButton = new JButton("Invert Selection");
-		invertSelectionSampleButton.setActionCommand("invertsample");
-		invertSelectionSampleButton.addActionListener(selectbuttonlistener);
-		invertSelectionSampleButton.setBounds(132, 508, 163, 25);
-		add(selectAllSampleButton);
-		add(selectNoneSampleButton);
-		add(invertSelectionSampleButton);
+		this.samplelist = new JList<>(this.samplenamemodel);
+		this.samplelist.addListSelectionListener(new SampleListActionListener());
+		this.scrollPane_1.setViewportView(this.samplelist);
+		this.selectAllSampleButton = new JButton("Select All");
+		this.selectAllSampleButton.setActionCommand("allsample");
+		this.selectAllSampleButton.addActionListener(selectbuttonlistener);
+		this.selectAllSampleButton.setBounds(132, 458, 163, 25);
+		this.selectNoneSampleButton = new JButton("Select None");
+		this.selectNoneSampleButton.setActionCommand("nonesample");
+		this.selectNoneSampleButton.addActionListener(selectbuttonlistener);
+		this.selectNoneSampleButton.setBounds(132, 483, 163, 25);
+		this.invertSelectionSampleButton = new JButton("Invert Selection");
+		this.invertSelectionSampleButton.setActionCommand("invertsample");
+		this.invertSelectionSampleButton.addActionListener(selectbuttonlistener);
+		this.invertSelectionSampleButton.setBounds(132, 508, 163, 25);
+		this.add(this.selectAllSampleButton);
+		this.add(this.selectNoneSampleButton);
+		this.add(this.invertSelectionSampleButton);
 
-		JPanel outPanel = new JPanel(new GridBagLayout());
+		final JPanel outPanel = new JPanel(new GridBagLayout());
 
 		outPanel.setBorder(new TitledBorder("Output Options"));
 		outPanel.setBounds(295, 50, 492, 80);
@@ -170,84 +173,94 @@ public class IOPanel extends JPanel {
 		c.weighty = 0.5;
 		c.gridy = 1;
 		c.ipadx = 20;
-		JLabel prefixwarnlabel = new JLabel("Prefix for Output Files");
-		outputPrefixField = new JTextField();
+		final JLabel prefixwarnlabel = new JLabel("Prefix for Output Files");
+		this.outputPrefixField = new JTextField();
 		outPanel.add(prefixwarnlabel, c);
 		c.ipadx = 250;
-		outPanel.add(outputPrefixField, c);
+		outPanel.add(this.outputPrefixField, c);
 
-		outputDirField = new JTextField();
+		this.outputDirField = new JTextField();
+		this.outputDirField.setEditable(false);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridy = 0;
 		c.ipadx = 20;
-		outputDirSelectButton = new JButton("Select Directory");
-		outputDirSelectButton.setActionCommand("selectoutputdir");
-		outputDirSelectButton.addActionListener(ioButtonListener);
-		outPanel.add(outputDirSelectButton, c);
+		this.outputDirSelectButton = new JButton("Select Directory");
+		this.outputDirSelectButton.setActionCommand("selectoutputdir");
+		this.outputDirSelectButton.addActionListener(ioButtonListener);
+		outPanel.add(this.outputDirSelectButton, c);
 		c.ipadx = 250;
-		outPanel.add(outputDirField, c);
-		add(outPanel);
-		JPanel filterPanel = new JPanel(new GridBagLayout());
+		outPanel.add(this.outputDirField, c);
+		this.add(outPanel);
+		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
 		filterPanel.setBounds(295, 127, 492, 100);
-		skipIndels = new JCheckBox("Skip Indels");
+		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
+		this.skipIndels = new JCheckBox("Skip Indels");
+		this.skipIndels.setActionCommand("skipindels");
+		this.skipIndels.addActionListener(vfcl);
 		c.weightx = 0.5;
 		c.gridy = 0;
-		filterPanel.add(skipIndels, c);
-		filterUsingKnown = new JCheckBox("Use known set of variants to filter");
+		filterPanel.add(this.skipIndels, c);
+		this.filterUsingKnown = new JCheckBox("Use known set of variants to filter");
+		this.filterUsingKnown.setActionCommand("useknownvariants");
+		this.filterUsingKnown.addActionListener(vfcl);
 		c.gridy = 0;
-		filterPanel.add(filterUsingKnown, c);
-		selectKnownVariantButton = new JButton("Select Known Variants");
-		selectKnownVariantButton.setActionCommand("selectknown");
-		selectKnownVariantButton.addActionListener(ioButtonListener);
+		filterPanel.add(this.filterUsingKnown, c);
+		this.selectKnownVariantButton = new JButton("Select Known Variants");
+		this.selectKnownVariantButton.setActionCommand("selectknown");
+		this.selectKnownVariantButton.addActionListener(ioButtonListener);
+		this.selectKnownVariantButton.setEnabled(false);
 		c.ipadx = 15;
 		c.gridy = 1;
-		filterPanel.add(selectKnownVariantButton, c);
-		knownVariantField = new JTextField();
+		filterPanel.add(this.selectKnownVariantButton, c);
+		this.knownVariantField = new JTextField();
+		this.knownVariantField.setEditable(false);
 		c.gridy = 1;
-		filterPanel.add(knownVariantField, c);
-		ButtonGroup knownVariantRadioGroup = new ButtonGroup();
-		knownVariantInclusivePolicy = new JRadioButton("Include high quality unknown variants");
-		knownVariantInclusivePolicy.setSelected(true);
-		knownVariantExclusivePolicy = new JRadioButton("Exclude unknown variants");
-		knownVariantRadioGroup.add(knownVariantInclusivePolicy);
-		knownVariantRadioGroup.add(knownVariantExclusivePolicy);
+		filterPanel.add(this.knownVariantField, c);
+		this.knownVariantInclusivePolicy = new JCheckBox("Include high quality unknown variants");
+		this.knownVariantInclusivePolicy.setActionCommand("includeunknown");
+		this.knownVariantInclusivePolicy.addActionListener(vfcl);
+		this.knownVariantInclusivePolicy.setEnabled(false);
+		this.knownVariantSpikeInPolicy = new JCheckBox("Spike-in missing as HOMREF");
+		this.knownVariantSpikeInPolicy.setActionCommand("spikein");
+		this.knownVariantSpikeInPolicy.addActionListener(vfcl);
+		this.knownVariantSpikeInPolicy.setEnabled(false);
 		c.gridy = 2;
-		filterPanel.add(knownVariantExclusivePolicy, c);
+		filterPanel.add(this.knownVariantSpikeInPolicy, c);
 		c.gridy = 2;
-		filterPanel.add(knownVariantInclusivePolicy, c);
+		filterPanel.add(this.knownVariantInclusivePolicy, c);
 
-		add(filterPanel);
-		JPanel hmmPanel = new JPanel(new GridBagLayout());
+		this.add(filterPanel);
+		final JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
 		hmmPanel.setBounds(295, 225, 492, 100);
-		HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
-		useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
-		useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
-		useDefaultAlleleDistributionPolicy.addActionListener(hmmRadioButtonListener);
-		useDefaultAlleleDistributionPolicy.setSelected(true);
-		useDefaultAlleleFrequencyPolicy = new JRadioButton("Use Default Allele Frequency Model");
-		useDefaultAlleleFrequencyPolicy.setActionCommand("usedefaultallelefrequency");
-		useDefaultAlleleFrequencyPolicy.addActionListener(hmmRadioButtonListener);
-		useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Set options from 'Advanced Options')");
-		useCustomModelPolicy.setActionCommand("usecustom");
-		useCustomModelPolicy.addActionListener(hmmRadioButtonListener);
-		ButtonGroup hmmModelRadioGroup = new ButtonGroup();
-		hmmModelRadioGroup.add(useDefaultAlleleDistributionPolicy);
-		hmmModelRadioGroup.add(useDefaultAlleleFrequencyPolicy);
-		hmmModelRadioGroup.add(useCustomModelPolicy);
+		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
+		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
+		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
+		this.useDefaultAlleleDistributionPolicy.addActionListener(hmmRadioButtonListener);
+		this.useDefaultAlleleDistributionPolicy.setSelected(true);
+		this.useDefaultAlleleFrequencyPolicy = new JRadioButton("Use Default Allele Frequency Model");
+		this.useDefaultAlleleFrequencyPolicy.setActionCommand("usedefaultallelefrequency");
+		this.useDefaultAlleleFrequencyPolicy.addActionListener(hmmRadioButtonListener);
+		this.useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Set options from 'Advanced Options')");
+		this.useCustomModelPolicy.setActionCommand("usecustom");
+		this.useCustomModelPolicy.addActionListener(hmmRadioButtonListener);
+		final ButtonGroup hmmModelRadioGroup = new ButtonGroup();
+		hmmModelRadioGroup.add(this.useDefaultAlleleDistributionPolicy);
+		hmmModelRadioGroup.add(this.useDefaultAlleleFrequencyPolicy);
+		hmmModelRadioGroup.add(this.useCustomModelPolicy);
 		c.weightx = 0.5;
 		c.gridy = 0;
-		hmmPanel.add(useDefaultAlleleDistributionPolicy, c);
+		hmmPanel.add(this.useDefaultAlleleDistributionPolicy, c);
 		c.gridy = 1;
-		hmmPanel.add(useDefaultAlleleFrequencyPolicy, c);
+		hmmPanel.add(this.useDefaultAlleleFrequencyPolicy, c);
 		c.gridy = 2;
-		hmmPanel.add(useCustomModelPolicy, c);
-		add(hmmPanel);
-		runInference = new JButton(">>> Run ROHMM! <<<");
-		runInference.setBounds(295, 483, 492, 50);
-		runInference.addActionListener(new ROHMMRunnerButtonListener());
-		add(runInference);
+		hmmPanel.add(this.useCustomModelPolicy, c);
+		this.add(hmmPanel);
+		this.runInference = new JButton(">>> Run ROHMM! <<<");
+		this.runInference.setBounds(295, 483, 492, 50);
+		this.runInference.addActionListener(new ROHMMRunnerButtonListener());
+		this.add(this.runInference);
 
 	}
 
@@ -256,29 +269,33 @@ public class IOPanel extends JPanel {
 	}
 
 	protected void updateChromosomeList(List<String> availableContigList) {
-		for (String contig : availableContigList) {
-			chrlistmodel.addElement(contig);
+		if (availableContigList != null) {
+			for (final String contig : availableContigList) {
+				this.chrlistmodel.addElement(contig);
+			}
 		}
 	}
 
 	protected void updateSampleNameList(List<String> sampleNameList) {
-		for (String s : sampleNameList) {
-			samplenamemodel.addElement(s);
+		if (sampleNameList != null) {
+			for (final String s : sampleNameList) {
+				this.samplenamemodel.addElement(s);
+			}
 		}
 	}
 
 	private static <T> void selectionInverter(JList<T> jlist) {
 
-		int size = jlist.getModel().getSize();
-		ArrayList<Integer> selectedindices = new ArrayList<Integer>();
+		final int size = jlist.getModel().getSize();
+		final ArrayList<Integer> selectedindices = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 
-			if (!jlist.isSelectedIndex(i))
+			if (!jlist.isSelectedIndex(i)) {
 				selectedindices.add(i);
+			}
 		}
 
 		jlist.setSelectedIndices(selectedindices.stream().mapToInt(i -> i).toArray());
-		
 
 	}
 
@@ -286,19 +303,19 @@ public class IOPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getSelf());
+			IOPanel.this.parentFrame = (JFrame) SwingUtilities.getWindowAncestor(IOPanel.this.getSelf());
 
-			String actionCommand = e.getActionCommand();
+			final String actionCommand = e.getActionCommand();
 
 			switch (actionCommand) {
 			case "selectoutputdir":
-				OutputDirSelectButtonAction();
+				this.OutputDirSelectButtonAction();
 				break;
 			case "selectinputvcf":
-				VCFSelectButtonAction();
+				this.VCFSelectButtonAction();
 				break;
 			case "selectknown":
-				KnownSelectButtonAction();
+				IOPanel.this.KnownSelectButtonAction();
 				break;
 			default:
 				break;
@@ -308,130 +325,224 @@ public class IOPanel extends JPanel {
 
 		protected void OutputDirSelectButtonAction() {
 			try {
-				File file = FileSelectorUtil.selectDirectory(parentFrame, "Select Output Directory", new File("."));
+				final File file = FileSelectorUtil.selectDirectory(IOPanel.this.parentFrame, "Select Output Directory",
+						new File("."));
 				if (file != null) {
-					outputDirField.setText(file.getAbsolutePath());
+					IOPanel.this.outputDirField.setText(file.getAbsolutePath());
 				}
-			} catch (Exception exp) {
+			} catch (final Exception exp) {
 				exp.printStackTrace();
 			}
+		}
+
+		protected void resetIOPanelOptions() {
+			IOPanel.this.skipIndels.setSelected(false);
+			IOPanel.this.filterUsingKnown.setSelected(false);
+			IOPanel.this.vcfPathField.setText("");
+			IOPanel.this.outputDirField.setText("");
+			IOPanel.this.knownVariantField.setText("");
+			IOPanel.this.selectKnownVariantButton.setEnabled(false);
+			IOPanel.this.chrlistmodel.clear();
+			IOPanel.this.samplenamemodel.clear();
+			IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
+			IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
 		}
 
 		protected void VCFSelectButtonAction() {
 			try {
-				File file = FileSelectorUtil.openFile(parentFrame, "Select VCF File...", new ROHMMFileSelectionFilter("VCF Files", "vcf", "vcf.gz"), new File("."));
+				final File file = FileSelectorUtil.openFile(IOPanel.this.parentFrame, "Select VCF File...",
+						new ROHMMFileSelectionFilter("VCF Files", "vcf", "vcf.gz"), new File("."));
 				if (file != null) {
-					vcfPathField.setText(file.getAbsolutePath());
+					this.resetIOPanelOptions();
+					IOPanel.this.vcfPathField.setText(file.getAbsolutePath());
+					OverSeer.resetOptionsGUI();
 					OverSeer.setVCFPath(file);
-					chrlistmodel.clear();
-					samplenamemodel.clear();
-					updateChromosomeList(OverSeer.getAvailableContigsList());
-					updateSampleNameList(OverSeer.getSampleNameList());
+					IOPanel.this.updateChromosomeList(OverSeer.getAvailableContigsList());
+					IOPanel.this.updateSampleNameList(OverSeer.getSampleNameList());
 				}
 
-			} catch (Exception exp) {
+			} catch (final Exception exp) {
 				exp.printStackTrace();
 			}
 		}
 
 	}
-	
+
 	protected void KnownSelectButtonAction() {
 		try {
-			File file = FileSelectorUtil.openFile(parentFrame, "Select Known Variants File...", new ROHMMFileSelectionFilter("BED and VCF Files", "bed", "bed.gz", "vcf", "vcf.gz"), new File("."));
+			final File file = FileSelectorUtil.openFile(this.parentFrame, "Select Known Variants File...",
+					new ROHMMFileSelectionFilter("BED and VCF Files", "bed", "bed.gz", "vcf", "vcf.gz"), new File("."));
 			if (file != null) {
-
+				this.knownVariantField.setText("");
+				OverSeer.setOption(GUIOptionStandards.KNOWNSNPPATH, file.getAbsolutePath());
+				this.knownVariantField.setText(file.getAbsolutePath());
+				this.knownVariantSpikeInPolicy.setEnabled(true);
 			}
 
-		} catch (Exception exp) {
+		} catch (final Exception exp) {
 			exp.printStackTrace();
 		}
 	}
-	
+
+	public class VariantFilterRadioButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			switch (arg0.getActionCommand()) {
+
+			}
+
+		}
+
+	}
+
 	public class HMMRadioButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			
+
 		}
-		
+
 	}
 
 	public class ChrSampleSelectButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			String actionCommand = arg0.getActionCommand();
+			final String actionCommand = arg0.getActionCommand();
 			switch (actionCommand) {
 			case "allchr":
-				chrlist.setSelectionInterval(0, chrlist.getModel().getSize() - 1);
+				IOPanel.this.chrlist.setSelectionInterval(0, IOPanel.this.chrlist.getModel().getSize() - 1);
+				IOPanel.this.setChrList();
 				break;
 			case "nonechr":
-				chrlist.clearSelection();
+				IOPanel.this.chrlist.clearSelection();
+				OverSeer.removeOption(GUIOptionStandards.CONTIGS);
 				break;
 			case "allsample":
-				samplelist.setSelectionInterval(0, samplelist.getModel().getSize() - 1);
+				IOPanel.this.samplelist.setSelectionInterval(0, IOPanel.this.samplelist.getModel().getSize() - 1);
+				IOPanel.this.setSampleList();
 				break;
 			case "nonesample":
-				samplelist.clearSelection();
+				IOPanel.this.samplelist.clearSelection();
+				OverSeer.removeOption(GUIOptionStandards.SAMPLENAMELIST);
 				break;
 			case "invertsample":
-				selectionInverter(samplelist);
+				selectionInverter(IOPanel.this.samplelist);
+				IOPanel.this.setSampleList();
 				break;
 			}
 		}
 
 	}
-	
+
+	protected void setSampleList() {
+		String samplestring = "";
+		for (final String s : IOPanel.this.samplelist.getSelectedValuesList()) {
+			samplestring += s + ",";
+		}
+
+		samplestring = samplestring.substring(0, samplestring.length() - 1);
+
+		System.err.println(samplestring);
+		OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
+	}
+
+	protected void setChrList() {
+		String chrstring = "";
+		for (final String s : IOPanel.this.chrlist.getSelectedValuesList()) {
+			chrstring += s + ",";
+		}
+		chrstring = chrstring.substring(0, chrstring.length() - 1);
+		System.err.println(chrstring);
+		OverSeer.setOption(GUIOptionStandards.CONTIGS, chrstring);
+	}
+
 	public class ROHMMRunnerButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			
+			System.err.println(OverSeer.getOptionMap());
+
 		}
-		
+
 	}
-	
 
 	protected class ChrListSelectionListener implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
-			// TODO Auto-generated method stub
-			String chrstring = "";
-			if(arg0.getValueIsAdjusting()) {
-				for(String s : chrlist.getSelectedValuesList())
-				{
-					chrstring += s + ",";
-				}
-				
-				chrstring = chrstring.substring(0,chrstring.length()-1);
+			if (arg0.getValueIsAdjusting()) {
+				IOPanel.this.setChrList();
 			}
-			System.err.println(chrstring);
-			OverSeer.setOption(GUIOptionStandards.CONTIGS, chrstring);
 		}
 	}
-	
+
+	protected class VariantFilterCheckBoxListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			switch (arg0.getActionCommand()) {
+			case "skipindels":
+				if (IOPanel.this.skipIndels.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.SKIPINDELS, null);
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.SKIPINDELS);
+				}
+				break;
+			case "useknownvariants":
+				IOPanel.this.selectKnownVariantButton.setEnabled(!IOPanel.this.selectKnownVariantButton.isEnabled());
+				if (!IOPanel.this.filterUsingKnown.isSelected()) {
+					OverSeer.removeOption(GUIOptionStandards.KNOWNSNPPATH);
+					OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+					OverSeer.removeOption(GUIOptionStandards.SPIKEIN);
+					IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
+					IOPanel.this.knownVariantInclusivePolicy.setSelected(false);
+					IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
+					IOPanel.this.knownVariantSpikeInPolicy.setSelected(false);
+					IOPanel.this.knownVariantField.setText("");
+				}
+				break;
+			case "includeunknown":
+				if (IOPanel.this.knownVariantInclusivePolicy.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.INCLUDEUNKNOWN, null);
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+				}
+				break;
+			case "spikein":
+				if (OverSeer.getOptionMap().containsKey(GUIOptionStandards.KNOWNSNPPATH)) {
+					if (IOPanel.this.knownVariantSpikeInPolicy.isSelected()) {
+						IOPanel.this.knownVariantInclusivePolicy.setEnabled(true);
+						OverSeer.setOption(GUIOptionStandards.SPIKEIN, null);
+					} else {
+						IOPanel.this.knownVariantInclusivePolicy.setSelected(false);
+						IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
+						OverSeer.removeOption(GUIOptionStandards.SPIKEIN);
+						OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+					}
+				}
+				break;
+			}
+
+		}
+
+	}
+
 	protected class SampleListActionListener implements ListSelectionListener {
 
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			// TODO Auto-generated method stub
-			String samplestring = "";
-			if(arg0.getValueIsAdjusting()) {
-				for(String s : samplelist.getSelectedValuesList())
-				{
-					samplestring += s + ",";
-				}
-				
-				samplestring = samplestring.substring(0,samplestring.length()-1);
-			}
-			System.err.println(samplestring);
-			OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
-		}
-		
-	}
 
+			if (arg0.getValueIsAdjusting()) {
+				IOPanel.this.setSampleList();
+			}
+		}
+
+	}
 }

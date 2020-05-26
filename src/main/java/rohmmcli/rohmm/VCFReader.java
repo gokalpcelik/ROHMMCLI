@@ -1,3 +1,9 @@
+/*
+ * Author : Gokalp Celik
+ *
+ * Date : May 26, 2020
+ *
+ */
 package rohmmcli.rohmm;
 
 import java.io.File;
@@ -29,10 +35,14 @@ public class VCFReader {
 	public VCFReader(File VCF) throws FileNotFoundException {
 		this.VCFFile = VCF;
 
-		if (!this.vcfIndexExists()) {
-			this.VCFIndex = new File(this.createIndex());
+		try {
+			if (!this.vcfIndexExists()) {
+				this.VCFIndex = new File(this.createIndex());
+			}
+			this.createReader();
+		} catch (final Exception e) {
+			// TODO: handle exception
 		}
-		this.createReader();
 
 	}
 
@@ -41,13 +51,19 @@ public class VCFReader {
 		this.vcfReader = null;
 	}
 
-	private boolean vcfIndexExists() {
-		if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
-			this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
-		} else if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
-			this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
+	private boolean vcfIndexExists() throws Exception {
+		try {
+			if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.VCF)) {
+				this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TRIBBLE_INDEX);
+			} else if (this.VCFFile.getAbsolutePath().endsWith(FileExtensions.COMPRESSED_VCF)) {
+				this.VCFIndex = new File(this.VCFFile.getAbsolutePath() + FileExtensions.TABIX_INDEX);
+			}
+			return this.VCFIndex.exists();
+		} catch (final Exception e) {
+			// TODO: handle exception
+			OverSeer.log(this.getClass().getSimpleName(), "Problematic VCF File or not a VCF File", OverSeer.ERROR);
+			throw new Exception("Improper file format");
 		}
-		return this.VCFIndex.exists();
 	}
 
 	private String createIndex() {
@@ -121,43 +137,51 @@ public class VCFReader {
 	}
 
 	protected List<String> getAvailableContigsList() {
+		try {
+			final ArrayList<String> availableContigs = new ArrayList<>();
 
-		final ArrayList<String> availableContigs = new ArrayList<>();
+			final List<SAMSequenceRecord> lists = this.vcfReader.getFileHeader().getSequenceDictionary().getSequences();
 
-		final List<SAMSequenceRecord> lists = this.vcfReader.getFileHeader().getSequenceDictionary().getSequences();
+			for (final SAMSequenceRecord record : lists) {
 
-		for (final SAMSequenceRecord record : lists) {
+				final String sequencename = record.getSequenceName();
+				final CloseableIterator<VariantContext> iter = this.vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
+				if (iter.hasNext()) {
 
-			final String sequencename = record.getSequenceName();
-			final CloseableIterator<VariantContext> iter = this.vcfReader.query(sequencename, 1, Integer.MAX_VALUE);
-			if (iter.hasNext()) {
+					final VariantContext temp = iter.next();
 
-				final VariantContext temp = iter.next();
+					if (temp.getGenotype(0).hasLikelihoods()) {
+						this.hasPLTag = true;
+					}
 
-				if (temp.getGenotype(0).hasLikelihoods()) {
-					this.hasPLTag = true;
+					if (temp.getGenotype(0).hasAD()) {
+						this.hasADTag = true;
+					}
+
+					availableContigs.add(sequencename);
 				}
 
-				if (temp.getGenotype(0).hasAD()) {
-					this.hasADTag = true;
-				}
+				iter.close();
 
-				availableContigs.add(sequencename);
 			}
-
-			iter.close();
-
+			if (availableContigs.size() > 0) {
+				return availableContigs;
+			}
+		} catch (final Exception e) {
+			// TODO: handle exception
+			return null;
 		}
-		if (availableContigs.size() > 0) {
-			return availableContigs;
-		}
-
 		return null;
 
 	}
 
 	protected List<String> getVCFSampleList() {
-		return this.getHeader().getSampleNamesInOrder();
+		try {
+			return this.getHeader().getSampleNamesInOrder();
+		} catch (final Exception e) {
+			// TODO: handle exception
+			return null;
+		}
 	}
 
 }
