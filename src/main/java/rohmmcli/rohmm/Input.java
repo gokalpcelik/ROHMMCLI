@@ -12,9 +12,8 @@ import htsjdk.variant.vcf.VCFFileReader;
 public class Input {
 	// Check for all variables to see if a setter and a getter is present. Fix if
 	// not present.
-	@Deprecated
-	protected TreeMap<Integer, String> inputdata;
-	protected TreeMap<Integer, VariantInfo> inputdatanew;
+	//protected TreeMap<Integer, String> inputdata;
+	protected TreeMap<Integer, VariantInfo> inputData;
 	protected boolean HWenabled = false;
 	protected boolean Distenabled = false;
 	protected String contigname;
@@ -186,7 +185,7 @@ public class Input {
 
 	public void generateInput() throws Exception {
 
-		inputdatanew = new TreeMap<>();
+		inputData = new TreeMap<Integer, VariantInfo>();
 		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<Integer, String>();
 
 		ImputeVariantInfo ivi = new ImputeVariantInfo();
@@ -213,12 +212,12 @@ public class Input {
 			if (spikeIn) {
 				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
 				while (OverSeer.knownVariant.hasNext())
-					inputdatanew.put(OverSeer.knownVariant.getNextPos(), ivi);
+					inputData.put(OverSeer.knownVariant.getNextPos(), ivi);
 				OverSeer.knownVariant.closeIterator();
 			} else {
 				OverSeer.knownVariant.createIterator(contigname, 1, Integer.MAX_VALUE);
 				while (OverSeer.knownVariant.hasNext())
-					nonSpikedFilter.put(OverSeer.knownVariant.getNextPos(),null);
+					nonSpikedFilter.put(OverSeer.knownVariant.getNextPos(), null);
 				OverSeer.knownVariant.closeIterator();
 			}
 		}
@@ -231,7 +230,7 @@ public class Input {
 		CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr, contigname);
 		// int homcounter = 0;
 		// vcfreading
-		int sizecheck = inputdatanew.size() == 0 ? nonSpikedFilter.size() : inputdatanew.size();
+		int sizecheck = inputData.size() == 0 ? nonSpikedFilter.size() : inputData.size();
 		// System.err.println(inputdatanew.size());
 
 		while (vcfiter.hasNext()) {
@@ -245,9 +244,12 @@ public class Input {
 			// " + inputdatanew.keySet().contains(tempstart));
 
 			if ((skipindels ? temp.isSNP() : true) && temp.isBiallelic() && temp.isNotFiltered()
-					&& (sizecheck != 0 ? (OverSeer.filterUnknowns
-							? (spikeIn ? inputdatanew.containsKey(tempstart) : nonSpikedFilter.containsKey(tempstart))
-							: true) : true)) { // MAF > 0.0 olayini
+					&& (sizecheck != 0
+							? (OverSeer.filterUnknowns
+									? (spikeIn ? inputData.containsKey(tempstart)
+											: nonSpikedFilter.containsKey(tempstart))
+									: true)
+							: true)) { // MAF > 0.0 olayini
 				// kaldirdik
 
 				int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), sampleset); // durumdu...
@@ -287,19 +289,19 @@ public class Input {
 					}
 
 					if (AFtag == null)
-						if(!OverSeer.DMAF)
+						if (!OverSeer.DMAF)
 							svi.forceCalculateAF();
-						else 
+						else
 							svi.addAF(defaultMAF);
 					else
 						svi.addAF(temp.getAttributeAsDouble(AFtag, defaultMAF));
 
-					inputdatanew.put(temp.getStart(), svi);
+					inputData.put(temp.getStart(), svi);
 
 				} else if (!skipzeroaf)
-					inputdatanew.put(temp.getStart(), ivi);
+					inputData.put(temp.getStart(), ivi);
 			}
-		
+
 		}
 		nonSpikedFilter = null;
 		vcfiter.close();
@@ -351,67 +353,59 @@ public class Input {
 
 	}
 
-	@Deprecated
-	public int[] getObservationSet() {
-		int[] obs = new int[inputdata.size()];
-		int count = 0;
-		for (Entry<?, ?> e : inputdata.entrySet()) {
-			obs[count] = Integer.parseInt(e.getValue().toString().split("#")[0]);
-			count++;
-		}
 
-		return obs;
-	}
+	/*
+	 * public int[] getObservationSet() { int[] obs = new int[inputdata.size()]; int
+	 * count = 0; for (Entry<?, ?> e : inputdata.entrySet()) { obs[count] =
+	 * Integer.parseInt(e.getValue().toString().split("#")[0]); count++; }
+	 * 
+	 * return obs; }
+	 */
 
-	@Deprecated
-	public int[] getObservationSetNew(int sampleindex) {
-		int[] obs = new int[inputdatanew.size()];
-		int count = 0;
-		for (Entry<Integer, VariantInfo> e : inputdatanew.entrySet()) {
-			obs[count] = e.getValue().getGenotype(sampleindex);
-			count++;
-		}
 
-		return obs;
-	}
+	/*
+	 * public int[] getObservationSetNew(int sampleindex) { int[] obs = new
+	 * int[inputdatanew.size()]; int count = 0; for (Entry<Integer, VariantInfo> e :
+	 * inputdatanew.entrySet()) { obs[count] =
+	 * e.getValue().getGenotype(sampleindex); count++; }
+	 * 
+	 * return obs; }
+	 */
 
-	@Deprecated
-	public int[][] getObservationSetPLs() {
-		int[][] obs = new int[inputdata.size()][3];
-		int count = 0;
-		for (Entry<?, ?> e : inputdata.entrySet()) {
-			obs[count][0] = Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[0]);
-			obs[count][1] = Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[1]);
-			obs[count][2] = Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[2]);
+	/*
+	 * public int[][] getObservationSetPLs() { int[][] obs = new
+	 * int[inputdata.size()][3]; int count = 0; for (Entry<?, ?> e :
+	 * inputdata.entrySet()) { obs[count][0] =
+	 * Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[0]);
+	 * obs[count][1] =
+	 * Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[1]);
+	 * obs[count][2] =
+	 * Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[2]);
+	 * 
+	 * count++; }
+	 * 
+	 * return obs; }
+	 */
 
-			count++;
-		}
 
-		return obs;
-	}
-
-	@Deprecated
-	public int[][] getObservationSetPLsNew(int sampleindex) {
-		int[][] obs = new int[inputdatanew.size()][3];
-		int count = 0;
-		for (Entry<Integer, VariantInfo> e : inputdatanew.entrySet()) {
-			// obs[count][0] = e.getValue().getPL(sampleindex)[0];//to make things
-			// simpler...
-			// obs[count][1] = e.getValue().getPL(sampleindex)[1];
-			// obs[count][2] = e.getValue().getPL(sampleindex)[2];
-			obs[count] = e.getValue().getPL(sampleindex);
-			count++;
-		}
-
-		return obs;
-	}
+	/*
+	 * public int[][] getObservationSetPLsNew(int sampleindex) { int[][] obs = new
+	 * int[inputdatanew.size()][3]; int count = 0; for (Entry<Integer, VariantInfo>
+	 * e : inputdatanew.entrySet()) { // obs[count][0] =
+	 * e.getValue().getPL(sampleindex)[0];//to make things // simpler... //
+	 * obs[count][1] = e.getValue().getPL(sampleindex)[1]; // obs[count][2] =
+	 * e.getValue().getPL(sampleindex)[2]; obs[count] =
+	 * e.getValue().getPL(sampleindex); count++; }
+	 * 
+	 * return obs; }
+	 */
 
 	public void setObsAndPLs(HMM hmm, int sampleindex) {
-		int[] obsgt = new int[inputdatanew.size()];
-		int[][] obspl = new int[inputdatanew.size()][3];
+		int[] obsgt = new int[inputData.size()];
+		int[][] obspl = new int[inputData.size()][3];
 
 		int count = 0;
-		for (Entry<Integer, VariantInfo> e : inputdatanew.entrySet()) {
+		for (Entry<Integer, VariantInfo> e : inputData.entrySet()) {
 			obsgt[count] = !(usePLs || useUserPLs || legacywPL) ? e.getValue().getGenotype(sampleindex) : 0;
 			obspl[count] = (usePLs || useUserPLs || legacywPL) ? e.getValue().getPL(sampleindex) : null;
 			count++;
@@ -421,69 +415,50 @@ public class Input {
 		hmm.PLmatrix = (usePLs || useUserPLs || legacywPL) ? obspl : null;
 	}
 
-	@Deprecated
-	public double[] getMAFSet() {
-		double[] maf = new double[inputdata.size()];
-		int count = 0;
-		for (Entry<?, ?> e : inputdata.entrySet()) {
-			maf[count] = Double.parseDouble(e.getValue().toString().split("#")[1]);
-			count++;
-		}
+	/*
+	 * public double[] getMAFSet() { double[] maf = new double[inputdata.size()];
+	 * int count = 0; for (Entry<?, ?> e : inputdata.entrySet()) { maf[count] =
+	 * Double.parseDouble(e.getValue().toString().split("#")[1]); count++; }
+	 * 
+	 * return maf; }
+	 */
 
-		return maf;
-	}
 
-	@Deprecated
-	public double[] getMAFSetNew() {
-		double[] maf = new double[inputdatanew.size()];
-		int count = 0;
-		for (Entry<Integer, VariantInfo> e : inputdatanew.entrySet()) {
-			maf[count] = e.getValue().getAF();
-			count++;
-		}
+	/*
+	 * public double[] getMAFSetNew() { double[] maf = new
+	 * double[inputdatanew.size()]; int count = 0; for (Entry<Integer, VariantInfo>
+	 * e : inputdatanew.entrySet()) { maf[count] = e.getValue().getAF(); count++; }
+	 * 
+	 * return maf; }
+	 */
 
-		return maf;
-	}
+	/*
+	 * public int[] getDistanceSet() { int[] distmap = new int[inputdata.size()];
+	 * int count = 0; int DIST = 0; for (Integer k : inputdata.keySet()) {
+	 * distmap[count] = k - DIST; DIST = k; count++; }
+	 * 
+	 * return distmap; }
+	 */
 
-	@Deprecated
-	public int[] getDistanceSet() {
-		int[] distmap = new int[inputdata.size()];
-		int count = 0;
-		int DIST = 0;
-		for (Integer k : inputdata.keySet()) {
-			distmap[count] = k - DIST;
-			DIST = k;
-			count++;
-		}
 
-		return distmap;
-	}
-
-	@Deprecated
-	public int[] getDistanceSetNew() {
-		int[] distmap = new int[inputdatanew.size()];
-		int count = 0;
-		int DIST = 0;
-		for (Integer k : inputdatanew.keySet()) {
-			distmap[count] = k - DIST;
-			DIST = k;
-			count++;
-		}
-
-		return distmap;
-	}
-
+	/*
+	 * public int[] getDistanceSetNew() { int[] distmap = new
+	 * int[inputdatanew.size()]; int count = 0; int DIST = 0; for (Integer k :
+	 * inputdatanew.keySet()) { distmap[count] = k - DIST; DIST = k; count++; }
+	 * 
+	 * return distmap; }
+	 */
 	public void setMAFAndDist(HMM hmm) {
 
 		if (Distenabled || HWenabled) {
 			int count = 0;
 			int DIST = 0;
 
-			int[] distmap = new int[inputdatanew.size()];
+			int[] distmap = new int[inputData.size()];
 
-			double[] maf = new double[inputdatanew.size()];
+			double[] maf = new double[inputData.size()];
 
-			for (Entry<Integer, VariantInfo> e : inputdatanew.entrySet()) {
+			for (Entry<Integer, VariantInfo> e : inputData.entrySet()) {
 				int k = e.getKey();
 				distmap[count] = Distenabled ? k - DIST : 0;
 				DIST = k;
@@ -504,19 +479,18 @@ public class Input {
 		return HWenabled;
 	}
 
-	@Deprecated
-	public TreeMap<Integer, String> getInputData() {
-		return inputdata;
-	}
+	/*
+	 * public TreeMap<Integer, String> getInputData() { return inputdata; }
+	 */
 
 	public TreeMap<Integer, VariantInfo> getInputDataNew() {
-		return inputdatanew;
+		return inputData;
 	}
 
 	public void killTreeMap() {
 
-		inputdata = null;
-		inputdatanew = null;
+		//inputdata = null;
+		inputData = null;
 
 	}
 

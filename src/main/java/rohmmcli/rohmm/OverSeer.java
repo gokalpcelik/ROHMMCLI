@@ -56,7 +56,7 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<String, String>();
 
-	public static final String VERSION = "0.9t-GUI 24/05/2020";
+	public static final String VERSION = "0.9t-GUI 26/05/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
