@@ -32,7 +32,7 @@ public class OverSeer {
 	protected static CommandLine cmd = null;
 	protected static HMM hmm = null;
 	protected static Input input = null;
-	protected static boolean combine = false;
+	protected static boolean combine = true;
 	protected static boolean filterUnknowns = false;
 	protected static boolean DMAF = false;
 	protected static int LOGLEVEL = 3; // for development purposes. Will set to 0 upon release.
@@ -232,14 +232,11 @@ public class OverSeer {
 			input.useUserPLs = true;
 			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
 		} 
-			else if (cmd.hasOption("legacy")) {
-			input.usePLs = false;
-			input.useGTs = true;
-		} else if (cmd.hasOption("Custom")) {
-			input.usePLs = false;
-			input.useGTs = false;
-			input.legacywPL = true;
-		}
+		/*
+		 * else if (cmd.hasOption("legacy")) { input.usePLs = false; input.useGTs =
+		 * true; } else if (cmd.hasOption("Custom")) { input.usePLs = false;
+		 * input.useGTs = false; input.legacywPL = true; }
+		 */
 
 		//if (cmd.hasOption("MFM"))
 		//	input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
@@ -255,8 +252,8 @@ public class OverSeer {
 		filterUnknowns = cmd.hasOption("FilterUnknowns");
 			
 
-		if (cmd.hasOption("combine"))
-			combine = true;
+		if (cmd.hasOption("split"))
+			combine = false;
 
 		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
 
@@ -320,7 +317,7 @@ public class OverSeer {
 		
 		opts.addOption("help", false, "Display this text...");
 
-		opts.addOption("combine", false, "Combine Bed file outputs into single file..");
+		opts.addOption("split", false, "Split Bed file per contig..");
 
 		opts.addOption("D", true, "Default MAF for sites missing MAF. Default 0.4");
 
@@ -348,7 +345,7 @@ public class OverSeer {
 		opts.addOption("FilterUnknowns", false,
 				"Filter unknown sites when using known sites option");
 
-		opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
+		//opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data AF probability (experimental)");
 
 		//opts.addOption("OLDCODE", false, "Use old single sample calculation code path. Deprecated");
 

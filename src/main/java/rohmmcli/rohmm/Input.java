@@ -25,15 +25,16 @@ public class Input {
 	protected int fillfactor = 1;
 	protected boolean usePLs = true;
 	protected boolean useADs = false;
-	protected double ADThreshold = 0.2;// maybe deprecated??
+	protected double ADThreshold = 0.2;
 	protected int depthThreshold = 10;
 	protected boolean legacywPL = false;
+	@Deprecated
 	protected boolean useGTs = false; // legacy
 	protected boolean useUserPLs = false;
 	protected int userPL = 30;
 	protected boolean spikeIn = false;
-	@Deprecated
-	protected int oldsampleidx = 0;
+
+	//protected int oldsampleidx = 0;
 	protected double minisculeformissing = 0.000001;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
