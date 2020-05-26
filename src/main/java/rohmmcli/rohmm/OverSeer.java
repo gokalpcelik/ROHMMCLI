@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -407,6 +408,18 @@ public class OverSeer {
 		if (OSNAME.contains("mac"))
 			return true;
 		return false;
+	}
+	
+	protected static boolean isMacMenuBarDarkMode() {
+	    try {
+	        // check for exit status only. Once there are more modes than "dark" and "default", we might need to analyze string contents..
+	        final Process proc = Runtime.getRuntime().exec(new String[] {"defaults", "read", "-g", "AppleInterfaceStyle"});
+	        proc.waitFor(100, TimeUnit.MILLISECONDS);
+	        return proc.exitValue() == 0;
+	    } catch (IOException | InterruptedException | IllegalThreadStateException ex) {
+	        // IllegalThreadStateException thrown by proc.exitValue(), if process didn't terminate
+	        return false;
+	    }
 	}
 
 	public static boolean isWindows() {

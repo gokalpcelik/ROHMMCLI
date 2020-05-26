@@ -23,6 +23,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import rohmmcli.gui.*;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 
 @SuppressWarnings("unused")
@@ -36,7 +37,10 @@ public class ROHMMCLIRunner {
 
 		if (args.length == 0) {
 			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", OverSeer.INFO);
-			UIManager.setLookAndFeel(new FlatIntelliJLaf());
+			if(OverSeer.isMac() && OverSeer.isMacMenuBarDarkMode())
+				UIManager.setLookAndFeel(new FlatDarculaLaf());
+			else
+				UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			ROHMMMain.RunGUI();
 		} else {
 			OverSeer.parseCommands(args);
