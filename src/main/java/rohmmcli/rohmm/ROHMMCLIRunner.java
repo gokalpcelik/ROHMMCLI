@@ -1,8 +1,8 @@
 /*
  * Author : Gokalp Celik
- *
- * Date : May 26, 2020
- *
+ * 
+ * Date : May 27, 2020
+ * 
  */
 package rohmmcli.rohmm;
 
@@ -126,7 +126,11 @@ public class ROHMMCLIRunner {
 
 						OverSeer.input.killTreeMap();
 					}
+				} else {
+					System.err.println("Contigs are null");
 				}
+			} else {
+				System.err.println("vcfrdr is null");
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();

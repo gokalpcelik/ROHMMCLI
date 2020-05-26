@@ -1,7 +1,7 @@
 /*
  * Author : Gokalp Celik
  *
- * Date : May 26, 2020
+ * Date : May 27, 2020
  *
  */
 package rohmmcli.gui;
@@ -28,12 +28,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import rohmmcli.rohmm.OverSeer;
+import rohmmcli.rohmm.ROHMMCLIRunner;
 
 @SuppressWarnings("serial")
 public class IOPanel extends JPanel {
@@ -357,6 +359,7 @@ public class IOPanel extends JPanel {
 					IOPanel.this.vcfPathField.setText(file.getAbsolutePath());
 					OverSeer.resetOptionsGUI();
 					OverSeer.setVCFPath(file);
+					OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX, file.getParent());
 					IOPanel.this.updateChromosomeList(OverSeer.getAvailableContigsList());
 					IOPanel.this.updateSampleNameList(OverSeer.getSampleNameList());
 				}
@@ -382,19 +385,6 @@ public class IOPanel extends JPanel {
 		} catch (final Exception exp) {
 			exp.printStackTrace();
 		}
-	}
-
-	public class VariantFilterRadioButtonListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			switch (arg0.getActionCommand()) {
-
-			}
-
-		}
-
 	}
 
 	public class HMMRadioButtonListener implements ActionListener {
@@ -466,6 +456,10 @@ public class IOPanel extends JPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			System.err.println(OverSeer.getOptionMap());
+			OverSeer.setGUICMD();
+			IOPanel.this.runInference.setEnabled(false);
+			final RunnerWorker worker = new RunnerWorker();
+			worker.execute();
 
 		}
 
@@ -542,6 +536,27 @@ public class IOPanel extends JPanel {
 			if (arg0.getValueIsAdjusting()) {
 				IOPanel.this.setSampleList();
 			}
+		}
+
+	}
+
+	protected class RunnerWorker extends SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() {
+			// TODO Auto-generated method stub
+			OverSeer.setGUICMD();
+			OverSeer.setHMMParams();
+			OverSeer.setInputParams();
+			ROHMMCLIRunner.Runner(OverSeer.getGUICMD());
+			return null;
+		}
+
+		@Override
+		public void done() {
+
+			IOPanel.this.runInference.setEnabled(true);
+
 		}
 
 	}

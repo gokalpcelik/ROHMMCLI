@@ -8,7 +8,11 @@
 	<artifactId>ROHMMCLI</artifactId>
 	<version>0.9t-GUI</version>
 	<packaging>jar</packaging>
-
+	<developers>
+		<developer>
+			<name>Gokalp Celik</name>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

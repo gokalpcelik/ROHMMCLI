@@ -1,7 +1,7 @@
 /*
  * Author : Gokalp Celik
  *
- * Date : May 26, 2020
+ * Date : May 27, 2020
  *
  */
 package rohmmcli.rohmm;
@@ -88,6 +88,10 @@ public class OverSeer {
 
 	}
 
+	public static CommandLine getGUICMD() {
+		return cmd;
+	}
+
 	public static void clearOptionMap() {
 		optionMap.clear();
 	}
@@ -111,6 +115,10 @@ public class OverSeer {
 			guiCMD.add(value != null ? value : "");
 		}
 
+		System.out.println(guiCMD);
+		String[] arr = new String[0];
+		arr = guiCMD.toArray(arr);
+		System.out.println(arr.length);
 		parseCommands(guiCMD.toArray(new String[0]));
 
 	}
@@ -231,7 +239,7 @@ public class OverSeer {
 		return samples;
 	}
 
-	public static void setInputParams() throws Exception {
+	public static void setInputParams() {
 		input = new Input();
 
 		input.Distenabled = Model.distmode;
@@ -245,9 +253,8 @@ public class OverSeer {
 			setVCFPath(new File(VCFPath));
 		} catch (final Exception e) {
 			// TODO Auto-generated catch block
-			throw new Exception("VCF Path is not set...");
+			System.err.println("VCF Path is not set...");
 		}
-		input.setVCFPath(VCFPath);
 
 		input.useADs = cmd.hasOption("AD");
 		input.ADThreshold = input.useADs ? Double.parseDouble(cmd.getOptionValue("AD")) : 0.2;
@@ -338,7 +345,7 @@ public class OverSeer {
 		opts.addRequiredOption("hmm", "hmm-file", true,
 				"HMM parameters file. See help file for file format descriptors. REQUIRED");
 
-		opts.addRequiredOption("V", "Variant-File", true, "Variant file input for analysis. REQUIRED");
+		opts.addOption("V", "Variant-File", true, "Variant file input for analysis. REQUIRED");
 
 		opts.addOption("G", "Gnomad-Path", true, "Path to gnomad filler bed files. NOT REQUIRED");
 
@@ -422,12 +429,13 @@ public class OverSeer {
 
 		} catch (final Exception e) {
 
+			e.printStackTrace();
 			final PrintWriter pw = new PrintWriter(System.err, true);
 			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
 			fmtr.printOptions(pw, 80, opts, 0, 10);
 			endTimer();
 			pw.close();
-			System.exit(1);
+			// System.exit(1);
 		}
 
 	}
