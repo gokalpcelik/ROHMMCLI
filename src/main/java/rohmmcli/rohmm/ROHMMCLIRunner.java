@@ -1,8 +1,8 @@
 /*
  * Author : Gokalp Celik
- * 
- * Date : May 27, 2020
- * 
+ *
+ * Date : May 30, 2020
+ *
  */
 package rohmmcli.rohmm;
 
@@ -129,11 +129,18 @@ public class ROHMMCLIRunner {
 				} else {
 					System.err.println("Contigs are null");
 				}
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference complete...", OverSeer.INFO);
 			} else {
 				System.err.println("vcfrdr is null");
 			}
+
 		} catch (final Exception e) {
-			e.printStackTrace();
+			if (e.getCause().getClass().getSimpleName().equalsIgnoreCase("ClosedByInterruptException")) {
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference stopped by user...", OverSeer.WARNING);
+			} else {
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to an unknown problem..",
+						OverSeer.WARNING);
+			}
 		}
 
 	}

@@ -1,7 +1,7 @@
 /*
  * Author : Gokalp Celik
  *
- * Date : May 27, 2020
+ * Date : May 30, 2020
  *
  */
 package rohmmcli.gui;
@@ -15,7 +15,8 @@ public class GUIOptionStandards {
 	public static final String AFTAG = "-AF";
 	public static final String DEFAULTAF = "-D";
 	public static final String SKIPINDELS = "-S";
-	public static final String USERDEFINEDGTERROR = "-GT";
+	public static final String USERDEFINEDGTERRORALL = "-GT";
+	public static final String USERDEFINEDGTERROR = "-ER";
 	public static final String MINIMUMROHLENGTH = "-MRL";
 	public static final String SAMPLENAMELIST = "-SN";
 	public static final String LOGLEVEL = "-LL";
@@ -23,4 +24,5 @@ public class GUIOptionStandards {
 	public static final String KNOWNSNPPATH = "-G";
 	public static final String INCLUDEUNKNOWN = "-IncludeUnknowns";
 	public static final String SPIKEIN = "-F";
+	public static final String ALLELICBALANCETHRESHOLD = "-AD";
 }

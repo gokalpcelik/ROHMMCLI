@@ -1,7 +1,7 @@
 /*
  * Author : Gokalp Celik
  *
- * Date : May 27, 2020
+ * Date : May 30, 2020
  *
  */
 package rohmmcli.rohmm;
@@ -288,7 +288,7 @@ public class OverSeer {
 
 		DMAF = cmd.hasOption("DefaultMAF");
 
-		filterUnknowns = cmd.hasOption("IncludeUnknowns");
+		filterUnknowns = !cmd.hasOption("IncludeUnknowns");
 
 		input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
 
@@ -434,7 +434,7 @@ public class OverSeer {
 			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
 			fmtr.printOptions(pw, 80, opts, 0, 10);
 			endTimer();
-			pw.close();
+			// pw.close();
 			// System.exit(1);
 		}
 
@@ -442,6 +442,8 @@ public class OverSeer {
 
 	public static void resetOptionsGUI() {
 		optionMap.clear();
+		optionMap.put(GUIOptionStandards.ALLELICBALANCETHRESHOLD, "0.2");
+		optionMap.put(GUIOptionStandards.USERDEFINEDGTERROR, "30");
 		optionMap.put(GUIOptionStandards.HMMMODELFILE, Model.XDISTMODEL);
 		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "1");
 		optionMap.put(GUIOptionStandards.MINIMUMROHQUAL, "0.0");

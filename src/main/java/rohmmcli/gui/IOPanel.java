@@ -1,7 +1,7 @@
 /*
  * Author : Gokalp Celik
  *
- * Date : May 27, 2020
+ * Date : May 30, 2020
  *
  */
 package rohmmcli.gui;
@@ -59,6 +59,7 @@ public class IOPanel extends JPanel {
 	protected JButton selectAllSampleButton;
 	protected JButton selectNoneSampleButton;
 	protected JButton runInference;
+	protected JButton stopInference;
 	protected JButton invertSelectionSampleButton;
 	protected JButton selectKnownVariantButton;
 	protected JScrollPane scrollPane;
@@ -70,6 +71,7 @@ public class IOPanel extends JPanel {
 	protected JCheckBox filterUsingKnown;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
+	protected RunnerWorker worker = null;
 
 	/**
 	 * Create the panel.
@@ -259,10 +261,18 @@ public class IOPanel extends JPanel {
 		c.gridy = 2;
 		hmmPanel.add(this.useCustomModelPolicy, c);
 		this.add(hmmPanel);
-		this.runInference = new JButton(">>> Run ROHMM! <<<");
-		this.runInference.setBounds(295, 483, 492, 50);
-		this.runInference.addActionListener(new ROHMMRunnerButtonListener());
+		final ROHMMRunnerButtonListener runnerbuttonlistener = new ROHMMRunnerButtonListener();
+		this.runInference = new JButton(">>> RUN ROHMM! <<<");
+		this.runInference.setActionCommand("runinference");
+		this.stopInference = new JButton("STOP ROHMM");
+		this.stopInference.setActionCommand("stopinference");
+		this.runInference.setBounds(295, 483, 350, 50);
+		this.stopInference.setBounds(645, 483, 142, 50);
+		this.runInference.addActionListener(runnerbuttonlistener);
+		this.stopInference.addActionListener(runnerbuttonlistener);
+		this.stopInference.setEnabled(false);
 		this.add(this.runInference);
+		this.add(this.stopInference);
 
 	}
 
@@ -301,6 +311,19 @@ public class IOPanel extends JPanel {
 
 	}
 
+	protected void resetIOPanelOptions() {
+		IOPanel.this.skipIndels.setSelected(false);
+		IOPanel.this.filterUsingKnown.setSelected(false);
+		IOPanel.this.vcfPathField.setText("");
+		IOPanel.this.outputDirField.setText("");
+		IOPanel.this.knownVariantField.setText("");
+		IOPanel.this.selectKnownVariantButton.setEnabled(false);
+		IOPanel.this.chrlistmodel.clear();
+		IOPanel.this.samplenamemodel.clear();
+		IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
+		IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
+	}
+
 	public class IOFileDialogButtonListener implements ActionListener {
 
 		@Override
@@ -337,25 +360,12 @@ public class IOPanel extends JPanel {
 			}
 		}
 
-		protected void resetIOPanelOptions() {
-			IOPanel.this.skipIndels.setSelected(false);
-			IOPanel.this.filterUsingKnown.setSelected(false);
-			IOPanel.this.vcfPathField.setText("");
-			IOPanel.this.outputDirField.setText("");
-			IOPanel.this.knownVariantField.setText("");
-			IOPanel.this.selectKnownVariantButton.setEnabled(false);
-			IOPanel.this.chrlistmodel.clear();
-			IOPanel.this.samplenamemodel.clear();
-			IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
-			IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
-		}
-
 		protected void VCFSelectButtonAction() {
 			try {
 				final File file = FileSelectorUtil.openFile(IOPanel.this.parentFrame, "Select VCF File...",
 						new ROHMMFileSelectionFilter("VCF Files", "vcf", "vcf.gz"), new File("."));
 				if (file != null) {
-					this.resetIOPanelOptions();
+					IOPanel.this.resetIOPanelOptions();
 					IOPanel.this.vcfPathField.setText(file.getAbsolutePath());
 					OverSeer.resetOptionsGUI();
 					OverSeer.setVCFPath(file);
@@ -392,6 +402,17 @@ public class IOPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
+			switch (arg0.getActionCommand()) {
+			case "usedefaultalleledistribution":
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELXDIST");
+				break;
+			case "usedefaultallelefrequency":
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELHWDIST");
+				break;
+			case "usecustom":
+				OverSeer.removeOption(GUIOptionStandards.HMMMODELFILE);
+				break;
+			}
 
 		}
 
@@ -455,11 +476,24 @@ public class IOPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
-			System.err.println(OverSeer.getOptionMap());
-			OverSeer.setGUICMD();
-			IOPanel.this.runInference.setEnabled(false);
-			final RunnerWorker worker = new RunnerWorker();
-			worker.execute();
+			switch (arg0.getActionCommand()) {
+			case "runinference":
+				System.err.println(OverSeer.getOptionMap());
+				OverSeer.setGUICMD();
+				IOPanel.this.runInference.setEnabled(false);
+				IOPanel.this.stopInference.setEnabled(true);
+				IOPanel.this.worker = new RunnerWorker();
+				IOPanel.this.worker.execute();
+				break;
+			case "stopinference":
+				if (!IOPanel.this.worker.isDone()) {
+					IOPanel.this.worker.cancel(true);
+					IOPanel.this.resetIOPanelOptions();
+					IOPanel.this.runInference.setEnabled(true);
+					IOPanel.this.stopInference.setEnabled(false);
+				}
+				break;
+			}
 
 		}
 
@@ -554,8 +588,8 @@ public class IOPanel extends JPanel {
 
 		@Override
 		public void done() {
-
 			IOPanel.this.runInference.setEnabled(true);
+			IOPanel.this.stopInference.setEnabled(false);
 
 		}
 
