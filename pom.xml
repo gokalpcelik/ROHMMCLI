@@ -173,6 +173,10 @@
 							</dependency>
 						</dependencies>
 						<configuration>
+							<jdk>
+								<include>true</include>
+								<location>/Volumes/MacHD/git/ROHMMCLI/jdk-11</location>
+							</jdk>
 							<plist>
 								<JVMMainClassName>rohmmcli.rohmm.ROHMMCLIRunner</JVMMainClassName>
 								<JVMVersion>8+</JVMVersion>
