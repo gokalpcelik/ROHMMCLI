@@ -1,8 +1,6 @@
 /*
  * Author : Gokalp Celik
- *
- * Date : May 30, 2020
- *
+ * Year : 2020
  */
 package rohmmcli.gui;
 
@@ -353,7 +351,7 @@ public class IOPanel extends JPanel {
 				final File file = FileSelectorUtil.selectDirectory(IOPanel.this.parentFrame, "Select Output Directory",
 						new File("."));
 				if (file != null) {
-					IOPanel.this.outputDirField.setText(file.getAbsolutePath());
+					IOPanel.this.outputDirField.setText(file.getAbsolutePath() + (OverSeer.isWindows() ? "\\" : "/"));
 				}
 			} catch (final Exception exp) {
 				exp.printStackTrace();
@@ -369,7 +367,9 @@ public class IOPanel extends JPanel {
 					IOPanel.this.vcfPathField.setText(file.getAbsolutePath());
 					OverSeer.resetOptionsGUI();
 					OverSeer.setVCFPath(file);
-					OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX, file.getParent());
+					IOPanel.this.outputDirField.setText(file.getParent() + (OverSeer.isWindows() ? "\\" : "/"));
+					OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX, file.getParent()
+							+ (OverSeer.isWindows() ? "\\" : "/") + IOPanel.this.outputPrefixField.getText());
 					IOPanel.this.updateChromosomeList(OverSeer.getAvailableContigsList());
 					IOPanel.this.updateSampleNameList(OverSeer.getSampleNameList());
 				}
@@ -478,8 +478,9 @@ public class IOPanel extends JPanel {
 			// TODO Auto-generated method stub
 			switch (arg0.getActionCommand()) {
 			case "runinference":
-				System.err.println(OverSeer.getOptionMap());
-				OverSeer.setGUICMD();
+				OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX,
+						IOPanel.this.outputDirField.getText() + IOPanel.this.outputPrefixField.getText());
+				OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
 				IOPanel.this.runInference.setEnabled(false);
 				IOPanel.this.stopInference.setEnabled(true);
 				IOPanel.this.worker = new RunnerWorker();

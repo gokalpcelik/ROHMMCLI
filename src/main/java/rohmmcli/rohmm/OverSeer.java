@@ -1,8 +1,6 @@
 /*
  * Author : Gokalp Celik
- *
- * Date : May 30, 2020
- *
+ * Year : 2020
  */
 package rohmmcli.rohmm;
 
@@ -21,6 +19,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Options;
 
 import htsjdk.samtools.util.FileExtensions;
@@ -37,6 +37,7 @@ public class OverSeer {
 	public static final int WARNING = 1;
 	public static final int INFO = 2;
 	public static final int DEBUG = 3;
+	public static boolean isGUI = false;
 	protected static CommandLine cmd = null;
 	protected static HMM hmm = null;
 	protected static Input input = null;
@@ -115,10 +116,10 @@ public class OverSeer {
 			guiCMD.add(value != null ? value : "");
 		}
 
-		System.out.println(guiCMD);
+		// System.out.println(guiCMD);
 		String[] arr = new String[0];
 		arr = guiCMD.toArray(arr);
-		System.out.println(arr.length);
+		// System.out.println(arr.length);
 		parseCommands(guiCMD.toArray(new String[0]));
 
 	}
@@ -252,8 +253,7 @@ public class OverSeer {
 		try {
 			setVCFPath(new File(VCFPath));
 		} catch (final Exception e) {
-			// TODO Auto-generated catch block
-			System.err.println("VCF Path is not set...");
+			log("SYSTEM", "VCF path is not set..", ERROR);
 		}
 
 		input.useADs = cmd.hasOption("AD");
@@ -300,7 +300,8 @@ public class OverSeer {
 			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
 		} catch (final Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log("SYSTEM", "Command parameters are not set properly. Please set your input and output parameters",
+					ERROR);
 		}
 	}
 
@@ -390,12 +391,6 @@ public class OverSeer {
 		opts.addOption("IncludeUnknowns", false,
 				"Include high quality unknownsites under known sites option active...");
 
-		// opts.addOption("MFM", "miniscule-for-missing", true, "Delta for missing data
-		// AF probability (experimental)");
-
-		// opts.addOption("OLDCODE", false, "Use old single sample calculation code
-		// path. Deprecated");
-
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
 
@@ -404,13 +399,6 @@ public class OverSeer {
 																						// users to define an external
 																						// population vcf to set allele
 																						// frequencies if hw is used.
-		// opts.addOption("FF", "fill-factor", true, "Factor to reduce the filled
-		// positions from GnomAD reference. Use 100 for exomes and 4 for low coverage
-		// WGS. Changes the number of filled sites by the factor given here. Use higher
-		// numbers if your total variant sites are lower than 50000");
-
-		// opts.addRequiredOption("sn", "sample-names",true, "List of sample names
-		// seperated by comma such as sample1,sample2...");
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
 
@@ -429,11 +417,18 @@ public class OverSeer {
 
 		} catch (final Exception e) {
 
-			e.printStackTrace();
+			if (e instanceof MissingOptionException) {
+				log("SYSTEM", "Required options are missing", ERROR);
+			} else if (e instanceof MissingArgumentException) {
+				log("SYSTEM", "Option parameter missing", ERROR);
+			}
+
 			final PrintWriter pw = new PrintWriter(System.err, true);
-			fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
-			fmtr.printOptions(pw, 80, opts, 0, 10);
-			endTimer();
+			if (!isGUI) {
+				fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
+				fmtr.printOptions(pw, 80, opts, 0, 10);
+				endTimer();
+			}
 			// pw.close();
 			// System.exit(1);
 		}

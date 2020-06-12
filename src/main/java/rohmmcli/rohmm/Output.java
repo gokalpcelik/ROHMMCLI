@@ -1,3 +1,7 @@
+/*
+ * Author : Gokalp Celik
+ * Year : 2020
+ */
 package rohmmcli.rohmm;
 
 import java.io.BufferedWriter;
@@ -58,14 +62,8 @@ public class Output {
 			}
 		}
 		if (status == 0) {
-			br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" // burada
-																										// yapilan salak
-																										// bir hata
-																										// yuzunden
-																										// olayi
-																										// mahvediyorduk
-																										// nerdeyese...
-					+ rohcount + "\n");
+			br.write(
+					contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" + rohcount + "\n");
 		}
 
 		br.close();

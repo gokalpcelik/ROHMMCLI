@@ -1,10 +1,10 @@
 /*
  * Author : Gokalp Celik
- *
- * Date : May 30, 2020
- *
+ * Year : 2020
  */
 package rohmmcli.rohmm;
+
+import java.nio.channels.ClosedByInterruptException;
 
 import javax.swing.UIManager;
 
@@ -36,6 +36,7 @@ public class ROHMMCLIRunner {
 			} else {
 				UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			}
+			OverSeer.isGUI = true;
 			OverSeer.resetOptionsGUI();
 			ROHMMMain.RunGUI();
 		} else {
@@ -135,7 +136,7 @@ public class ROHMMCLIRunner {
 			}
 
 		} catch (final Exception e) {
-			if (e.getCause().getClass().getSimpleName().equalsIgnoreCase("ClosedByInterruptException")) {
+			if (e instanceof ClosedByInterruptException) {
 				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference stopped by user...", OverSeer.WARNING);
 			} else {
 				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to an unknown problem..",
