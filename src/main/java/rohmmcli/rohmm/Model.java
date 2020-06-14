@@ -1,10 +1,13 @@
+/*
+ * Author : Gokalp Celik
+ * Year : 2020
+ */
 package rohmmcli.rohmm;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-@SuppressWarnings("unused")
 public class Model {
 
 	protected static boolean hwmode = false;
@@ -14,6 +17,7 @@ public class Model {
 	protected static final String HWDISTMODEL = "MODELHWDIST";
 	protected static final String XMODEL = "MODELX";
 	protected static final String XDISTMODEL = "MODELXDIST";
+	protected static String customModel = "";
 
 	public static HMM hmmModel(String model) throws Exception {
 
@@ -29,6 +33,9 @@ public class Model {
 			break;
 		case XDISTMODEL:
 			getDefaultAlleleDistributionModel(true);
+			break;
+		case "CUSTOM":
+			hmmModelMakerGUI();
 			break;
 		default:
 			if (new File(model).exists()) {
@@ -69,6 +76,76 @@ public class Model {
 		}
 	}
 
+	private static void hmmModelMakerGUI() {
+		hwmode = false;
+		distmode = false;
+		final double[][] emmatrix = new double[2][3];
+		final double[] start = new double[2];
+		final double[][] transmatrix = new double[2][2];
+		double defprob = Double.POSITIVE_INFINITY;
+		double normfact = Double.NEGATIVE_INFINITY;
+		try {
+
+			final String[] modelparams = customModel.split("\n");
+
+			for (final String line : modelparams) {
+				final String[] argses = line.split("\t");
+
+				final String temp = argses[0];
+				switch (temp) {
+				case "HW":
+					hwmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
+					break;
+				case "START":
+					start[0] = Double.parseDouble(argses[1]);
+					start[1] = Double.parseDouble(argses[2]);
+					break;
+				case "EMROH":
+					emmatrix[0][0] = Double.parseDouble(argses[1]);
+					emmatrix[0][1] = Double.parseDouble(argses[2]);
+					emmatrix[0][2] = Double.parseDouble(argses[3]);
+					break;
+				case "EMNORM":
+					emmatrix[1][0] = Double.parseDouble(argses[1]);
+					emmatrix[1][1] = Double.parseDouble(argses[2]);
+					emmatrix[1][2] = Double.parseDouble(argses[3]);
+					break;
+				case "TRANSROH":
+					transmatrix[0][0] = Double.parseDouble(argses[1]);
+					transmatrix[0][1] = Double.parseDouble(argses[2]);
+					break;
+				case "TRANSNORM":
+					transmatrix[1][0] = Double.parseDouble(argses[1]);
+					transmatrix[1][1] = Double.parseDouble(argses[2]);
+					break;
+				case "DEFAULTPROB":
+					defprob = Double.parseDouble(argses[1]);
+					break;
+				case "DIST":
+					distmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
+					break;
+				case "NORMFACT":
+					normfact = Double.parseDouble(argses[1]);
+					break;
+
+				}
+
+			}
+
+			hmm = new HMM(emmatrix, transmatrix, start);
+			if (distmode) {
+				if (!hwmode) {
+					hmm = new HMM(emmatrix, defprob, normfact, start);
+				} else {
+					hmm = new HMM(defprob, normfact, start);
+				}
+			}
+		} catch (final Exception e) {
+			System.err.println(e.getMessage());
+		}
+
+	}
+
 	private static void hmmModelParser(File modelfile) {
 
 		hwmode = false;
@@ -76,12 +153,6 @@ public class Model {
 		final double[][] emmatrix = new double[2][3];
 		final double[] start = new double[2];
 		final double[][] transmatrix = new double[2][2];
-		@Deprecated
-		double minAF = Double.NEGATIVE_INFINITY;
-		@Deprecated
-		double maxAF = Double.POSITIVE_INFINITY;
-		@Deprecated
-		int homcount = Integer.MIN_VALUE;
 		double defprob = Double.POSITIVE_INFINITY;
 		double normfact = Double.NEGATIVE_INFINITY;
 		try {
@@ -123,15 +194,6 @@ public class Model {
 					transmatrix[1][0] = Double.parseDouble(argses[1]);
 					transmatrix[1][1] = Double.parseDouble(argses[2]);
 					break;
-				case "MINAF":
-					minAF = Double.parseDouble(argses[1]);
-					break;
-				case "MAXAF":
-					maxAF = Double.parseDouble(argses[1]);
-					break;
-				case "HOMCOUNT":
-					homcount = Integer.parseInt(argses[1]);
-					break;
 				case "DEFAULTPROB":
 					defprob = Double.parseDouble(argses[1]);
 					break;
@@ -149,16 +211,6 @@ public class Model {
 			br.close();
 			fr.close();
 
-			/*
-			 * System.err.println(Arrays.toString(emmatrix[0]));
-			 * System.err.println(Arrays.toString(emmatrix[1]));
-			 * System.err.println(Arrays.toString(transmatrix[0]));
-			 * System.err.println(Arrays.toString(transmatrix[1]));
-			 * System.err.println(Arrays.toString(start)); System.err.println(minAF);
-			 * System.err.println(maxAF); System.err.println(homcount);
-			 */
-
-			// do something
 			hmm = new HMM(emmatrix, transmatrix, start);
 			if (distmode) {
 				if (!hwmode) {
