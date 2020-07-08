@@ -1,6 +1,8 @@
 /*
  * Author : Gokalp Celik
- * Year : 2020
+ *
+ * Date : Jul 8, 2020
+ *
  */
 package rohmmcli.gui;
 
@@ -114,16 +116,16 @@ public class OptionPanel extends JPanel {
 		hmmsetupt.add(useFixedTransitionParams, c2);
 		this.ROWT1 = new JLabel("ROH-NonROH");
 		this.ROWT2 = new JLabel("NonROH-ROH");
-		BASEFACT = new JLabel("Base Transition Probability");
-		NORMFACT = new JLabel("Distance Normalization Factor");
-		ROWT1.setHorizontalAlignment(JLabel.RIGHT);
-		ROWT2.setHorizontalAlignment(JLabel.RIGHT);
-		BASEFACT.setHorizontalAlignment(JLabel.RIGHT);
-		NORMFACT.setHorizontalAlignment(JLabel.RIGHT);
+		this.BASEFACT = new JLabel("Base Transition Probability");
+		this.NORMFACT = new JLabel("Distance Normalization Factor");
+		this.ROWT1.setHorizontalAlignment(JLabel.RIGHT);
+		this.ROWT2.setHorizontalAlignment(JLabel.RIGHT);
+		this.BASEFACT.setHorizontalAlignment(JLabel.RIGHT);
+		this.NORMFACT.setHorizontalAlignment(JLabel.RIGHT);
 		this.RT = new JTextField();
 		this.NT = new JTextField();
-		BF = new JTextField();
-		NF = new JTextField();
+		this.BF = new JTextField();
+		this.NF = new JTextField();
 		c2.gridx = 0;
 		c2.gridy = 1;
 		c2.weightx = 0.01;
@@ -143,7 +145,7 @@ public class OptionPanel extends JPanel {
 		c2.gridx = 0;
 		c2.gridy = 3;
 		hmmsetupt.add(useDistanceDecayFunction, c2);
-		c2.gridwidth = 1; 
+		c2.gridwidth = 1;
 		c2.gridx = 0;
 		c2.gridy = 4;
 		c2.weightx = 0.01;
