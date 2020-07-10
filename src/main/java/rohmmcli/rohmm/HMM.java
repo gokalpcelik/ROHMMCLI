@@ -44,12 +44,16 @@ public class HMM {
 	// Precalculate all genotype likelyhoods so that further calculation is not
 	// necessary. Similar to bcftools. Numbers greater than 255 are usually
 	// meaningless in terms of probability.
+	// position 256 is reserved for zero probability of a genotype under any
+	// condition therefore helps user to set their own proabilities for free.
 	private void initPLs() {
-		this.preCalcPL = new double[256];
+		this.preCalcPL = new double[257];
 
 		for (int i = 0; i < 256; i++) {
 			this.preCalcPL[i] = Math.pow(10, -1 * i / 10.0);
 		}
+
+		this.preCalcPL[256] = 0;
 	}
 
 	// similar to bcftools PL criteria. More than 255 is usually meaningless also
@@ -57,6 +61,8 @@ public class HMM {
 	private int maxPL(int PL) {
 		if (PL > 255) {
 			return 255;
+		} else if (PL < 0) {
+			return 256;
 		}
 		return PL;
 	}
@@ -66,8 +72,6 @@ public class HMM {
 	}
 
 	public double getEmissionProb(int state, int pos) {
-
-		// System.err.println(pos);
 
 		if (this.PLmatrix != null) {
 			try {

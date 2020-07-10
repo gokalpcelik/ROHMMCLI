@@ -348,7 +348,7 @@ public class OverSeer {
 
 		opts.addOption("V", "Variant-File", true, "Variant file input for analysis. REQUIRED");
 
-		opts.addOption("G", "Gnomad-Path", true, "Path to gnomad filler bed files. NOT REQUIRED");
+		opts.addOption("G", "Known-Sites", true, "Path to known sites files. NOT REQUIRED");
 
 		opts.addRequiredOption("O", "Output-File-Prefix", true, "Output file prefix for bed files. REQUIRED");
 
@@ -389,20 +389,18 @@ public class OverSeer {
 				"Minimum number of sites to report a region as ROH. Default 0");
 
 		opts.addOption("IncludeUnknowns", false,
-				"Include high quality unknownsites under known sites option active...");
+				"Include high quality unknown sites under known sites option active...");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
 				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
 
-		opts.addOption("EAF", "external-file-af", true,
-				"Define an external vcf file for the population allele frequencies"); // Adding this option will enable
-																						// users to define an external
-																						// population vcf to set allele
-																						// frequencies if hw is used.
+		// opts.addOption("EAF", "external-file-af", true, "Define an external vcf file
+		// for the population allele frequencies"); // Adding this option will enable
+		// users to define an external
+		// population vcf to set allele
+		// frequencies if hw is used.
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
-
-		opts.addOption("exome", false, "Activate if the sample is a whole exome analysis");
 
 		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
 																									// yoksa kalırız
