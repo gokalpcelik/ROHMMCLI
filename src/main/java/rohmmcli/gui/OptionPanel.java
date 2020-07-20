@@ -42,6 +42,7 @@ public class OptionPanel extends JPanel {
 		this.AFDEF = new JLabel("Default Allele Frequency");
 		this.AFDEF.setHorizontalAlignment(JLabel.RIGHT);
 		this.ERDEF = new JLabel("Empirical Phred Scaled Error Rate");
+		this.ERDEF.setToolTipText("Set 256 to disable empirical error rate and use all sites as is");
 		this.COLUMNS = new JLabel(
 				" HOMREF                                        HET                                                HOMVAR");
 		this.R1 = new JTextField();
@@ -215,6 +216,13 @@ public class OptionPanel extends JPanel {
 	// Work on this part of the options so that HMM is set properly.
 	public void setAdvancedOptions() {
 		String custommodelstring = "";
+
+		if (this.forceER.isSelected()) {
+			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, this.ERD.getText());
+		} else {
+			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, this.ERD.getText());
+		}
+
 		if (this.customHMMAlleleDistribution.isSelected()) {
 			custommodelstring += "EMROH\t" + this.R1.getText() + "\t" + this.R2.getText() + "\t" + this.R3.getText()
 					+ "\n";
@@ -247,6 +255,9 @@ public class OptionPanel extends JPanel {
 
 	public void clearAllOptions() {
 		Model.customModel = "";
+		OverSeer.removeOption(GUIOptionStandards.AFTAG);
+		OverSeer.removeOption(GUIOptionStandards.HMMMODELFILE);
+		OverSeer.removeOption(GUIOptionStandards.DEFAULTAF);
 
 	}
 
