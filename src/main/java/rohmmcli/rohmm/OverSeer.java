@@ -26,6 +26,7 @@ import org.apache.commons.cli.Options;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import rohmmcli.gui.GUIOptionStandards;
 
 //OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions.
@@ -238,6 +239,19 @@ public class OverSeer {
 		}
 
 		return samples;
+	}
+
+	public static String[] getInfoTags() {
+
+		final ArrayList<String> infolines = new ArrayList<>();
+		if (vcfrdr != null) {
+			for (final VCFInfoHeaderLine infoline : getVCFHeader().getInfoHeaderLines()) {
+				infolines.add(infoline.getID());
+
+			}
+			return infolines.toArray(new String[0]);
+		}
+		return null;
 	}
 
 	public static void setInputParams() {

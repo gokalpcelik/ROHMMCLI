@@ -18,6 +18,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import rohmmcli.rohmm.OverSeer;
+
 @SuppressWarnings("serial")
 public class OptionPanel extends JPanel {
 
@@ -53,9 +55,8 @@ public class OptionPanel extends JPanel {
 		hmmsetup.setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		final JRadioButton customHMMAlleleDistribution = new JRadioButton(
-				"Use Custom Allele Distribution Probabilities");
-		final JRadioButton customHMMAlleleFrequency = new JRadioButton("Use Custom Allele Frequency Parameters");
+		final JRadioButton customHMMAlleleDistribution = new JRadioButton("Use Allele Distribution");
+		final JRadioButton customHMMAlleleFrequency = new JRadioButton("Use Allele Frequency");
 		final ButtonGroup hmmemission = new ButtonGroup();
 		hmmemission.add(customHMMAlleleDistribution);
 		hmmemission.add(customHMMAlleleFrequency);
@@ -63,7 +64,7 @@ public class OptionPanel extends JPanel {
 		c.gridy = 0;
 		c.weightx = 0.01;
 		hmmsetup.add(this.ERDEF, c);
-		c.weightx = 0.3;
+		c.weightx = 0.5;
 		c.gridx = 1;
 		hmmsetup.add(this.ERD, c);
 		this.forceER = new JCheckBox("Use same error rate for all sites");
@@ -75,7 +76,6 @@ public class OptionPanel extends JPanel {
 		c.gridwidth = 4;
 		c.weightx = 0.01;
 		hmmsetup.add(customHMMAlleleDistribution, c);
-
 		c.weightx = 1;
 		c.gridx = 1;
 		c.gridy = 2;
@@ -105,7 +105,7 @@ public class OptionPanel extends JPanel {
 		c.gridy = 5;
 		c.weightx = 0.01;
 		hmmsetup.add(customHMMAlleleFrequency, c);
-		this.getAFFromTag = new JCheckBox("Get allele frequencies from INFO tags");
+		this.getAFFromTag = new JCheckBox("Get AF from INFO tags");
 		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 6;
@@ -192,28 +192,35 @@ public class OptionPanel extends JPanel {
 		final JPanel miscopts = new JPanel(new GridBagLayout());
 		miscopts.setBorder(new TitledBorder("Miscellaneous Options"));
 		miscopts.setBounds(12, 385, 775, 140);
-		this.useADs = new JCheckBox("Use Allelic Depths to eliminate false het calls with minor allele/depth ratio");
-		this.ADT = new JTextField("0.2");
 		final GridBagConstraints c3 = new GridBagConstraints();
 		c3.fill = GridBagConstraints.HORIZONTAL;
+		this.LOGDEF = new JLabel("Log level");
 		c3.gridx = 0;
 		c3.gridy = 0;
 		c3.weightx = 0.01;
-		miscopts.add(this.useADs, c3);
-		c3.weightx = 0.3;
-		c3.gridx = 1;
-		miscopts.add(this.ADT, c3);
-		this.LOGDEF = new JLabel("Log level");
-		c3.gridx = 0;
-		c3.gridy = 1;
-		c3.weightx = 0.01;
 		miscopts.add(this.LOGDEF, c3);
-		this.LOGLevel = new JComboBox<>();
+		this.LOGLevel = new JComboBox<>(new String[] { "ERROR", "WARNING", "INFO", "DEBUG" });
+		this.LOGLevel.addActionListener(arg0 -> OverSeer.setOption(GUIOptionStandards.LOGLEVEL,
+				OptionPanel.this.LOGLevel.getSelectedIndex() + ""));
 		c3.gridx = 1;
 		c3.weightx = 0.3;
 		miscopts.add(this.LOGLevel, c3);
 		this.add(miscopts);
 
+	}
+
+	public void setAdvancedOptions() {
+
+	}
+
+	public void clearAllOptions() {
+
+	}
+
+	public void setInfoTags(String[] tags) {
+		for (final String tag : tags) {
+			this.INFOTags.addItem(tag);
+		}
 	}
 
 }

@@ -38,12 +38,14 @@ import rohmmcli.rohmm.ROHMMCLIRunner;
 @SuppressWarnings("serial")
 public class IOPanel extends JPanel {
 	protected JPanel panel_1, panel_0;
+	protected OptionPanel AdvPanel;
 	protected JLabel vcfLabel;
 	protected JPanel panel;
 	protected JTextField vcfPathField;
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
+	protected JTextField ADThreshvalue;
 	protected JCheckBox knownVariantInclusivePolicy;
 	protected JCheckBox knownVariantSpikeInPolicy;
 	protected JRadioButton useDefaultAlleleDistributionPolicy;
@@ -67,6 +69,7 @@ public class IOPanel extends JPanel {
 	protected JFrame parentFrame;
 	protected JCheckBox skipIndels;
 	protected JCheckBox filterUsingKnown;
+	protected JCheckBox ADthresh;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
 	protected RunnerWorker worker = null;
@@ -195,7 +198,7 @@ public class IOPanel extends JPanel {
 		this.add(outPanel);
 		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(295, 127, 492, 100);
+		filterPanel.setBounds(295, 127, 492, 140);
 		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
 		this.skipIndels = new JCheckBox("Skip Indels");
 		this.skipIndels.setActionCommand("skipindels");
@@ -231,11 +234,17 @@ public class IOPanel extends JPanel {
 		filterPanel.add(this.knownVariantSpikeInPolicy, c);
 		c.gridy = 2;
 		filterPanel.add(this.knownVariantInclusivePolicy, c);
-
+		this.ADthresh = new JCheckBox("AD Threshold");
+		this.ADthresh.setToolTipText("Allelic Depth Ratio threshold to eliminate false heterozygous calls");
+		this.ADThreshvalue = new JTextField("0.2");
+		c.gridy = 3;
+		filterPanel.add(this.ADthresh, c);
+		c.gridx = 1;
+		filterPanel.add(this.ADThreshvalue, c);
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 225, 492, 100);
+		hmmPanel.setBounds(295, 265, 492, 100);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
 		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
@@ -320,6 +329,7 @@ public class IOPanel extends JPanel {
 		IOPanel.this.samplenamemodel.clear();
 		IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 		IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
+		IOPanel.this.AdvPanel.INFOTags.removeAllItems();
 	}
 
 	public class IOFileDialogButtonListener implements ActionListener {
@@ -372,6 +382,7 @@ public class IOPanel extends JPanel {
 							+ (OverSeer.isWindows() ? "\\" : "/") + IOPanel.this.outputPrefixField.getText());
 					IOPanel.this.updateChromosomeList(OverSeer.getAvailableContigsList());
 					IOPanel.this.updateSampleNameList(OverSeer.getSampleNameList());
+					IOPanel.this.AdvPanel.setInfoTags(OverSeer.getInfoTags());
 				}
 
 			} catch (final Exception exp) {
@@ -411,6 +422,7 @@ public class IOPanel extends JPanel {
 				break;
 			case "usecustom":
 				OverSeer.removeOption(GUIOptionStandards.HMMMODELFILE);
+				IOPanel.this.AdvPanel.setAdvancedOptions();
 				break;
 			}
 
@@ -481,6 +493,12 @@ public class IOPanel extends JPanel {
 				OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX,
 						IOPanel.this.outputDirField.getText() + IOPanel.this.outputPrefixField.getText());
 				OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
+				if (IOPanel.this.ADthresh.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD,
+							IOPanel.this.ADThreshvalue.getText());
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
+				}
 				IOPanel.this.runInference.setEnabled(false);
 				IOPanel.this.stopInference.setEnabled(true);
 				IOPanel.this.worker = new RunnerWorker();
