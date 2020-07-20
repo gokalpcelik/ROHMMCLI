@@ -17,7 +17,7 @@ public class Model {
 	protected static final String HWDISTMODEL = "MODELHWDIST";
 	protected static final String XMODEL = "MODELX";
 	protected static final String XDISTMODEL = "MODELXDIST";
-	protected static String customModel = "";
+	public static String customModel = "";
 
 	public static HMM hmmModel(String model) throws Exception {
 

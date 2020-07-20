@@ -18,6 +18,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import rohmmcli.rohmm.Model;
 import rohmmcli.rohmm.OverSeer;
 
 @SuppressWarnings("serial")
@@ -29,6 +30,8 @@ public class OptionPanel extends JPanel {
 	JComboBox<String> INFOTags, LOGLevel;
 	JTextField RT, NT, BF, NF;
 	JLabel ROWT1, ROWT2, BASEFACT, NORMFACT, AFDEF, ERDEF, LOGDEF, MINROHDEF, MINSITEDEF, MINQUALDEF;
+	JRadioButton customHMMAlleleDistribution, customHMMAlleleFrequency, useFixedTransitionParams,
+			useDistanceDecayFunction;
 
 	public OptionPanel() {
 		this.setLayout(null);
@@ -55,11 +58,11 @@ public class OptionPanel extends JPanel {
 		hmmsetup.setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		final JRadioButton customHMMAlleleDistribution = new JRadioButton("Use Allele Distribution");
-		final JRadioButton customHMMAlleleFrequency = new JRadioButton("Use Allele Frequency");
+		this.customHMMAlleleDistribution = new JRadioButton("Use Allele Distribution");
+		this.customHMMAlleleFrequency = new JRadioButton("Use Allele Frequency");
 		final ButtonGroup hmmemission = new ButtonGroup();
-		hmmemission.add(customHMMAlleleDistribution);
-		hmmemission.add(customHMMAlleleFrequency);
+		hmmemission.add(this.customHMMAlleleDistribution);
+		hmmemission.add(this.customHMMAlleleFrequency);
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0.01;
@@ -75,7 +78,7 @@ public class OptionPanel extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 4;
 		c.weightx = 0.01;
-		hmmsetup.add(customHMMAlleleDistribution, c);
+		hmmsetup.add(this.customHMMAlleleDistribution, c);
 		c.weightx = 1;
 		c.gridx = 1;
 		c.gridy = 2;
@@ -104,7 +107,7 @@ public class OptionPanel extends JPanel {
 		c.gridx = 0;
 		c.gridy = 5;
 		c.weightx = 0.01;
-		hmmsetup.add(customHMMAlleleFrequency, c);
+		hmmsetup.add(this.customHMMAlleleFrequency, c);
 		this.getAFFromTag = new JCheckBox("Get AF from INFO tags");
 		c.gridwidth = 1;
 		c.gridx = 0;
@@ -132,16 +135,16 @@ public class OptionPanel extends JPanel {
 		hmmsetupt.setBounds(12, 215, 775, 170);
 		final GridBagConstraints c2 = new GridBagConstraints();
 
-		final JRadioButton useFixedTransitionParams = new JRadioButton("Use fixed transition parameters");
-		final JRadioButton useDistanceDecayFunction = new JRadioButton("Use distance decay function");
+		this.useFixedTransitionParams = new JRadioButton("Use fixed transition parameters");
+		this.useDistanceDecayFunction = new JRadioButton("Use distance decay function");
 		final ButtonGroup transitionRadio = new ButtonGroup();
-		transitionRadio.add(useFixedTransitionParams);
-		transitionRadio.add(useDistanceDecayFunction);
+		transitionRadio.add(this.useFixedTransitionParams);
+		transitionRadio.add(this.useDistanceDecayFunction);
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		c2.gridx = 0;
 		c2.gridy = 0;
 		c2.gridwidth = 3;
-		hmmsetupt.add(useFixedTransitionParams, c2);
+		hmmsetupt.add(this.useFixedTransitionParams, c2);
 		this.ROWT1 = new JLabel("ROH-NonROH");
 		this.ROWT2 = new JLabel("NonROH-ROH");
 		this.BASEFACT = new JLabel("Base Transition Probability");
@@ -172,7 +175,7 @@ public class OptionPanel extends JPanel {
 		c2.gridwidth = 3;
 		c2.gridx = 0;
 		c2.gridy = 3;
-		hmmsetupt.add(useDistanceDecayFunction, c2);
+		hmmsetupt.add(this.useDistanceDecayFunction, c2);
 		c2.gridwidth = 1;
 		c2.gridx = 0;
 		c2.gridy = 4;
@@ -209,11 +212,41 @@ public class OptionPanel extends JPanel {
 
 	}
 
+	// Work on this part of the options so that HMM is set properly.
 	public void setAdvancedOptions() {
+		String custommodelstring = "";
+		if (this.customHMMAlleleDistribution.isSelected()) {
+			custommodelstring += "EMROH\t" + this.R1.getText() + "\t" + this.R2.getText() + "\t" + this.R3.getText()
+					+ "\n";
+			custommodelstring += "EMNORM\t" + this.N1.getText() + "\t" + this.N2.getText() + "\t" + this.N3.getText()
+					+ "\n";
 
+		} else if (this.customHMMAlleleFrequency.isSelected()) {
+			custommodelstring += "HW\tTRUE\n";
+			if (this.getAFFromTag.isSelected()) {
+				OverSeer.setOption(GUIOptionStandards.AFTAG, (String) this.INFOTags.getSelectedItem());
+			}
+
+			OverSeer.setOption(GUIOptionStandards.DEFAULTAF, this.AFD.getText()); // check if this function works
+																					// properly...
+
+		}
+
+		if (this.useFixedTransitionParams.isSelected()) {
+			custommodelstring += "TRANSROH\t" + (1 - Double.parseDouble(this.RT.getText())) + "\t" + this.RT.getText()
+					+ "\n";
+			custommodelstring += "TRANSNORM\t" + this.NT.getText() + "\t" + (1 - Double.parseDouble(this.NT.getText()))
+					+ "\n";
+		} else if (this.useDistanceDecayFunction.isSelected()) {
+			custommodelstring += "DIST\tTRUE\nDEFAULTPROB\t" + this.BF.getText() + "\nNORMFACTOR\t" + this.NF.getText()
+					+ "\n";
+
+		}
+		Model.customModel = custommodelstring;
 	}
 
 	public void clearAllOptions() {
+		Model.customModel = "";
 
 	}
 

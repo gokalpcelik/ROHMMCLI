@@ -421,7 +421,7 @@ public class IOPanel extends JPanel {
 				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELHWDIST");
 				break;
 			case "usecustom":
-				OverSeer.removeOption(GUIOptionStandards.HMMMODELFILE);
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "CUSTOM");
 				IOPanel.this.AdvPanel.setAdvancedOptions();
 				break;
 			}
