@@ -67,7 +67,7 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
 
-	public static final String VERSION = "0.9t-GUI 26/05/2020";
+	public static final String VERSION = "0.9u-GUI 21/07/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -267,7 +267,9 @@ public class OverSeer {
 		try {
 			setVCFPath(new File(VCFPath));
 		} catch (final Exception e) {
-			log("SYSTEM", "VCF path is not set..", ERROR);
+			if (!isGUI) {
+				log("SYSTEM", "VCF path is not set..", ERROR);
+			}
 		}
 
 		input.useADs = cmd.hasOption("AD");

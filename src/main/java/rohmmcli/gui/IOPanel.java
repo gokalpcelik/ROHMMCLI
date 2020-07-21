@@ -422,7 +422,7 @@ public class IOPanel extends JPanel {
 				break;
 			case "usecustom":
 				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "CUSTOM");
-				IOPanel.this.AdvPanel.setAdvancedOptions();
+				// IOPanel.this.AdvPanel.setAdvancedOptions();
 				break;
 			}
 
@@ -492,7 +492,7 @@ public class IOPanel extends JPanel {
 			case "runinference":
 				OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX,
 						IOPanel.this.outputDirField.getText() + IOPanel.this.outputPrefixField.getText());
-				OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
+
 				if (IOPanel.this.ADthresh.isSelected()) {
 					OverSeer.setOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD,
 							IOPanel.this.ADThreshvalue.getText());
@@ -599,8 +599,12 @@ public class IOPanel extends JPanel {
 		protected Void doInBackground() {
 			// TODO Auto-generated method stub
 			OverSeer.setGUICMD();
+			if (IOPanel.this.useCustomModelPolicy.isSelected()) {
+				IOPanel.this.AdvPanel.setAdvancedOptions();
+			}
 			OverSeer.setHMMParams();
 			OverSeer.setInputParams();
+			OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
 			ROHMMCLIRunner.Runner(OverSeer.getGUICMD());
 			return null;
 		}

@@ -45,12 +45,12 @@ public class OptionPanel extends JPanel {
 		this.ERDEF.setToolTipText("Set 256 to disable empirical error rate and use all sites as is");
 		this.COLUMNS = new JLabel(
 				" HOMREF                                        HET                                                HOMVAR");
-		this.R1 = new JTextField();
-		this.R2 = new JTextField();
-		this.R3 = new JTextField();
-		this.N1 = new JTextField();
-		this.N2 = new JTextField();
-		this.N3 = new JTextField();
+		this.R1 = new JTextField("0.990666");
+		this.R2 = new JTextField("0.0");
+		this.R3 = new JTextField("0.009334");
+		this.N1 = new JTextField("0.986219");
+		this.N2 = new JTextField("0.007916");
+		this.N3 = new JTextField("0.005865");
 		this.AFD = new JTextField("0.4");
 		this.ERD = new JTextField("30");
 		final JPanel hmmsetup = new JPanel();
@@ -60,6 +60,7 @@ public class OptionPanel extends JPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		this.customHMMAlleleDistribution = new JRadioButton("Use Allele Distribution");
+		this.customHMMAlleleDistribution.setSelected(true);
 		this.customHMMAlleleFrequency = new JRadioButton("Use Allele Frequency");
 		final ButtonGroup hmmemission = new ButtonGroup();
 		hmmemission.add(this.customHMMAlleleDistribution);
@@ -72,6 +73,16 @@ public class OptionPanel extends JPanel {
 		c.gridx = 1;
 		hmmsetup.add(this.ERD, c);
 		this.forceER = new JCheckBox("Use same error rate for all sites");
+		this.forceER.setSelected(false);
+		this.forceER.addActionListener(arg0 -> {
+			if (OptionPanel.this.forceER.isSelected()) {
+				OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERROR);
+				OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, OptionPanel.this.ERD.getText());
+			} else {
+				OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERRORALL);
+				OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, OptionPanel.this.ERD.getText());
+			}
+		});
 		c.gridx = 2;
 		c.gridwidth = 2;
 		hmmsetup.add(this.forceER, c);
@@ -137,6 +148,7 @@ public class OptionPanel extends JPanel {
 		final GridBagConstraints c2 = new GridBagConstraints();
 
 		this.useFixedTransitionParams = new JRadioButton("Use fixed transition parameters");
+		this.useFixedTransitionParams.setSelected(true);
 		this.useDistanceDecayFunction = new JRadioButton("Use distance decay function");
 		final ButtonGroup transitionRadio = new ButtonGroup();
 		transitionRadio.add(this.useFixedTransitionParams);
@@ -154,10 +166,10 @@ public class OptionPanel extends JPanel {
 		this.ROWT2.setHorizontalAlignment(JLabel.RIGHT);
 		this.BASEFACT.setHorizontalAlignment(JLabel.RIGHT);
 		this.NORMFACT.setHorizontalAlignment(JLabel.RIGHT);
-		this.RT = new JTextField();
-		this.NT = new JTextField();
-		this.BF = new JTextField();
-		this.NF = new JTextField();
+		this.RT = new JTextField("0.000009");
+		this.NT = new JTextField("0.000004");
+		this.BF = new JTextField("0.1");
+		this.NF = new JTextField("100000");
 		c2.gridx = 0;
 		c2.gridy = 1;
 		c2.weightx = 0.01;
@@ -217,39 +229,36 @@ public class OptionPanel extends JPanel {
 	public void setAdvancedOptions() {
 		String custommodelstring = "";
 
-		if (this.forceER.isSelected()) {
-			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, this.ERD.getText());
-		} else {
-			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, this.ERD.getText());
-		}
-
 		if (this.customHMMAlleleDistribution.isSelected()) {
+			Model.hwmode = false;
 			custommodelstring += "EMROH\t" + this.R1.getText() + "\t" + this.R2.getText() + "\t" + this.R3.getText()
 					+ "\n";
 			custommodelstring += "EMNORM\t" + this.N1.getText() + "\t" + this.N2.getText() + "\t" + this.N3.getText()
 					+ "\n";
 
 		} else if (this.customHMMAlleleFrequency.isSelected()) {
-			custommodelstring += "HW\tTRUE\n";
+			Model.hwmode = true;
 			if (this.getAFFromTag.isSelected()) {
 				OverSeer.setOption(GUIOptionStandards.AFTAG, (String) this.INFOTags.getSelectedItem());
 			}
 
 			OverSeer.setOption(GUIOptionStandards.DEFAULTAF, this.AFD.getText()); // check if this function works
-																					// properly...
-
+																					// properly..
 		}
 
 		if (this.useFixedTransitionParams.isSelected()) {
+			Model.distmode = false;
 			custommodelstring += "TRANSROH\t" + (1 - Double.parseDouble(this.RT.getText())) + "\t" + this.RT.getText()
 					+ "\n";
 			custommodelstring += "TRANSNORM\t" + this.NT.getText() + "\t" + (1 - Double.parseDouble(this.NT.getText()))
 					+ "\n";
 		} else if (this.useDistanceDecayFunction.isSelected()) {
-			custommodelstring += "DIST\tTRUE\nDEFAULTPROB\t" + this.BF.getText() + "\nNORMFACTOR\t" + this.NF.getText()
-					+ "\n";
+			Model.distmode = true;
+			custommodelstring += "DEFAULTPROB\t" + this.BF.getText() + "\nNORMFACT\t" + this.NF.getText() + "\n";
 
 		}
+		OverSeer.log(OptionPanel.this.getClass().getSimpleName(), "Custom model string: " + custommodelstring,
+				OverSeer.DEBUG);
 		Model.customModel = custommodelstring;
 	}
 

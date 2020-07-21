@@ -10,8 +10,8 @@ import java.io.FileReader;
 
 public class Model {
 
-	protected static boolean hwmode = false;
-	protected static boolean distmode = false;
+	public static boolean hwmode = false;
+	public static boolean distmode = false;
 	protected static HMM hmm = null;
 	protected static final String HWMODEL = "MODELHW";
 	protected static final String HWDISTMODEL = "MODELHWDIST";
@@ -77,10 +77,9 @@ public class Model {
 	}
 
 	private static void hmmModelMakerGUI() {
-		hwmode = false;
-		distmode = false;
 		final double[][] emmatrix = new double[2][3];
-		final double[] start = new double[2];
+		// final double[] start = new double[2];
+		final double[] start = { 0.5, 0.5 };
 		final double[][] transmatrix = new double[2][2];
 		double defprob = Double.POSITIVE_INFINITY;
 		double normfact = Double.NEGATIVE_INFINITY;
@@ -93,9 +92,6 @@ public class Model {
 
 				final String temp = argses[0];
 				switch (temp) {
-				case "HW":
-					hwmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-					break;
 				case "START":
 					start[0] = Double.parseDouble(argses[1]);
 					start[1] = Double.parseDouble(argses[2]);
@@ -121,9 +117,6 @@ public class Model {
 				case "DEFAULTPROB":
 					defprob = Double.parseDouble(argses[1]);
 					break;
-				case "DIST":
-					distmode = argses[1].equalsIgnoreCase("TRUE") ? true : false;
-					break;
 				case "NORMFACT":
 					normfact = Double.parseDouble(argses[1]);
 					break;
@@ -131,7 +124,6 @@ public class Model {
 				}
 
 			}
-
 			hmm = new HMM(emmatrix, transmatrix, start);
 			if (distmode) {
 				if (!hwmode) {
