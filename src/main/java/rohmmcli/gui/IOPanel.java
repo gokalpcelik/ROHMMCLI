@@ -39,15 +39,19 @@ import rohmmcli.rohmm.ROHMMCLIRunner;
 public class IOPanel extends JPanel {
 	protected JPanel panel_1, panel_0;
 	protected OptionPanel AdvPanel;
-	protected JLabel vcfLabel;
+	protected JLabel vcfLabel, MRSL, MRLL, QL;
 	protected JPanel panel;
 	protected JTextField vcfPathField;
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
 	protected JTextField ADThreshvalue;
+	protected JTextField QualValue;
+	protected JTextField ROHLength;
+	protected JTextField ROHCount;
 	protected JCheckBox knownVariantInclusivePolicy;
 	protected JCheckBox knownVariantSpikeInPolicy;
+	protected JCheckBox skipZeroAFPolicy;
 	protected JRadioButton useDefaultAlleleDistributionPolicy;
 	protected JRadioButton useDefaultAlleleFrequencyPolicy;
 	protected JRadioButton useCustomModelPolicy;
@@ -172,7 +176,7 @@ public class IOPanel extends JPanel {
 		final JPanel outPanel = new JPanel(new GridBagLayout());
 
 		outPanel.setBorder(new TitledBorder("Output Options"));
-		outPanel.setBounds(295, 50, 492, 80);
+		outPanel.setBounds(295, 50, 492, 150);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 0.5;
 		c.weighty = 0.5;
@@ -195,10 +199,25 @@ public class IOPanel extends JPanel {
 		outPanel.add(this.outputDirSelectButton, c);
 		c.ipadx = 250;
 		outPanel.add(this.outputDirField, c);
+		this.MRSL = new JLabel("Minimum Site Count");
+		this.MRLL = new JLabel("Minimum ROH Length");
+		this.QL = new JLabel("Minimum ROH Qual");
+		this.QualValue = new JTextField("0");
+		this.ROHCount = new JTextField("0");
+		this.ROHLength = new JTextField("0");
+		c.gridy = 2;
+		outPanel.add(this.MRSL, c);
+		outPanel.add(this.ROHCount, c);
+		c.gridy = 3;
+		outPanel.add(this.MRLL, c);
+		outPanel.add(this.ROHLength, c);
+		c.gridy = 4;
+		outPanel.add(this.QL, c);
+		outPanel.add(this.QualValue, c);
 		this.add(outPanel);
 		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(295, 127, 492, 140);
+		filterPanel.setBounds(295, 200, 492, 170);
 		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
 		this.skipIndels = new JCheckBox("Skip Indels");
 		this.skipIndels.setActionCommand("skipindels");
@@ -241,10 +260,15 @@ public class IOPanel extends JPanel {
 		filterPanel.add(this.ADthresh, c);
 		c.gridx = 1;
 		filterPanel.add(this.ADThreshvalue, c);
+		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF in all selected samples");
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		filterPanel.add(this.skipZeroAFPolicy, c);
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 265, 492, 100);
+		hmmPanel.setBounds(295, 372, 492, 100);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
 		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
@@ -499,6 +523,11 @@ public class IOPanel extends JPanel {
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
 				}
+
+				if (IOPanel.this.skipZeroAFPolicy.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.SKIPZEROAF, null);
+				}
+
 				IOPanel.this.runInference.setEnabled(false);
 				IOPanel.this.stopInference.setEnabled(true);
 				IOPanel.this.worker = new RunnerWorker();

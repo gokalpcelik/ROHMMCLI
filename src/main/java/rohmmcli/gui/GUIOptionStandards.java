@@ -25,4 +25,6 @@ public class GUIOptionStandards {
 	public static final String INCLUDEUNKNOWN = "-IncludeUnknowns";
 	public static final String SPIKEIN = "-F";
 	public static final String ALLELICBALANCETHRESHOLD = "-AD";
+	public static final String SKIPZEROAF = "-SZ";
+	public static final String MINIMUMSITECOUNT = "-MSC";
 }

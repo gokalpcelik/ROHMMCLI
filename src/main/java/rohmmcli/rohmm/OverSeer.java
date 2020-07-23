@@ -397,7 +397,8 @@ public class OverSeer {
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
 
-		opts.addOption("SL", "sample-list", true, "File that contains the names of the samples one sample per line");
+		opts.addOption("SL", "sample-list", true,
+				"File that contains the names of the samples one sample per line. CLI only option.");
 
 		opts.addOption("MRL", "minimum-roh-length", true, "Minimum length to report a region as ROH. Default 0");
 
@@ -408,13 +409,7 @@ public class OverSeer {
 				"Include high quality unknown sites under known sites option active...");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
-				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
-
-		// opts.addOption("EAF", "external-file-af", true, "Define an external vcf file
-		// for the population allele frequencies"); // Adding this option will enable
-		// users to define an external
-		// population vcf to set allele
-		// frequencies if hw is used.
+				"Skip markers with zero allele frequency within the selected sample population.");
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
 
@@ -454,8 +449,9 @@ public class OverSeer {
 		optionMap.put(GUIOptionStandards.ALLELICBALANCETHRESHOLD, "0.2");
 		optionMap.put(GUIOptionStandards.USERDEFINEDGTERROR, "30");
 		optionMap.put(GUIOptionStandards.HMMMODELFILE, Model.XDISTMODEL);
-		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "1");
+		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "0");
 		optionMap.put(GUIOptionStandards.MINIMUMROHQUAL, "0.0");
+		optionMap.put(GUIOptionStandards.MINIMUMSITECOUNT, "0");
 	}
 
 	public static void getOS() {

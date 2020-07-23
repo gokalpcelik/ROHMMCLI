@@ -24,12 +24,12 @@ import rohmmcli.rohmm.OverSeer;
 @SuppressWarnings("serial")
 public class OptionPanel extends JPanel {
 
-	JTextField R1, R2, R3, N1, N2, N3, AFD, ERD, ADT;
+	JTextField R1, R2, R3, N1, N2, N3, AFD, ERD, ADT, ST;
 	JLabel COLUMNS, ROW1, ROW2;
 	JCheckBox getAFFromTag, forceER, useADs;
 	JComboBox<String> INFOTags, LOGLevel;
 	JTextField RT, NT, BF, NF;
-	JLabel ROWT1, ROWT2, BASEFACT, NORMFACT, AFDEF, ERDEF, LOGDEF, MINROHDEF, MINSITEDEF, MINQUALDEF;
+	JLabel ROWT1, ROWT2, BASEFACT, NORMFACT, AFDEF, ERDEF, LOGDEF, MINROHDEF, MINSITEDEF, MINQUALDEF, STDEF;
 	JRadioButton customHMMAlleleDistribution, customHMMAlleleFrequency, useFixedTransitionParams,
 			useDistanceDecayFunction;
 
@@ -43,6 +43,7 @@ public class OptionPanel extends JPanel {
 		this.AFDEF.setHorizontalAlignment(JLabel.RIGHT);
 		this.ERDEF = new JLabel("Empirical Phred Scaled Error Rate");
 		this.ERDEF.setToolTipText("Set 256 to disable empirical error rate and use all sites as is");
+		this.STDEF = new JLabel("Starting ROH Probability");
 		this.COLUMNS = new JLabel(
 				" HOMREF                                        HET                                                HOMVAR");
 		this.R1 = new JTextField("0.990666");
@@ -53,8 +54,9 @@ public class OptionPanel extends JPanel {
 		this.N3 = new JTextField("0.005865");
 		this.AFD = new JTextField("0.4");
 		this.ERD = new JTextField("30");
+		this.ST = new JTextField("0.5");
 		final JPanel hmmsetup = new JPanel();
-		hmmsetup.setBounds(12, 0, 775, 215);
+		hmmsetup.setBounds(12, 0, 775, 240);
 		hmmsetup.setBorder(new TitledBorder("Custom HMM Emission Parameters"));
 		hmmsetup.setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
@@ -74,31 +76,30 @@ public class OptionPanel extends JPanel {
 		hmmsetup.add(this.ERD, c);
 		this.forceER = new JCheckBox("Use same error rate for all sites");
 		this.forceER.setSelected(false);
-		this.forceER.addActionListener(arg0 -> {
-			if (OptionPanel.this.forceER.isSelected()) {
-				OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERROR);
-				OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, OptionPanel.this.ERD.getText());
-			} else {
-				OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERRORALL);
-				OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, OptionPanel.this.ERD.getText());
-			}
-		});
 		c.gridx = 2;
 		c.gridwidth = 2;
 		hmmsetup.add(this.forceER, c);
+		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 1;
+		c.weightx = 0.01;
+		hmmsetup.add(this.STDEF, c);
+		c.gridx = 1;
+		c.weightx = 0.3;
+		hmmsetup.add(this.ST, c);
+		c.gridx = 0;
+		c.gridy = 2;
 		c.gridwidth = 4;
 		c.weightx = 0.01;
 		hmmsetup.add(this.customHMMAlleleDistribution, c);
 		c.weightx = 1;
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 3;
 		hmmsetup.add(this.COLUMNS, c);
 		c.gridwidth = 1;
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		hmmsetup.add(this.ROW1, c);
 		c.gridx = 1;
 		hmmsetup.add(this.R1, c);
@@ -107,7 +108,7 @@ public class OptionPanel extends JPanel {
 		c.gridx = 3;
 		hmmsetup.add(this.R3, c);
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 5;
 		hmmsetup.add(this.ROW2, c);
 		c.gridx = 1;
 		hmmsetup.add(this.N1, c);
@@ -117,23 +118,22 @@ public class OptionPanel extends JPanel {
 		hmmsetup.add(this.N3, c);
 		c.gridwidth = 4;
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = 6;
 		c.weightx = 0.01;
 		hmmsetup.add(this.customHMMAlleleFrequency, c);
 		this.getAFFromTag = new JCheckBox("Get AF from INFO tags");
 		c.gridwidth = 1;
 		c.gridx = 0;
-		c.gridy = 6;
+		c.gridy = 7;
 		hmmsetup.add(this.getAFFromTag, c);
 		this.INFOTags = new JComboBox<>();
 		c.gridwidth = 1;
 		c.gridx = 1;
-		c.gridy = 6;
+		c.gridy = 7;
 		c.weightx = 0.3;
-
 		hmmsetup.add(this.INFOTags, c);
 		c.gridx = 0;
-		c.gridy = 7;
+		c.gridy = 8;
 		c.weightx = 0.01;
 		hmmsetup.add(this.AFDEF, c);
 		c.weightx = 0.3;
@@ -144,7 +144,7 @@ public class OptionPanel extends JPanel {
 
 		final JPanel hmmsetupt = new JPanel(new GridBagLayout());
 		hmmsetupt.setBorder(new TitledBorder("Custom HMM Transition Parameters"));
-		hmmsetupt.setBounds(12, 215, 775, 170);
+		hmmsetupt.setBounds(12, 240, 775, 170);
 		final GridBagConstraints c2 = new GridBagConstraints();
 
 		this.useFixedTransitionParams = new JRadioButton("Use fixed transition parameters");
@@ -207,7 +207,7 @@ public class OptionPanel extends JPanel {
 		this.add(hmmsetupt);
 		final JPanel miscopts = new JPanel(new GridBagLayout());
 		miscopts.setBorder(new TitledBorder("Miscellaneous Options"));
-		miscopts.setBounds(12, 385, 775, 140);
+		miscopts.setBounds(12, 410, 775, 115);
 		final GridBagConstraints c3 = new GridBagConstraints();
 		c3.fill = GridBagConstraints.HORIZONTAL;
 		this.LOGDEF = new JLabel("Log level");
@@ -227,7 +227,17 @@ public class OptionPanel extends JPanel {
 
 	// Work on this part of the options so that HMM is set properly.
 	public void setAdvancedOptions() {
-		String custommodelstring = "";
+
+		if (this.forceER.isSelected()) {
+			OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERROR);
+			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, OptionPanel.this.ERD.getText());
+		} else {
+			OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERRORALL);
+			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, OptionPanel.this.ERD.getText());
+		}
+
+		String custommodelstring = "START\t" + this.ST.getText() + "\t" + (1 - Double.parseDouble(this.ST.getText()))
+				+ "\n";
 
 		if (this.customHMMAlleleDistribution.isSelected()) {
 			Model.hwmode = false;
