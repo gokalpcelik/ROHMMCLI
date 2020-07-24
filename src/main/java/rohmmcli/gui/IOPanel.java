@@ -38,14 +38,20 @@ import rohmmcli.rohmm.ROHMMCLIRunner;
 @SuppressWarnings("serial")
 public class IOPanel extends JPanel {
 	protected JPanel panel_1, panel_0;
-	protected JLabel vcfLabel;
+	protected OptionPanel AdvPanel;
+	protected JLabel vcfLabel, MRSL, MRLL, QL;
 	protected JPanel panel;
 	protected JTextField vcfPathField;
 	protected JTextField outputPrefixField;
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
+	protected JTextField ADThreshvalue;
+	protected JTextField QualValue;
+	protected JTextField ROHLength;
+	protected JTextField ROHCount;
 	protected JCheckBox knownVariantInclusivePolicy;
 	protected JCheckBox knownVariantSpikeInPolicy;
+	protected JCheckBox skipZeroAFPolicy;
 	protected JRadioButton useDefaultAlleleDistributionPolicy;
 	protected JRadioButton useDefaultAlleleFrequencyPolicy;
 	protected JRadioButton useCustomModelPolicy;
@@ -67,6 +73,7 @@ public class IOPanel extends JPanel {
 	protected JFrame parentFrame;
 	protected JCheckBox skipIndels;
 	protected JCheckBox filterUsingKnown;
+	protected JCheckBox ADthresh;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
 	protected RunnerWorker worker = null;
@@ -169,7 +176,7 @@ public class IOPanel extends JPanel {
 		final JPanel outPanel = new JPanel(new GridBagLayout());
 
 		outPanel.setBorder(new TitledBorder("Output Options"));
-		outPanel.setBounds(295, 50, 492, 80);
+		outPanel.setBounds(295, 50, 492, 150);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 0.5;
 		c.weighty = 0.5;
@@ -192,10 +199,25 @@ public class IOPanel extends JPanel {
 		outPanel.add(this.outputDirSelectButton, c);
 		c.ipadx = 250;
 		outPanel.add(this.outputDirField, c);
+		this.MRSL = new JLabel("Minimum Site Count");
+		this.MRLL = new JLabel("Minimum ROH Length");
+		this.QL = new JLabel("Minimum ROH Qual");
+		this.QualValue = new JTextField("0");
+		this.ROHCount = new JTextField("0");
+		this.ROHLength = new JTextField("0");
+		c.gridy = 2;
+		outPanel.add(this.MRSL, c);
+		outPanel.add(this.ROHCount, c);
+		c.gridy = 3;
+		outPanel.add(this.MRLL, c);
+		outPanel.add(this.ROHLength, c);
+		c.gridy = 4;
+		outPanel.add(this.QL, c);
+		outPanel.add(this.QualValue, c);
 		this.add(outPanel);
 		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(295, 127, 492, 100);
+		filterPanel.setBounds(295, 200, 492, 170);
 		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
 		this.skipIndels = new JCheckBox("Skip Indels");
 		this.skipIndels.setActionCommand("skipindels");
@@ -231,11 +253,24 @@ public class IOPanel extends JPanel {
 		filterPanel.add(this.knownVariantSpikeInPolicy, c);
 		c.gridy = 2;
 		filterPanel.add(this.knownVariantInclusivePolicy, c);
-
+		this.ADthresh = new JCheckBox("AD Threshold");
+		this.ADthresh.setToolTipText("Allelic Depth Ratio threshold to eliminate false heterozygous calls");
+		this.ADThreshvalue = new JTextField("0.2");
+		c.gridy = 3;
+		filterPanel.add(this.ADthresh, c);
+		c.gridx = 1;
+		filterPanel.add(this.ADThreshvalue, c);
+		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF in all selected samples");
+		this.skipZeroAFPolicy.setToolTipText(
+				"Experimental feature and may cause issues with spike-in feature. Do not use inconjunction with Spike-in function");
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		filterPanel.add(this.skipZeroAFPolicy, c);
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 225, 492, 100);
+		hmmPanel.setBounds(295, 372, 492, 100);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
 		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
@@ -320,6 +355,8 @@ public class IOPanel extends JPanel {
 		IOPanel.this.samplenamemodel.clear();
 		IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 		IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
+		IOPanel.this.AdvPanel.INFOTags.removeAllItems();
+		this.skipZeroAFPolicy.setEnabled(true);
 	}
 
 	public class IOFileDialogButtonListener implements ActionListener {
@@ -372,6 +409,7 @@ public class IOPanel extends JPanel {
 							+ (OverSeer.isWindows() ? "\\" : "/") + IOPanel.this.outputPrefixField.getText());
 					IOPanel.this.updateChromosomeList(OverSeer.getAvailableContigsList());
 					IOPanel.this.updateSampleNameList(OverSeer.getSampleNameList());
+					IOPanel.this.AdvPanel.setInfoTags(OverSeer.getInfoTags());
 				}
 
 			} catch (final Exception exp) {
@@ -410,7 +448,8 @@ public class IOPanel extends JPanel {
 				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELHWDIST");
 				break;
 			case "usecustom":
-				OverSeer.removeOption(GUIOptionStandards.HMMMODELFILE);
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "CUSTOM");
+				// IOPanel.this.AdvPanel.setAdvancedOptions();
 				break;
 			}
 
@@ -480,7 +519,23 @@ public class IOPanel extends JPanel {
 			case "runinference":
 				OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX,
 						IOPanel.this.outputDirField.getText() + IOPanel.this.outputPrefixField.getText());
-				OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
+				OverSeer.setOption(GUIOptionStandards.MINIMUMROHLENGTH, IOPanel.this.ROHLength.getText());
+				OverSeer.setOption(GUIOptionStandards.MINIMUMROHQUAL, IOPanel.this.QualValue.getText());
+				OverSeer.setOption(GUIOptionStandards.MINIMUMSITECOUNT, IOPanel.this.ROHCount.getText());
+
+				if (IOPanel.this.ADthresh.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD,
+							IOPanel.this.ADThreshvalue.getText());
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
+				}
+
+				if (IOPanel.this.skipZeroAFPolicy.isSelected() && IOPanel.this.skipZeroAFPolicy.isEnabled()) {
+					OverSeer.setOption(GUIOptionStandards.SKIPZEROAF, null);
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.SKIPZEROAF);
+				}
+
 				IOPanel.this.runInference.setEnabled(false);
 				IOPanel.this.stopInference.setEnabled(true);
 				IOPanel.this.worker = new RunnerWorker();
@@ -539,8 +594,10 @@ public class IOPanel extends JPanel {
 			case "includeunknown":
 				if (IOPanel.this.knownVariantInclusivePolicy.isSelected()) {
 					OverSeer.setOption(GUIOptionStandards.INCLUDEUNKNOWN, null);
+
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+
 				}
 				break;
 			case "spikein":
@@ -548,11 +605,13 @@ public class IOPanel extends JPanel {
 					if (IOPanel.this.knownVariantSpikeInPolicy.isSelected()) {
 						IOPanel.this.knownVariantInclusivePolicy.setEnabled(true);
 						OverSeer.setOption(GUIOptionStandards.SPIKEIN, null);
+						IOPanel.this.skipZeroAFPolicy.setEnabled(false);
 					} else {
 						IOPanel.this.knownVariantInclusivePolicy.setSelected(false);
 						IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 						OverSeer.removeOption(GUIOptionStandards.SPIKEIN);
 						OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+						IOPanel.this.skipZeroAFPolicy.setEnabled(true);
 					}
 				}
 				break;
@@ -581,8 +640,12 @@ public class IOPanel extends JPanel {
 		protected Void doInBackground() {
 			// TODO Auto-generated method stub
 			OverSeer.setGUICMD();
+			if (IOPanel.this.useCustomModelPolicy.isSelected()) {
+				IOPanel.this.AdvPanel.setAdvancedOptions();
+			}
 			OverSeer.setHMMParams();
 			OverSeer.setInputParams();
+			OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);
 			ROHMMCLIRunner.Runner(OverSeer.getGUICMD());
 			return null;
 		}

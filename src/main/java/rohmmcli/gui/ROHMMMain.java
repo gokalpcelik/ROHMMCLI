@@ -14,7 +14,7 @@ import rohmmcli.rohmm.OverSeer;
 public class ROHMMMain extends JFrame {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -44,6 +44,7 @@ public class ROHMMMain extends JFrame {
 		final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		final IOPanel iopane = new IOPanel();
 		final OptionPanel optpane = new OptionPanel();
+		iopane.AdvPanel = optpane;
 		tabbedPane.add(iopane);
 		tabbedPane.add(optpane);
 		tabbedPane.setTitleAt(0, "Input/Output");

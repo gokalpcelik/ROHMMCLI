@@ -26,6 +26,7 @@ import org.apache.commons.cli.Options;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import rohmmcli.gui.GUIOptionStandards;
 
 //OverSeer.class organizes all the input and output functions as well as coordinates GUI and CMD interactions.
@@ -66,7 +67,7 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
 
-	public static final String VERSION = "0.9t-GUI 26/05/2020";
+	public static final String VERSION = "0.9u-GUI 21/07/2020";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -240,6 +241,19 @@ public class OverSeer {
 		return samples;
 	}
 
+	public static String[] getInfoTags() {
+
+		final ArrayList<String> infolines = new ArrayList<>();
+		if (vcfrdr != null) {
+			for (final VCFInfoHeaderLine infoline : getVCFHeader().getInfoHeaderLines()) {
+				infolines.add(infoline.getID());
+
+			}
+			return infolines.toArray(new String[0]);
+		}
+		return null;
+	}
+
 	public static void setInputParams() {
 		input = new Input();
 
@@ -253,7 +267,9 @@ public class OverSeer {
 		try {
 			setVCFPath(new File(VCFPath));
 		} catch (final Exception e) {
-			log("SYSTEM", "VCF path is not set..", ERROR);
+			if (!isGUI) {
+				log("SYSTEM", "VCF path is not set..", ERROR);
+			}
 		}
 
 		input.useADs = cmd.hasOption("AD");
@@ -280,6 +296,7 @@ public class OverSeer {
 
 		if (cmd.hasOption("F")) {
 			input.spikeIn = true;
+			input.skipzeroaf = false;
 		}
 
 		if (cmd.hasOption("G")) {
@@ -348,7 +365,7 @@ public class OverSeer {
 
 		opts.addOption("V", "Variant-File", true, "Variant file input for analysis. REQUIRED");
 
-		opts.addOption("G", "Gnomad-Path", true, "Path to gnomad filler bed files. NOT REQUIRED");
+		opts.addOption("G", "Known-Sites", true, "Path to known sites files. NOT REQUIRED");
 
 		opts.addRequiredOption("O", "Output-File-Prefix", true, "Output file prefix for bed files. REQUIRED");
 
@@ -381,7 +398,8 @@ public class OverSeer {
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
 
-		opts.addOption("SL", "sample-list", true, "File that contains the names of the samples one sample per line");
+		opts.addOption("SL", "sample-list", true,
+				"File that contains the names of the samples one sample per line. CLI only option.");
 
 		opts.addOption("MRL", "minimum-roh-length", true, "Minimum length to report a region as ROH. Default 0");
 
@@ -389,20 +407,12 @@ public class OverSeer {
 				"Minimum number of sites to report a region as ROH. Default 0");
 
 		opts.addOption("IncludeUnknowns", false,
-				"Include high quality unknownsites under known sites option active...");
+				"Include high quality unknown sites under known sites option active...");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
-				"Skip markers with zero allele frequency within the selected sample population. This may have different consequences using HW versus static emission parameters...");
-
-		opts.addOption("EAF", "external-file-af", true,
-				"Define an external vcf file for the population allele frequencies"); // Adding this option will enable
-																						// users to define an external
-																						// population vcf to set allele
-																						// frequencies if hw is used.
+				"Skip markers with zero allele frequency within the selected sample population. Conflicts with Spike-in function. Spike-in precedes skipping zero AF sites.");
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
-
-		opts.addOption("exome", false, "Activate if the sample is a whole exome analysis");
 
 		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
 																									// yoksa kalırız
@@ -440,8 +450,9 @@ public class OverSeer {
 		optionMap.put(GUIOptionStandards.ALLELICBALANCETHRESHOLD, "0.2");
 		optionMap.put(GUIOptionStandards.USERDEFINEDGTERROR, "30");
 		optionMap.put(GUIOptionStandards.HMMMODELFILE, Model.XDISTMODEL);
-		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "1");
+		optionMap.put(GUIOptionStandards.MINIMUMROHLENGTH, "0");
 		optionMap.put(GUIOptionStandards.MINIMUMROHQUAL, "0.0");
+		optionMap.put(GUIOptionStandards.MINIMUMSITECOUNT, "0");
 	}
 
 	public static void getOS() {

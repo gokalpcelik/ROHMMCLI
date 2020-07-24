@@ -44,19 +44,19 @@ public class Input {
 	public Input() {
 
 	}
-//	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore. 
+//	Old codepath will be removed in the next release. This code path has served well however due to excessive disk access it is overtly slow and cannot be used anymore.
 
 	// @Deprecated
 	/*
 	 * public void generateInput() throws Exception { inputdata = new TreeMap<>();
-	 * 
+	 *
 	 * if (useFiller) { OverSeer.log(this.getClass().getSimpleName(),
 	 * "Fill with GNOMAD", OverSeer.INFO); TabixReader gnomadrdr = new
 	 * TabixReader(gnomadpath, gnomadpath + ".tbi"); //
 	 * System.err.println("Generating the input map - GNOMAD phase");
 	 * TabixReader.Iterator gnomaditer =
 	 * gnomadrdr.query(contigname.replaceAll("chr", "")); String gnomaditem;
-	 * 
+	 *
 	 * String info = "0,255,255" + (HWenabled ? "#" + minisculeformissing : "");
 	 * String info2 = "0" + (HWenabled ? "#" + minisculeformissing : ""); String
 	 * info3 = "0," + userPL + "," + userPL + (HWenabled ? "#" + minisculeformissing
@@ -66,32 +66,32 @@ public class Input {
 	 * alternate // 0,30,30 else if (useUserPLs)
 	 * inputdata.put(Integer.parseInt(arr[1]), info3); // added else
 	 * inputdata.put(Integer.parseInt(arr[1]), info2); counter++; }
-	 * 
+	 *
 	 * }
-	 * 
+	 *
 	 * gnomadrdr.close(); }
-	 * 
+	 *
 	 * // System.err.println("Generating the input map - VCF phase"); VCFFileReader
 	 * vcfrdr = new VCFFileReader(new File(vcfpath), new File(vcfpath + ".tbi"));
 	 * CloseableIterator<VariantContext> vcfiter = queryWholeContig(vcfrdr,
 	 * contigname); // int homcounter = 0; // vcfreading
-	 * 
+	 *
 	 * while (vcfiter.hasNext()) { VariantContext temp = vcfiter.next();
-	 * 
+	 *
 	 * double MAF = defaultMAF;
-	 * 
+	 *
 	 * try { MAF = temp.getAttributeAsDouble(AFtag, defaultMAF); } catch (Exception
 	 * e) { // MAF = defaultMAF; }
-	 * 
+	 *
 	 * // insertgenotypecheck and classificationcode here when working with real //
 	 * samples not from 1000G if (temp.isBiallelic() && temp.isNotFiltered() &&
 	 * (skipindels ? !temp.isIndel() : true)) { // MAF > 0.0 // olayini // kaldirdik
 	 * // luzumsuz bir // durumdu...
-	 * 
+	 *
 	 * if (usePLs && temp.getGenotype(oldsampleidx).hasPL()) {
-	 * 
+	 *
 	 * int[] PLs = temp.getGenotype(oldsampleidx).getPL();
-	 * 
+	 *
 	 * inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2] +
 	 * (HWenabled ? "#" + MAF : "")); } else if (useUserPLs) { if
 	 * (temp.getGenotype(oldsampleidx).isHet()) { inputdata.put(temp.getStart(),
@@ -100,72 +100,72 @@ public class Input {
 	 * "0," + userPL + "," + userPL + (HWenabled ? "#" + MAF : "")); } else if
 	 * (temp.getGenotype(oldsampleidx).isHomVar()) { inputdata.put(temp.getStart(),
 	 * userPL + "," + userPL + ",0" + (HWenabled ? "#" + MAF : "")); }
-	 * 
+	 *
 	 * } // not yet implemented do something else if (useADs &&
 	 * temp.getGenotype(oldsampleidx).hasAD()) ; // not yet implemented do something
-	 * 
+	 *
 	 * // this part is legacy now. May be removed completely in the final version.
 	 * Keep // in mind. This part will be modified and merged to useADs completely.
 	 * else if (useGTs) {
-	 * 
-	 * 
+	 *
+	 *
 	 * boolean isHomVar = false; boolean isHomRef = false;
-	 * 
+	 *
 	 * if (temp.getGenotype(sampleindex).isHomVar() && MAF > 0.5) { isHomRef = true;
 	 * } else if (temp.getGenotype(sampleindex).isHomRef() && MAF > 0.5) { isHomVar
 	 * = true; } else if (temp.getGenotype(sampleindex).isHom() && MAF == 0.5)
 	 * isHomVar = true;
-	 * 
+	 *
 	 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(),
 	 * "1"); } else if (isHomRef) { BAFmap.put(temp.getStart(), "0"); } else if
 	 * (isHomVar) { BAFmap.put(temp.getStart(), "2");
-	 * 
+	 *
 	 * }
-	 * 
+	 *
 	 * if (temp.getGenotype(oldsampleidx).isHet()) inputdata.put(temp.getStart(),
 	 * "1"); else if (temp.getGenotype(oldsampleidx).isHomVar())
 	 * inputdata.put(temp.getStart(), "2"); else inputdata.put(temp.getStart(),
 	 * "0");
-	 * 
+	 *
 	 * }
-	 * 
+	 *
 	 * else if (legacywPL) {
-	 * 
+	 *
 	 * int[] PLs = new int[3]; if (temp.getGenotype(oldsampleidx).hasPL()) {
-	 * 
+	 *
 	 * PLs = temp.getGenotype(oldsampleidx).getPL(); }
-	 * 
+	 *
 	 * if (temp.getGenotype(oldsampleidx).isHomVar() && MAF > 0.5) {
-	 * 
+	 *
 	 * if (useUserPLs) { PLs[0] = 0; PLs[1] = userPL; PLs[2] = userPL; } else {
 	 * PLs[0] ^= PLs[2]; PLs[2] ^= PLs[0]; PLs[0] ^= PLs[2]; }
-	 * 
+	 *
 	 * } else if (temp.getGenotype(oldsampleidx).isHomRef() && MAF < 0.5) { if
 	 * (useUserPLs) { PLs[0] = 0; PLs[1] = userPL; PLs[2] = userPL; } } else if
 	 * (temp.getGenotype(oldsampleidx).isHomRef() && MAF > 0.5) { if (useUserPLs) {
 	 * PLs[0] = userPL; PLs[1] = userPL; PLs[2] = 0; } else { PLs[0] ^= PLs[2];
 	 * PLs[2] ^= PLs[0]; PLs[0] ^= PLs[2]; }
-	 * 
+	 *
 	 * } else if (temp.getGenotype(oldsampleidx).isHomVar() && MAF < 0.5) {
-	 * 
+	 *
 	 * if (useUserPLs) { PLs[0] = userPL; PLs[1] = userPL; PLs[2] = 0; }
-	 * 
+	 *
 	 * } else if (temp.getGenotype(oldsampleidx).isHom() && MAF == 0.5)
-	 * 
+	 *
 	 * inputdata.put(temp.getStart(), PLs[0] + "," + PLs[1] + "," + PLs[2]);
-	 * 
+	 *
 	 * }
-	 * 
-	 * 
+	 *
+	 *
 	 * else if (useGTs) {
-	 * 
+	 *
 	 * if (temp.getGenotype(sampleindex).isHet()) { BAFmap.put(temp.getStart(), "1"
 	 * + (HWenabled ? "#" + MAF : "")); homcounter = 0; } else if
 	 * (temp.getGenotype(sampleindex).isHomRef()) { // do something extra here if
 	 * needed. May // need to check // this thing out....
 	 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } else if
 	 * (temp.getGenotype(sampleindex).isHomVar()) {
-	 * 
+	 *
 	 * if (MAF <= minAFfilter) BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#" +
 	 * MAF : "")); else if (MAF > minAFfilter && MAF <= maxAFfilter && homcounter <
 	 * HomCount) { BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : ""));
@@ -173,13 +173,13 @@ public class Input {
 	 * homcounter >= HomCount) { BAFmap.put(temp.getStart(), "2" + (HWenabled ? "#"
 	 * + MAF : "")); homcounter++; } else if (MAF > maxAFfilter) {
 	 * BAFmap.put(temp.getStart(), "0" + (HWenabled ? "#" + MAF : "")); } } }
-	 * 
-	 * 
+	 *
+	 *
 	 * } }
-	 * 
+	 *
 	 * vcfiter.close(); // vcfrdr.close(); //
 	 * System.err.println("Input map generated...");
-	 * 
+	 *
 	 * }
 	 */
 
@@ -202,9 +202,9 @@ public class Input {
 		 * fillfactor == 0) { String[] arr = gnomaditem.split("\t"); // if (usePLs ||
 		 * legacywPL || useUserPLs) //temizlenecek kodlar arasinda....
 		 * inputdatanew.put(Integer.parseInt(arr[1]), ivi); counter++; }
-		 * 
+		 *
 		 * }
-		 * 
+		 *
 		 * gnomadrdr.close(); }
 		 */
 
@@ -294,7 +294,7 @@ public class Input {
 					}
 
 					if (this.AFtag == null) {
-						if (!OverSeer.DMAF) {
+						if (!OverSeer.DMAF && this.sampleset.size() >= 30) {
 							svi.forceCalculateAF();
 						} else {
 							svi.addAF(this.defaultMAF);
@@ -332,7 +332,7 @@ public class Input {
 	/*
 	 * private int[] normalizePL(int[] PL) { int max = Math.max(PL[0],
 	 * Math.max(PL[1], PL[2]));
-	 * 
+	 *
 	 * if (max > 255) { PL[0] = (int) (PL[0] * (255 / (double) max)); PL[1] = (int)
 	 * (PL[1] * (255 / (double) max)); PL[2] = (int) (PL[2] * (255 / (double) max));
 	 * } return PL; }
@@ -365,7 +365,7 @@ public class Input {
 	 * public int[] getObservationSet() { int[] obs = new int[inputdata.size()]; int
 	 * count = 0; for (Entry<?, ?> e : inputdata.entrySet()) { obs[count] =
 	 * Integer.parseInt(e.getValue().toString().split("#")[0]); count++; }
-	 * 
+	 *
 	 * return obs; }
 	 */
 
@@ -374,7 +374,7 @@ public class Input {
 	 * int[inputdatanew.size()]; int count = 0; for (Entry<Integer, VariantInfo> e :
 	 * inputdatanew.entrySet()) { obs[count] =
 	 * e.getValue().getGenotype(sampleindex); count++; }
-	 * 
+	 *
 	 * return obs; }
 	 */
 
@@ -387,9 +387,9 @@ public class Input {
 	 * Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[1]);
 	 * obs[count][2] =
 	 * Integer.parseInt(e.getValue().toString().split("#")[0].split(",")[2]);
-	 * 
+	 *
 	 * count++; }
-	 * 
+	 *
 	 * return obs; }
 	 */
 
@@ -401,7 +401,7 @@ public class Input {
 	 * obs[count][1] = e.getValue().getPL(sampleindex)[1]; // obs[count][2] =
 	 * e.getValue().getPL(sampleindex)[2]; obs[count] =
 	 * e.getValue().getPL(sampleindex); count++; }
-	 * 
+	 *
 	 * return obs; }
 	 */
 
@@ -411,13 +411,13 @@ public class Input {
 
 		int count = 0;
 		for (final Entry<Integer, VariantInfo> e : this.inputData.entrySet()) {
-			obsgt[count] = (!this.usePLs && !this.useUserPLs && !this.legacywPL) ? e.getValue().getGenotype(sampleindex)
+			obsgt[count] = !this.usePLs && !this.useUserPLs && !this.legacywPL ? e.getValue().getGenotype(sampleindex)
 					: 0;
 			obspl[count] = this.usePLs || this.useUserPLs || this.legacywPL ? e.getValue().getPL(sampleindex) : null;
 			count++;
 		}
 
-		hmm.GTs = (!this.usePLs && !this.useUserPLs && !this.legacywPL) ? obsgt : null;
+		hmm.GTs = !this.usePLs && !this.useUserPLs && !this.legacywPL ? obsgt : null;
 		hmm.PLmatrix = this.usePLs || this.useUserPLs || this.legacywPL ? obspl : null;
 	}
 
@@ -425,7 +425,7 @@ public class Input {
 	 * public double[] getMAFSet() { double[] maf = new double[inputdata.size()];
 	 * int count = 0; for (Entry<?, ?> e : inputdata.entrySet()) { maf[count] =
 	 * Double.parseDouble(e.getValue().toString().split("#")[1]); count++; }
-	 * 
+	 *
 	 * return maf; }
 	 */
 
@@ -433,7 +433,7 @@ public class Input {
 	 * public double[] getMAFSetNew() { double[] maf = new
 	 * double[inputdatanew.size()]; int count = 0; for (Entry<Integer, VariantInfo>
 	 * e : inputdatanew.entrySet()) { maf[count] = e.getValue().getAF(); count++; }
-	 * 
+	 *
 	 * return maf; }
 	 */
 
@@ -441,7 +441,7 @@ public class Input {
 	 * public int[] getDistanceSet() { int[] distmap = new int[inputdata.size()];
 	 * int count = 0; int DIST = 0; for (Integer k : inputdata.keySet()) {
 	 * distmap[count] = k - DIST; DIST = k; count++; }
-	 * 
+	 *
 	 * return distmap; }
 	 */
 
@@ -449,7 +449,7 @@ public class Input {
 	 * public int[] getDistanceSetNew() { int[] distmap = new
 	 * int[inputdatanew.size()]; int count = 0; int DIST = 0; for (Integer k :
 	 * inputdatanew.keySet()) { distmap[count] = k - DIST; DIST = k; count++; }
-	 * 
+	 *
 	 * return distmap; }
 	 */
 	public void setMAFAndDist(HMM hmm) {
