@@ -42,7 +42,7 @@ public class OptionPanel extends JPanel {
 		this.AFDEF = new JLabel("Default Allele Frequency");
 		this.AFDEF.setHorizontalAlignment(JLabel.RIGHT);
 		this.ERDEF = new JLabel("Empirical Phred Scaled Error Rate");
-		this.ERDEF.setToolTipText("Set 256 to disable empirical error rate and use all sites as is");
+		this.ERDEF.setToolTipText("Set -1 to disable empirical error rate and use all sites as is");
 		this.STDEF = new JLabel("Starting ROH Probability");
 		this.COLUMNS = new JLabel(
 				" HOMREF                                        HET                                                HOMVAR");
