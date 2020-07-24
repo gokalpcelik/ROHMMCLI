@@ -296,6 +296,7 @@ public class OverSeer {
 
 		if (cmd.hasOption("F")) {
 			input.spikeIn = true;
+			input.skipzeroaf = false;
 		}
 
 		if (cmd.hasOption("G")) {
@@ -409,7 +410,7 @@ public class OverSeer {
 				"Include high quality unknown sites under known sites option active...");
 
 		opts.addOption("SZ", "skip-zeroaf", false,
-				"Skip markers with zero allele frequency within the selected sample population.");
+				"Skip markers with zero allele frequency within the selected sample population. Conflicts with Spike-in function. Spike-in precedes skipping zero AF sites.");
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
 

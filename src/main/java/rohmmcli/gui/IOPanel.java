@@ -261,6 +261,8 @@ public class IOPanel extends JPanel {
 		c.gridx = 1;
 		filterPanel.add(this.ADThreshvalue, c);
 		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF in all selected samples");
+		this.skipZeroAFPolicy.setToolTipText(
+				"Experimental feature and may cause issues with spike-in feature. Do not use inconjunction with Spike-in function");
 		c.gridx = 0;
 		c.gridy = 4;
 		c.gridwidth = 2;
@@ -354,6 +356,7 @@ public class IOPanel extends JPanel {
 		IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 		IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
 		IOPanel.this.AdvPanel.INFOTags.removeAllItems();
+		this.skipZeroAFPolicy.setEnabled(true);
 	}
 
 	public class IOFileDialogButtonListener implements ActionListener {
@@ -516,6 +519,9 @@ public class IOPanel extends JPanel {
 			case "runinference":
 				OverSeer.setOption(GUIOptionStandards.OUTPUTPREFIX,
 						IOPanel.this.outputDirField.getText() + IOPanel.this.outputPrefixField.getText());
+				OverSeer.setOption(GUIOptionStandards.MINIMUMROHLENGTH, IOPanel.this.ROHLength.getText());
+				OverSeer.setOption(GUIOptionStandards.MINIMUMROHQUAL, IOPanel.this.QualValue.getText());
+				OverSeer.setOption(GUIOptionStandards.MINIMUMSITECOUNT, IOPanel.this.ROHCount.getText());
 
 				if (IOPanel.this.ADthresh.isSelected()) {
 					OverSeer.setOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD,
@@ -524,8 +530,10 @@ public class IOPanel extends JPanel {
 					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
 				}
 
-				if (IOPanel.this.skipZeroAFPolicy.isSelected()) {
+				if (IOPanel.this.skipZeroAFPolicy.isSelected() && IOPanel.this.skipZeroAFPolicy.isEnabled()) {
 					OverSeer.setOption(GUIOptionStandards.SKIPZEROAF, null);
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.SKIPZEROAF);
 				}
 
 				IOPanel.this.runInference.setEnabled(false);
@@ -586,8 +594,10 @@ public class IOPanel extends JPanel {
 			case "includeunknown":
 				if (IOPanel.this.knownVariantInclusivePolicy.isSelected()) {
 					OverSeer.setOption(GUIOptionStandards.INCLUDEUNKNOWN, null);
+
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+
 				}
 				break;
 			case "spikein":
@@ -595,11 +605,13 @@ public class IOPanel extends JPanel {
 					if (IOPanel.this.knownVariantSpikeInPolicy.isSelected()) {
 						IOPanel.this.knownVariantInclusivePolicy.setEnabled(true);
 						OverSeer.setOption(GUIOptionStandards.SPIKEIN, null);
+						IOPanel.this.skipZeroAFPolicy.setEnabled(false);
 					} else {
 						IOPanel.this.knownVariantInclusivePolicy.setSelected(false);
 						IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 						OverSeer.removeOption(GUIOptionStandards.SPIKEIN);
 						OverSeer.removeOption(GUIOptionStandards.INCLUDEUNKNOWN);
+						IOPanel.this.skipZeroAFPolicy.setEnabled(true);
 					}
 				}
 				break;
