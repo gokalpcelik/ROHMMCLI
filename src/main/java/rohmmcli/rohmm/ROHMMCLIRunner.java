@@ -39,7 +39,7 @@ public class ROHMMCLIRunner {
 
 			if (OverSeer.isWindows()) {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				OverSeer.INDENTCONST = 0;
+				OverSeer.INDENTCONST = 0; // lazy duct tape solution for windows ui problems.
 			}
 
 			OverSeer.isGUI = true;
