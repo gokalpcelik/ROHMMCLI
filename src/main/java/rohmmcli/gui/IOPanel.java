@@ -333,6 +333,7 @@ public class IOPanel extends JPanel {
 
 		final int size = jlist.getModel().getSize();
 		final ArrayList<Integer> selectedindices = new ArrayList<>();
+
 		for (int i = 0; i < size; i++) {
 
 			if (!jlist.isSelectedIndex(i)) {
@@ -490,14 +491,16 @@ public class IOPanel extends JPanel {
 
 	protected void setSampleList() {
 		String samplestring = "";
-		for (final String s : IOPanel.this.samplelist.getSelectedValuesList()) {
-			samplestring += s + ",";
+		if (this.samplelist.getSelectedIndices().length > 0) {
+			for (final String s : IOPanel.this.samplelist.getSelectedValuesList()) {
+				samplestring += s + ",";
+			}
+
+			samplestring = samplestring.substring(0, samplestring.length() - 1);
+
+			System.err.println(samplestring);
+			OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
 		}
-
-		samplestring = samplestring.substring(0, samplestring.length() - 1);
-
-		System.err.println(samplestring);
-		OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
 	}
 
 	protected void setChrList() {
