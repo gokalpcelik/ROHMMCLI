@@ -85,7 +85,7 @@ public class IOPanel extends JPanel {
 		this.setLayout(null);
 		this.brandLabel = new JLabel(OverSeer.VERSION);
 		this.brandLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		this.brandLabel.setBounds(12, 508, 120, 25);
+		this.brandLabel.setBounds(7 + OverSeer.INDENTCONST, 508, 120, 25);
 		this.add(this.brandLabel);
 		this.chrlistmodel = new DefaultListModel<>();
 		this.samplenamemodel = new DefaultListModel<>();
@@ -106,7 +106,7 @@ public class IOPanel extends JPanel {
 		this.vcfSelectButton.addActionListener(ioButtonListener);
 		// add(vcfselectbutton);
 		this.panel_0 = new JPanel();
-		this.panel_0.setBounds(12, 0, 775, 53);
+		this.panel_0.setBounds(7 + OverSeer.INDENTCONST, 0, 775, 53);
 		this.panel_0.setBorder(new TitledBorder("VCF Input"));
 		this.panel_0.setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
@@ -120,7 +120,7 @@ public class IOPanel extends JPanel {
 
 		this.add(this.panel_0);
 		this.panel.setBorder(new TitledBorder("Chromosomes"));
-		this.panel.setBounds(12, 50, 120, 406);
+		this.panel.setBounds(7 + OverSeer.INDENTCONST, 50, 120, 406);
 		this.add(this.panel);
 		this.panel.setLayout(new BorderLayout(0, 0));
 
@@ -133,10 +133,10 @@ public class IOPanel extends JPanel {
 		this.chrlist.addListSelectionListener(new ChrListSelectionListener());
 		this.selectAllChrButton = new JButton("Select All");
 		this.selectAllChrButton.setActionCommand("allchr");
-		this.selectAllChrButton.setBounds(12, 458, 120, 25);
+		this.selectAllChrButton.setBounds(7 + OverSeer.INDENTCONST, 458, 120, 25);
 		this.selectNoneChrButton = new JButton("Select None");
 		this.selectNoneChrButton.setActionCommand("nonechr");
-		this.selectNoneChrButton.setBounds(12, 483, 120, 25);
+		this.selectNoneChrButton.setBounds(7 + OverSeer.INDENTCONST, 483, 120, 25);
 		this.selectAllChrButton.addActionListener(selectbuttonlistener);
 		this.selectNoneChrButton.addActionListener(selectbuttonlistener);
 
@@ -146,7 +146,7 @@ public class IOPanel extends JPanel {
 
 		this.panel_1 = new JPanel();
 		this.panel_1.setBorder(new TitledBorder("Samples"));
-		this.panel_1.setBounds(132, 50, 163, 406);
+		this.panel_1.setBounds(127 + OverSeer.INDENTCONST, 50, 163, 406);
 		this.add(this.panel_1);
 		this.panel_1.setLayout(new BorderLayout(0, 2));
 
@@ -160,15 +160,15 @@ public class IOPanel extends JPanel {
 		this.selectAllSampleButton = new JButton("Select All");
 		this.selectAllSampleButton.setActionCommand("allsample");
 		this.selectAllSampleButton.addActionListener(selectbuttonlistener);
-		this.selectAllSampleButton.setBounds(132, 458, 163, 25);
+		this.selectAllSampleButton.setBounds(127 + OverSeer.INDENTCONST, 458, 163, 25);
 		this.selectNoneSampleButton = new JButton("Select None");
 		this.selectNoneSampleButton.setActionCommand("nonesample");
 		this.selectNoneSampleButton.addActionListener(selectbuttonlistener);
-		this.selectNoneSampleButton.setBounds(132, 483, 163, 25);
+		this.selectNoneSampleButton.setBounds(127 + OverSeer.INDENTCONST, 483, 163, 25);
 		this.invertSelectionSampleButton = new JButton("Invert Selection");
 		this.invertSelectionSampleButton.setActionCommand("invertsample");
 		this.invertSelectionSampleButton.addActionListener(selectbuttonlistener);
-		this.invertSelectionSampleButton.setBounds(132, 508, 163, 25);
+		this.invertSelectionSampleButton.setBounds(127 + OverSeer.INDENTCONST, 508, 163, 25);
 		this.add(this.selectAllSampleButton);
 		this.add(this.selectNoneSampleButton);
 		this.add(this.invertSelectionSampleButton);
@@ -176,7 +176,7 @@ public class IOPanel extends JPanel {
 		final JPanel outPanel = new JPanel(new GridBagLayout());
 
 		outPanel.setBorder(new TitledBorder("Output Options"));
-		outPanel.setBounds(295, 50, 492, 150);
+		outPanel.setBounds(290 + OverSeer.INDENTCONST, 50, 492, 150);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 0.5;
 		c.weighty = 0.5;
@@ -217,7 +217,7 @@ public class IOPanel extends JPanel {
 		this.add(outPanel);
 		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(295, 200, 492, 170);
+		filterPanel.setBounds(290 + OverSeer.INDENTCONST, 200, 492, 170);
 		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
 		this.skipIndels = new JCheckBox("Skip Indels");
 		this.skipIndels.setActionCommand("skipindels");
@@ -270,7 +270,7 @@ public class IOPanel extends JPanel {
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
 		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(295, 372, 492, 100);
+		hmmPanel.setBounds(290 + OverSeer.INDENTCONST, 372, 492, 100);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
 		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
@@ -299,8 +299,8 @@ public class IOPanel extends JPanel {
 		this.runInference.setActionCommand("runinference");
 		this.stopInference = new JButton("STOP ROHMM");
 		this.stopInference.setActionCommand("stopinference");
-		this.runInference.setBounds(295, 483, 350, 50);
-		this.stopInference.setBounds(645, 483, 142, 50);
+		this.runInference.setBounds(290 + OverSeer.INDENTCONST, 483, 350, 50);
+		this.stopInference.setBounds(640 + OverSeer.INDENTCONST, 483, 142, 50);
 		this.runInference.addActionListener(runnerbuttonlistener);
 		this.stopInference.addActionListener(runnerbuttonlistener);
 		this.stopInference.setEnabled(false);
@@ -333,6 +333,7 @@ public class IOPanel extends JPanel {
 
 		final int size = jlist.getModel().getSize();
 		final ArrayList<Integer> selectedindices = new ArrayList<>();
+
 		for (int i = 0; i < size; i++) {
 
 			if (!jlist.isSelectedIndex(i)) {
@@ -490,14 +491,16 @@ public class IOPanel extends JPanel {
 
 	protected void setSampleList() {
 		String samplestring = "";
-		for (final String s : IOPanel.this.samplelist.getSelectedValuesList()) {
-			samplestring += s + ",";
+		if (this.samplelist.getSelectedIndices().length > 0) {
+			for (final String s : IOPanel.this.samplelist.getSelectedValuesList()) {
+				samplestring += s + ",";
+			}
+
+			samplestring = samplestring.substring(0, samplestring.length() - 1);
+
+			System.err.println(samplestring);
+			OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
 		}
-
-		samplestring = samplestring.substring(0, samplestring.length() - 1);
-
-		System.err.println(samplestring);
-		OverSeer.setOption(GUIOptionStandards.SAMPLENAMELIST, samplestring);
 	}
 
 	protected void setChrList() {

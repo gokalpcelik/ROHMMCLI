@@ -49,6 +49,7 @@ public class OverSeer {
 	protected static long END;
 	protected static String VCFPath = null;
 	protected static VCFReader vcfrdr = null;
+	public static int INDENTCONST = 5;
 	protected static KnownVariant knownVariant = null;
 	protected static final String[] GRCH37NoXY = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 			"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" };
