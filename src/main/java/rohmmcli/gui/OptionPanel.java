@@ -56,7 +56,7 @@ public class OptionPanel extends JPanel {
 		this.ERD = new JTextField("30");
 		this.ST = new JTextField("0.5");
 		final JPanel hmmsetup = new JPanel();
-		hmmsetup.setBounds(12, 0, 775, 240);
+		hmmsetup.setBounds(7 + OverSeer.INDENTCONST, 0, 775, 240);
 		hmmsetup.setBorder(new TitledBorder("Custom HMM Emission Parameters"));
 		hmmsetup.setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
@@ -144,7 +144,7 @@ public class OptionPanel extends JPanel {
 
 		final JPanel hmmsetupt = new JPanel(new GridBagLayout());
 		hmmsetupt.setBorder(new TitledBorder("Custom HMM Transition Parameters"));
-		hmmsetupt.setBounds(12, 240, 775, 170);
+		hmmsetupt.setBounds(7 + OverSeer.INDENTCONST, 240, 775, 170);
 		final GridBagConstraints c2 = new GridBagConstraints();
 
 		this.useFixedTransitionParams = new JRadioButton("Use fixed transition parameters");
@@ -207,7 +207,7 @@ public class OptionPanel extends JPanel {
 		this.add(hmmsetupt);
 		final JPanel miscopts = new JPanel(new GridBagLayout());
 		miscopts.setBorder(new TitledBorder("Miscellaneous Options"));
-		miscopts.setBounds(12, 410, 775, 115);
+		miscopts.setBounds(7 + OverSeer.INDENTCONST, 410, 775, 115);
 		final GridBagConstraints c3 = new GridBagConstraints();
 		c3.fill = GridBagConstraints.HORIZONTAL;
 		this.LOGDEF = new JLabel("Log level");

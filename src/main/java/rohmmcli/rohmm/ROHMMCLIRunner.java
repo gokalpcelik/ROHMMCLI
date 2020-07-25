@@ -36,6 +36,12 @@ public class ROHMMCLIRunner {
 			} else {
 				UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			}
+
+			if (OverSeer.isWindows()) {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				OverSeer.INDENTCONST = 0;
+			}
+
 			OverSeer.isGUI = true;
 			OverSeer.resetOptionsGUI();
 			ROHMMMain.RunGUI();
