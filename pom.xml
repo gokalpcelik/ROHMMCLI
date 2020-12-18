@@ -175,7 +175,7 @@
 						<configuration>
 							<jdk>
 								<include>false</include>
-								<location>/Volumes/MacHD/git/ROHMMCLI/jdk-11</location>
+								<location></location>
 							</jdk>
 							<plist>
 								<JVMMainClassName>rohmmcli.rohmm.ROHMMCLIRunner</JVMMainClassName>
