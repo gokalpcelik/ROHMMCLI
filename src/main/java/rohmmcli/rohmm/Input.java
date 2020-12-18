@@ -504,8 +504,8 @@ public class Input {
 			try {
 				final int ref = gt.getAD()[0];
 				final int alt = gt.getAD()[1];
-				final double refratio = (double) ref / ref + alt;
-				final double altratio = (double) alt / ref + alt;
+				final double refratio = (double) ref / (ref + alt);
+				final double altratio = (double) alt / (ref + alt);
 				if (Math.min(refratio, altratio) < this.ADThreshold) {
 					return false;
 				}
