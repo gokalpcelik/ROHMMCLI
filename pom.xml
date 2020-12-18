@@ -174,7 +174,7 @@
 						</dependencies>
 						<configuration>
 							<jdk>
-								<include>true</include>
+								<include>false</include>
 								<location>/Volumes/MacHD/git/ROHMMCLI/jdk-11</location>
 							</jdk>
 							<plist>
