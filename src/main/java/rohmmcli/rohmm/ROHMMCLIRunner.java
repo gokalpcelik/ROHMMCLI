@@ -1,337 +1,154 @@
+/*
+ * Author : Gokalp Celik
+ * Year : 2020
+ */
 package rohmmcli.rohmm;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.channels.ClosedByInterruptException;
 
-import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
 
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+
 import htsjdk.variant.vcf.VCFFileReader;
+import rohmmcli.gui.ROHMMMain;
 
-import rohmmcli.gui.*;
 @SuppressWarnings("unused")
 public class ROHMMCLIRunner {
-
-	private static HMM hmm = null;
-	private static Input input = null;
-	private static boolean combine = false;
-
 	public static void main(String[] args) throws Exception {
-		Utility.START = System.currentTimeMillis();
-		Utility.log(ROHMMCLIRunner.class.getSimpleName(),"ROHMMCLI v"+ Utility.VERSION +" Gokalp Celik...", Utility.INFO);
-		
-		if(args.length == 0)
-		{
-			Utility.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", Utility.INFO);
-			ROHMMMain.RunGUI();
-		}
-		else {
-			CommandLine cmd = Utility.parseCommands(args);
-			Model model = new Model();
-			input = new Input();
-			hmm = Model.hmmModel(cmd.getOptionValue("hmm"));
+		System.err.println(" ______     ______     __  __     __    __     __    __   ");
+		System.err.println("/\\  == \\   /\\  __ \\   /\\ \\_\\ \\   /\\ \"-./  \\   /\\ \"-./  \\  ");
+		System.err.println("\\ \\  __<   \\ \\ \\/\\ \\  \\ \\  __ \\  \\ \\ \\-./\\ \\  \\ \\ \\-./\\ \\ ");
+		System.err.println(" \\ \\_\\ \\_\\  \\ \\_____\\  \\ \\_\\ \\_\\  \\ \\_\\ \\ \\_\\  \\ \\_\\ \\ \\_\\");
+		System.err.println("  \\/_/ /_/   \\/_____/   \\/_/\\/_/   \\/_/  \\/_/   \\/_/  \\/_/");
+		OverSeer.START = System.currentTimeMillis();
+		OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + OverSeer.VERSION + " Gokalp Celik...",
+				OverSeer.INFO);
+		OverSeer.getOS();
 
-			input.Distenabled = Model.distmode;
-			input.HWenabled = Model.hwmode;
-			input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
-			input.skipindels = cmd.hasOption("S") ? true : false;
-			input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
-			input.skipzeroaf = cmd.hasOption("SZ") ? true : false;
-			input.setVCFPath(cmd.getOptionValue("V"));
-
-			/*
-			 * if (cmd.hasOption("FF")) input.fillfactor =
-			 * Integer.parseInt(cmd.getOptionValue("FF"));
-			 */
-
-			if (cmd.hasOption("GT")) {
-				input.usePLs = false;
-				input.useUserPLs = true;
-				input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
-			} /*
-				 * else if (cmd.hasOption("AD")) { input.usePLs = false; input.useADs = true; }
-				 */ else if (cmd.hasOption("legacy")) {
-				input.usePLs = false;
-				input.useGTs = true;
-			} else if (cmd.hasOption("Custom")) {
-				input.usePLs = false;
-				input.useGTs = false;
-				input.legacywPL = true;
+		if (args.length == 0) {
+			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", OverSeer.INFO);
+			if (OverSeer.isMac() && OverSeer.isMacDarkMode()) {
+				UIManager.setLookAndFeel(new FlatDarculaLaf());
+			} else {
+				UIManager.setLookAndFeel(new FlatIntelliJLaf());
 			}
 
-			if (cmd.hasOption("MFM"))
-				input.minisculeformissing = Double.parseDouble(cmd.getOptionValue("MFM"));
+			if (OverSeer.isWindows()) {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				OverSeer.INDENTCONST = 0; // lazy duct tape solution for windows ui problems.
+			}
 
-			if (cmd.hasOption("F"))
-				input.useFiller = true;
+			OverSeer.isGUI = true;
+			OverSeer.resetOptionsGUI();
+			ROHMMMain.RunGUI();
+		} else {
+			OverSeer.parseCommands(args);
+			OverSeer.setHMMParams();
+			OverSeer.setInputParams();
 
-			if (cmd.hasOption("combine"))
-				combine = true;
-
-			input.setDefaultMAF(Double.parseDouble(cmd.getOptionValue("D", "0.4")));
-			//Utility.logInput(cmd);
-			Runner(cmd);
-			
-			Utility.ENDTIMER();
+			// Utility.logInput(cmd);
+			Runner(OverSeer.cmd);
+			OverSeer.closeAllReaders();
+			OverSeer.endTimer();
 			System.exit(0);
 
 		}
-		
-		
-		
-		
-		
-		
-		
+
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	public static void Runner(CommandLine cmd) {
-		
-		
-		
+
 		VCFFileReader vcfrdr = null;
-		/*
-		 * int[] observations = null; int[][] observationPLs = null; double[] mafs =
-		 * null; int[] dists = null;
-		 */
-
 		String[] contigs = null;
-
-		String contigparam = cmd.getOptionValue("C");
-
-		switch (contigparam) {
-		case "GRCh37":
-			contigs = Utility.GRCH37NoXY;
-			break;
-		case "hg19":
-			contigs = Utility.HG1938NoXY;
-			break;
-		case "hg38":
-			contigs = Utility.HG1938NoXY;
-			break;
-		case "GRCh38":
-			contigs = Utility.HG1938NoXY;
-			break;
-		default:
-			contigs = cmd.getOptionValue("C").split(",");
-			break;
+		try {
+			contigs = OverSeer.setContigList();
+		} catch (final Exception e1) {
+			OverSeer.log(ROHMMCLIRunner.class.getName(), "Cannot set required parameter CONTIG. Check your VCF File",
+					OverSeer.ERROR);
 		}
-
-		/*
-		 * if (cmd.hasOption("F")) {
-		 * 
-		 * input.fillfactor = 1; }
-		 */
-
-		if (cmd.hasOption("S"))
-			input.skipindels = true;
 
 		try {
-			VCFReader vcffile = new VCFReader(input.vcfpath);
-			vcfrdr = vcffile.createReader();
 
-			/*
-			 * if (cmd.hasOption("F")) { CloseableIterator<VariantContext> counter =
-			 * vcfrdr.iterator();
-			 * 
-			 * int sitecount = 0;
-			 * 
-			 * while (counter.hasNext()) { sitecount++; counter.next();
-			 * 
-			 * }
-			 * 
-			 * input.fillfactor = (12000000 / sitecount) + 1;
-			 * 
-			 * System.err.println("Fill factor: " + input.fillfactor); }
-			 */
+			vcfrdr = OverSeer.getVCFFileReader();
+			if (vcfrdr != null) {
+				final String[] samples = OverSeer.setSampleNameList();
+				OverSeer.input.samplenamearr = samples;
+				OverSeer.input.setSampleSet();
 
-			ArrayList<String> alsample = vcfrdr.getFileHeader().getSampleNamesInOrder();
+				final int count = 1;
 
-			vcfrdr.close();
+				if (contigs != null) {
+					for (final String contig : contigs) {
 
-			String[] samples;
-			ArrayList<String> omsamples = new ArrayList<>();
-			if (cmd.hasOption("SN"))
-				samples = cmd.getOptionValue("SN").split(",");
-			else if (cmd.hasOption("SL")) {
+						OverSeer.input.setContig(contig);
+						OverSeer.input.generateInput();
+						OverSeer.input.setMAFAndDist(OverSeer.hmm);
 
-				FileReader fr = new FileReader(new File(cmd.getOptionValue("SL")));
-				BufferedReader br = new BufferedReader(fr);
+						OverSeer.log(ROHMMCLIRunner.class.getSimpleName(),
+								"Size of the input dataset " + OverSeer.input.getInputDataNew().size(), OverSeer.INFO);
 
-				String line;
+						int sampleindex = 0;
+						for (final String sample : samples) {
+							int[] states = null;
+							double[][] posterior = null;
 
-				ArrayList<String> templist = new ArrayList<>();
+							/*
+							 * if (input.usePLs || input.useUserPLs || input.legacywPL) hmm.PLmatrix =
+							 * input.getObservationSetPLsNew(sampleindex); else hmm.GTs =
+							 * input.getObservationSetNew(sampleindex);
+							 */
 
-				while ((line = br.readLine()) != null) {
-					if (alsample.contains(line))
-						templist.add(line);
-					else
-						omsamples.add(line);
-				}
+							OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
 
-				br.close();
-				fr.close();
+							states = Viterbi.getViterbiPath(OverSeer.hmm);
 
-				templist.trimToSize();
-				omsamples.trimToSize();
-				samples = templist.toArray(new String[templist.size()]);
+							posterior = Viterbi.posterior(OverSeer.hmm);
 
-			} else
-				samples = alsample.toArray(new String[alsample.size()]);
+							int rohlen = 0;
+							if (cmd.hasOption("MRL")) {
+								rohlen = Integer.parseInt(cmd.getOptionValue("MRL"));
+							}
 
-			input.samplenamearr = samples;
-			input.setSampleSet();
+							int rohcount = 0;
+							if (cmd.hasOption("MSC")) {
+								rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
+							}
 
-			System.err.println("Total number of selected samples " + samples.length);
-			System.err.println("Total number of omitted samples " + omsamples.size());
+							double qual = 0.0;
+							if (cmd.hasOption("Q")) {
+								qual = Double.parseDouble(cmd.getOptionValue("Q"));
+							}
 
-			int count = 1;
-			
-			if(cmd.hasOption("exome"))
-				System.err.println("Exome Sample");
-			
-			if (cmd.hasOption("OLDCODE")) {
+							Output.generateOutput(contig, OverSeer.input, states,
+									cmd.getOptionValue("O") + "_" + sample, posterior, OverSeer.combineOutput(), rohlen,
+									rohcount, qual);
 
-				// Single Sample all contig code path old and slow. May not show much difference
-				// for a single sample but very slow for multi sample analysis
-
-				for (String sample : samples) {
-
-					System.err.println("Working on sample number " + count + " of " + samples.length);
-
-					input.oldsampleidx = alsample.indexOf(sample);
-
-					for (String contig : contigs) {
-
-						int[] states = null;
-						double[][] posterior = null;
-						input.setContig(contig);
-						if (cmd.hasOption("G")) {
-							File gnomadfile = new File(cmd.getOptionValue("G") + "/Gnomad_hg19_"
-									+ contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-							input.setGNOMADPath(gnomadfile.getPath());
+							sampleindex++;
 
 						}
 
-						input.generateInput();
-
-						if (input.usePLs || input.useUserPLs || input.legacywPL)
-							hmm.PLmatrix = input.getObservationSetPLs();
-						else
-							hmm.GTs = input.getObservationSet();
-
-						if (input.getHWmode()) {
-							hmm.MAFs = input.getMAFSet();
-						}
-
-						if (input.Distenabled) {
-							hmm.Dists = input.getDistanceSet();
-						}
-
-						states = Viterbi.getViterbiPath(hmm);
-
-						posterior = Viterbi.posterior(hmm);
-
-						int rohlen = 0;
-						if (cmd.hasOption("MRL"))
-							rohlen = Integer.parseInt(cmd.getOptionValue("MRL"));
-
-						int rohcount = 0;
-						if (cmd.hasOption("MSC"))
-							rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
-
-						Output.GenerateOutput(contig, input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, combine, rohlen, rohcount);
-
-						input.killTreeMap();
-
+						OverSeer.input.killTreeMap();
 					}
-
-					count++;
+				} else {
+					System.err.println("Contigs are null");
 				}
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference complete...", OverSeer.INFO);
 			} else {
-				// New Multisample code path with more optimizations.
-
-				for (String contig : contigs) {
-
-					input.setContig(contig);
-					if (cmd.hasOption("G")) {
-						File gnomadfile = new File(
-								cmd.getOptionValue("G") + "/Gnomad_hg19_" + contig.replaceAll("chr", "") + (cmd.hasOption("exome") ? "_exome.bed.gz" : ".bed.gz"));
-						input.setGNOMADPath(gnomadfile.getPath());
-
-					}
-
-					input.generateInputNew();
-
-					/*
-					 * if (input.getHWmode()) { hmm.MAFs = input.getMAFSetNew(); }
-					 * 
-					 * if (input.Distenabled) { hmm.Dists = input.getDistanceSetNew(); }
-					 */
-
-					input.setMAFAndDist(hmm);
-
-					System.err.println("Size of the input dataset " + input.getInputDataNew().size());
-
-					int sampleindex = 0;
-					for (String sample : samples) {
-						int[] states = null;
-						double[][] posterior = null;
-
-						/*
-						 * if (input.usePLs || input.useUserPLs || input.legacywPL) hmm.PLmatrix =
-						 * input.getObservationSetPLsNew(sampleindex); else hmm.GTs =
-						 * input.getObservationSetNew(sampleindex);
-						 */
-
-						input.setObsAndPLs(hmm, sampleindex);
-
-						states = Viterbi.getViterbiPath(hmm);
-
-						posterior = Viterbi.posterior(hmm);
-
-						int rohlen = 0;
-						if (cmd.hasOption("MRL"))
-							rohlen = Integer.parseInt(cmd.getOptionValue("MRL"));
-
-						int rohcount = 0;
-						if (cmd.hasOption("MSC"))
-							rohcount = Integer.parseInt(cmd.getOptionValue("MSC"));
-						
-						double qual = 0.0; 
-						if(cmd.hasOption("Q"))	
-							qual = Double.parseDouble(cmd.getOptionValue("Q"));
-						
-						Output.GenerateOutputNew(contig, input, states, (cmd.getOptionValue("O") + "_" + sample),
-								posterior, combine, rohlen, rohcount, qual);
-
-						sampleindex++;
-
-					}
-
-					input.killTreeMap();
-				}
-
+				System.err.println("vcfrdr is null");
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (final Exception e) {
+			if (e instanceof ClosedByInterruptException) {
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference stopped by user...", OverSeer.WARNING);
+			} else {
+				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to an unknown problem..",
+						OverSeer.WARNING);
+			}
 		}
 
 	}
-
 }

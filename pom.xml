@@ -1,93 +1,207 @@
-<!--  Copyright 2020 Gokalp Celik.  All rights reserved. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<!-- Copyright 2020 Gokalp Celik. All rights reserved. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>ROHMMCLI</groupId>
-  <artifactId>ROHMMCLI</artifactId>
-  <version>0.9r-GUI</version>
-  <packaging>jar</packaging>
+	<groupId>ROHMMCLI</groupId>
+	<artifactId>ROHMMCLI</artifactId>
+	<version>0.9u-GUI</version>
+	<packaging>jar</packaging>
+	<developers>
+		<developer>
+			<name>Gokalp Celik</name>
+		</developer>
+	</developers>
 
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
-
- <dependencies>
-	<!-- https://mvnrepository.com/artifact/com.github.samtools/htsjdk -->
-  	<dependency>
-	    <groupId>com.github.samtools</groupId>
-	    <artifactId>htsjdk</artifactId>
-	    <version>2.21.1</version>
-	</dependency>
-<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
-<dependency>
-    <groupId>commons-cli</groupId>
-    <artifactId>commons-cli</artifactId>
-    <version>1.4</version>
-</dependency>
-</dependencies>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 
-<profiles>
-    <profile>
-      <id>Java8</id>
-	  <activation>
-	  	<activeByDefault>false</activeByDefault>
-	  </activation>
-      <properties>
-        <java.release>8</java.release>
-      </properties>
-    </profile>
-    <profile>
-      <id>Java11</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <java.release>11</java.release>
-      </properties>
-    </profile>
-</profiles>
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.github.samtools/htsjdk -->
+		<dependency>
+			<groupId>com.github.samtools</groupId>
+			<artifactId>htsjdk</artifactId>
+			<version>2.21.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>0.34</version>
+		</dependency>
+	</dependencies>
+
+
+	<profiles>
+		<profile>
+			<id>Java8</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>3.3.0</version>
+						<configuration>
+							<outputDirectory>target/ROHMM-Java8-Full-Jar</outputDirectory>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>rohmmcli.rohmm.ROHMMCLIRunner</mainClass>
+								</manifest>
+							</archive>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id> <!-- this is used for inheritance merges -->
+								<phase>package</phase> <!-- bind to the packaging phase -->
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
+		</profile>
+		<profile>
+			<id>Java11</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+						<configuration>
+							<release>11</release>
+						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>3.3.0</version>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<outputDirectory>target/ROHMM-Java11-Full-Jar</outputDirectory>
+							<archive>
+								<manifest>
+									<mainClass>rohmmcli.rohmm.ROHMMCLIRunner</mainClass>
+								</manifest>
+							</archive>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id> <!-- this is used for inheritance merges -->
+								<phase>package</phase> <!-- bind to the packaging phase -->
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>apple</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->
+						<groupId>de.perdian.maven.plugins</groupId>
+						<artifactId>macosappbundler-maven-plugin</artifactId>
+						<version>1.7.0</version>
+						<dependencies>
+							<!-- https://mvnrepository.com/artifact/com.github.samtools/htsjdk -->
+							<dependency>
+								<groupId>com.github.samtools</groupId>
+								<artifactId>htsjdk</artifactId>
+								<version>2.21.1</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+							<dependency>
+								<groupId>commons-cli</groupId>
+								<artifactId>commons-cli</artifactId>
+								<version>1.4</version>
+							</dependency>
+							<dependency>
+								<groupId>com.formdev</groupId>
+								<artifactId>flatlaf</artifactId>
+								<version>0.34</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<jdk>
+								<include>false</include>
+								<location></location>
+							</jdk>
+							<plist>
+								<JVMMainClassName>rohmmcli.rohmm.ROHMMCLIRunner</JVMMainClassName>
+								<JVMVersion>8+</JVMVersion>
+								<JVMOptions>
+									<string>-Xmx8G</string>
+								</JVMOptions>
+							</plist>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>bundle</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 
 
 
 
-<build>
-    <plugins>
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.8.1</version>
-    <configuration>
-        <release>${java.release}</release>
-    </configuration>
-</plugin>
-		<plugin>
-    		<artifactId>maven-assembly-plugin</artifactId>
-    		<version>2.3</version>
-    		<configuration>
-	      		<descriptorRefs>
-	        		<descriptorRef>jar-with-dependencies</descriptorRef>
-	      		</descriptorRefs>
-	      		<archive>
-            		<manifest>
-              			<mainClass>rohmmcli.rohmm.ROHMMCLIRunner</mainClass>
-            		</manifest>
-          		</archive>
-    		</configuration>
-	     <executions>
-          <execution>
-            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-            <phase>package</phase> <!-- bind to the packaging phase -->
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-  		</plugin>
-   </plugins>
-  </build>
+
 </project>
