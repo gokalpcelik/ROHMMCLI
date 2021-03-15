@@ -50,7 +50,7 @@ public class Output {
 			if (status == viterbipath[i]) {
 				end = positions[i];
 			} else {
-				if (status == 0 && end - start >= ROHLEN && rohcount >= ROHCOUNT && posteriorprob >= ROHQUAL) {
+				if (status == 0 && end - start >= ROHLEN && rohcount >= ROHCOUNT && posteriorprob / rohcount >= ROHQUAL) {
 					br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" + rohcount
 							+ "\n");
 					posteriorprob = 0;
@@ -61,7 +61,7 @@ public class Output {
 				status = viterbipath[i];
 			}
 		}
-		if (status == 0) {
+		if (status == 0 && end - start >= ROHLEN && rohcount >= ROHCOUNT && posteriorprob / rohcount >= ROHQUAL) {
 			br.write(
 					contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" + rohcount + "\n");
 		}
