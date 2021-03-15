@@ -226,8 +226,9 @@ public class OptionPanel extends JPanel {
 	}
 
 	// Work on this part of the options so that HMM is set properly.
-	public void setAdvancedOptions() {
-
+	
+	public void setAdvancedErrorOptions()
+	{
 		if (this.forceER.isSelected()) {
 			OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERROR);
 			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERRORALL, OptionPanel.this.ERD.getText());
@@ -235,6 +236,9 @@ public class OptionPanel extends JPanel {
 			OverSeer.removeOption(GUIOptionStandards.USERDEFINEDGTERRORALL);
 			OverSeer.setOption(GUIOptionStandards.USERDEFINEDGTERROR, OptionPanel.this.ERD.getText());
 		}
+	}
+	
+	public void setAdvancedOptions() {
 
 		String custommodelstring = "START\t" + this.ST.getText() + "\t" + (1 - Double.parseDouble(this.ST.getText()))
 				+ "\n";

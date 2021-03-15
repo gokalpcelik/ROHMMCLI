@@ -450,10 +450,8 @@ public class IOPanel extends JPanel {
 				break;
 			case "usecustom":
 				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "CUSTOM");
-				// IOPanel.this.AdvPanel.setAdvancedOptions();
 				break;
 			}
-
 		}
 
 	}
@@ -642,10 +640,11 @@ public class IOPanel extends JPanel {
 		@Override
 		protected Void doInBackground() {
 			// TODO Auto-generated method stub
-			OverSeer.setGUICMD();
+			IOPanel.this.AdvPanel.setAdvancedErrorOptions();
 			if (IOPanel.this.useCustomModelPolicy.isSelected()) {
 				IOPanel.this.AdvPanel.setAdvancedOptions();
 			}
+			OverSeer.setGUICMD();
 			OverSeer.setHMMParams();
 			OverSeer.setInputParams();
 			OverSeer.log(IOPanel.class.getSimpleName(), OverSeer.getOptionMap().toString(), OverSeer.DEBUG);

@@ -35,7 +35,7 @@ public class Output {
 		int rohcount = 0;
 		if (status == 0) {
 			posteriorprob = posteriorprob + posterior[0][0];
-			posteriorpr = posteriorpr + posterior[1][0];
+			//posteriorpr = posteriorpr + posterior[1][0];
 			rohcount++;
 		}
 
@@ -43,7 +43,7 @@ public class Output {
 
 			if (viterbipath[i] == 0) {
 				posteriorprob = posteriorprob + posterior[0][i];
-				posteriorpr = posteriorpr + posterior[1][i];
+				//posteriorpr = posteriorpr + posterior[1][i];
 				rohcount++;
 			}
 
@@ -53,9 +53,9 @@ public class Output {
 				if (status == 0 && end - start >= ROHLEN && rohcount >= ROHCOUNT && posteriorprob / rohcount >= ROHQUAL) {
 					br.write(contig + "\t" + start + "\t" + end + "\tROH\t" + posteriorprob / rohcount + "\t" + rohcount
 							+ "\n");
-					posteriorprob = 0;
-					rohcount = 0;
 				}
+				posteriorprob = 0;
+				rohcount = 0;
 				start = positions[i];
 				end = start;
 				status = viterbipath[i];
