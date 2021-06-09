@@ -96,12 +96,6 @@ public class ROHMMCLIRunner {
 							int[] states = null;
 							double[][] posterior = null;
 
-							/*
-							 * if (input.usePLs || input.useUserPLs || input.legacywPL) hmm.PLmatrix =
-							 * input.getObservationSetPLsNew(sampleindex); else hmm.GTs =
-							 * input.getObservationSetNew(sampleindex);
-							 */
-
 							OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
 
 							states = Viterbi.getViterbiPath(OverSeer.hmm);
@@ -147,6 +141,7 @@ public class ROHMMCLIRunner {
 			} else {
 				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to an unknown problem..",
 						OverSeer.WARNING);
+				System.out.println(e.getMessage()); // keep for debugging purposes.
 			}
 		}
 
