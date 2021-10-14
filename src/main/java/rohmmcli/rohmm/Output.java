@@ -74,7 +74,7 @@ public class Output {
 		fr.close();
 	}
 
-	public static String generateOutput(String contig, Input in, int[] viterbipath, double[][] posterior, int ROHLEN,
+	public static void generateOutput(String contig, Input in, int[] viterbipath, double[][] posterior, int ROHLEN,
 			int ROHCOUNT, double ROHQUAL) {
 
 		final int[] positions = new int[in.getInputDataNew().size()];
@@ -124,27 +124,23 @@ public class Output {
 					+ "\n";
 		}
 
-		return output;
-
 	}
-	
+
 	public static void generateOutputFile(String outputprefix) throws Exception {
-		
+
 		File outfile = new File(outputprefix + "_ROH.bed");
-		
-		if(outfile.exists())
-		{
-			throw new Exception("Target File Exists. Please change the outputprefix or the output directory");	
-		}
-		else {
+
+		if (outfile.exists()) {
+			throw new Exception("Target File Exists. Please change the outputprefix or the output directory");
+		} else {
 			final FileWriter fr = new FileWriter(outfile);
 			final BufferedWriter br = new BufferedWriter(fr);
 
 			br.write(output);
 			br.close();
 			fr.close();
+			output = "";
 		}
 	}
-	
 
 }
