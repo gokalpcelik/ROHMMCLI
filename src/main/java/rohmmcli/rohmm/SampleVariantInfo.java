@@ -8,12 +8,18 @@ public class SampleVariantInfo implements VariantInfo {
 	protected int FPLV;
 	protected double AF;
 	protected double sum = 0.0;
+	protected int[] FHRPLArray;
+	protected int[] FHPLArray;
+	protected int[] FHAPLArray;
 
 	public SampleVariantInfo(int samplesize, boolean FPL, int fplv) {
 		this.FakePL = FPL;
 		this.FPLV = fplv;
 		this.PLArray = new int[samplesize][3];
 		this.GenotypeArray = new int[samplesize];
+		this.FHRPLArray = new int[]{0,this.FPLV,this.FPLV};
+		this.FHPLArray = new int[]{this.FPLV,0,this.FPLV};
+		this.FHAPLArray = new int[]{this.FPLV,this.FPLV,0};
 	}
 
 	public void addPL(int[] PL, int sampleindex) {
@@ -90,6 +96,18 @@ public class SampleVariantInfo implements VariantInfo {
 		this.PLArray[sampleindex][0] = this.FPLV;
 		this.PLArray[sampleindex][1] = this.FPLV;
 		this.PLArray[sampleindex][2] = 0;
+	}
+	
+	public void addBalancedHomRefPL2(int sampleindex) {
+		this.PLArray[sampleindex] = this.FHRPLArray;
+	}
+
+	public void addBalancedHetPL2(int sampleindex) {
+		this.PLArray[sampleindex] = this.FHPLArray;
+	}
+
+	public void addBalancedHomVarPL2(int sampleindex) {
+		this.PLArray[sampleindex] = this.FHAPLArray;
 	}
 
 }
