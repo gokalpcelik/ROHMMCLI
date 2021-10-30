@@ -4,6 +4,7 @@
  */
 package rohmmcli.rohmm;
 
+import java.io.File;
 import java.nio.channels.ClosedByInterruptException;
 
 import javax.swing.UIManager;
@@ -79,6 +80,8 @@ public class ROHMMCLIRunner {
 				OverSeer.input.samplenamearr = samples;
 				OverSeer.input.setSampleSet();
 
+				cleanFormerFiles(cmd.getOptionValue("O"));
+
 				final int count = 1;
 
 				if (contigs != null) {
@@ -136,14 +139,23 @@ public class ROHMMCLIRunner {
 			}
 
 		} catch (final Exception e) {
-			if (e instanceof ClosedByInterruptException) {
-				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference stopped by user...", OverSeer.WARNING);
-			} else {
-				OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to an unknown problem..",
-						OverSeer.WARNING);
-				System.out.println(e.getMessage()); // keep for debugging purposes.
-			}
+
+			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Inference interrupted due to a problem..",
+					OverSeer.WARNING);
+			System.out.println(e.getMessage()); // keep for debugging purposes.
+
 		}
 
+	}
+
+	public static void cleanFormerFiles(String prefix) {
+		for (String s : OverSeer.getSampleNameList()) {
+			try {
+				File f = new File(prefix + "_" + s + "_ROH.bed");
+				f.delete();
+			} catch (Exception e) {
+
+			}
+		}
 	}
 }

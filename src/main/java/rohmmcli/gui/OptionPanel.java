@@ -289,5 +289,5 @@ public class OptionPanel extends JPanel {
 			this.INFOTags.addItem(tag);
 		}
 	}
-
+	
 }

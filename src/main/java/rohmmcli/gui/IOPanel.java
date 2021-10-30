@@ -356,8 +356,12 @@ public class IOPanel extends JPanel {
 		IOPanel.this.samplenamemodel.clear();
 		IOPanel.this.knownVariantInclusivePolicy.setEnabled(false);
 		IOPanel.this.knownVariantSpikeInPolicy.setEnabled(false);
+		IOPanel.this.knownVariantInclusivePolicy.setSelected(false);
+		IOPanel.this.knownVariantSpikeInPolicy.setSelected(false);
+		IOPanel.this.skipZeroAFPolicy.setSelected(false);
 		IOPanel.this.AdvPanel.INFOTags.removeAllItems();
 		this.skipZeroAFPolicy.setEnabled(true);
+		OverSeer.resetOptionsGUI();
 	}
 
 	public class IOFileDialogButtonListener implements ActionListener {
@@ -443,10 +447,10 @@ public class IOPanel extends JPanel {
 			// TODO Auto-generated method stub
 			switch (arg0.getActionCommand()) {
 			case "usedefaultalleledistribution":
-				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELXDIST");
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "ADM");
 				break;
 			case "usedefaultallelefrequency":
-				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "MODELHWDIST");
+				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "AFM");
 				break;
 			case "usecustom":
 				OverSeer.setOption(GUIOptionStandards.HMMMODELFILE, "CUSTOM");
@@ -656,7 +660,7 @@ public class IOPanel extends JPanel {
 		public void done() {
 			IOPanel.this.runInference.setEnabled(true);
 			IOPanel.this.stopInference.setEnabled(false);
-
+			IOPanel.this.outputPrefixField.setText("");
 		}
 
 	}

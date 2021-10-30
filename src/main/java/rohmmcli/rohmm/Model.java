@@ -14,9 +14,9 @@ public class Model {
 	public static boolean distmode = false;
 	protected static HMM hmm = null;
 	protected static final String HWMODEL = "MODELHW";
-	protected static final String HWDISTMODEL = "MODELHWDIST";
+	protected static final String HWDISTMODEL = "AFM";
 	protected static final String XMODEL = "MODELX";
-	protected static final String XDISTMODEL = "MODELXDIST";
+	protected static final String XDISTMODEL = "ADM";
 	public static String customModel = "";
 
 	public static HMM hmmModel(String model) throws Exception {
