@@ -89,8 +89,8 @@ public class ROHMMCLIRunner {
 
 						OverSeer.input.setContig(contig);
 						OverSeer.input.generateInput();
-						OverSeer.input.setMAFAndDist(OverSeer.hmm);
-
+						OverSeer.input.setHMMInputs(OverSeer.hmm);
+						
 						OverSeer.log(ROHMMCLIRunner.class.getSimpleName(),
 								"Size of the input dataset " + OverSeer.input.getInputDataNew().size(), OverSeer.INFO);
 
@@ -99,8 +99,10 @@ public class ROHMMCLIRunner {
 							int[] states = null;
 							double[][] posterior = null;
 
-							OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
-
+							//OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
+							
+							OverSeer.hmm.setSampleIndex(sampleindex);
+							
 							states = Viterbi.getViterbiPath(OverSeer.hmm);
 
 							posterior = Viterbi.posterior(OverSeer.hmm);

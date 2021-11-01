@@ -39,6 +39,11 @@ public class OverSeer {
 	public static final int INFO = 2;
 	public static final int DEBUG = 3;
 	public static boolean isGUI = false;
+	public static int[] FHRPLArray;
+	public static int[] FHPLArray;
+	public static int[] FHAPLArray;
+	public static int[] DefaultPL;
+	public static int userPL;
 	protected static CommandLine cmd = null;
 	protected static HMM hmm = null;
 	protected static Input input = null;
@@ -63,12 +68,14 @@ public class OverSeer {
 			"chr20", "chr21", "chr22", "chrX", "chrY" };
 
 	protected static String OSNAME = null;
-
+	
+	protected static final ImputeVariantInfo IVI = new ImputeVariantInfo();
+	
 	protected static List<String> CONTIGLIST = null;
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
 
-	public static final String VERSION = "1.0.1beta-GUI 30/10/2021";
+	public static final String VERSION = "1.0.2beta-GUI 11/01/2021";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -258,8 +265,6 @@ public class OverSeer {
 	public static void setInputParams() {
 		input = new Input();
 
-		input.Distenabled = Model.distmode;
-		input.HWenabled = Model.hwmode;
 		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
 		input.skipindels = cmd.hasOption("S");
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
@@ -279,13 +284,18 @@ public class OverSeer {
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
 		 */
-		input.userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
+		userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
 
 		if (cmd.hasOption("GT")) {
-			input.usePLs = false;
 			input.useUserPLs = true;
-			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
 		}
+		
+		FHRPLArray = new int[]{0,userPL,userPL};
+		FHPLArray = new int[]{userPL,0,userPL};
+		FHAPLArray = new int[]{userPL,userPL,0};
+		DefaultPL = new int[]{0,255,255};
+		
+		
 		/*
 		 * else if (cmd.hasOption("legacy")) { input.usePLs = false; input.useGTs =
 		 * true; } else if (cmd.hasOption("Custom")) { input.usePLs = false;
