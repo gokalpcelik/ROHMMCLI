@@ -2,7 +2,6 @@ package rohmmcli.rohmm;
 
 public class ImputeVariantInfo implements VariantInfo {
 
-	public static final int GENOTYPE = 0;
 	public static final double AF = 0.0;
 
 	public ImputeVariantInfo() {
@@ -15,7 +14,7 @@ public class ImputeVariantInfo implements VariantInfo {
 
 	@Override
 	public int getGenotype(int sampleindex) {
-		return GENOTYPE;
+		return HOMREF;
 	}
 
 	@Override
