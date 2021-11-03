@@ -29,6 +29,7 @@ public class ROHMMCLIRunner {
 		OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + OverSeer.VERSION + " Gokalp Celik...",
 				OverSeer.INFO);
 		OverSeer.getOS();
+		OverSeer.getARCH();
 
 		if (args.length == 0) {
 			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", OverSeer.INFO);

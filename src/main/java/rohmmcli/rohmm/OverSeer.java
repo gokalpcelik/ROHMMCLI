@@ -69,6 +69,8 @@ public class OverSeer {
 
 	protected static String OSNAME = null;
 	
+	protected static String OSARCH = null;
+	
 	protected static final ImputeVariantInfo IVI = new ImputeVariantInfo();
 	
 	protected static List<String> CONTIGLIST = null;
@@ -469,6 +471,12 @@ public class OverSeer {
 	public static void getOS() {
 		OSNAME = System.getProperty("os.name").toLowerCase();
 		log("SYSTEM", "Running on " + OSNAME, OverSeer.INFO);
+	}
+	
+	public static void getARCH()
+	{
+		OSARCH= System.getProperty("os.arch").toLowerCase();
+		log("SYSTEM", "Running on " + OSARCH, OverSeer.INFO);
 	}
 
 	public static boolean isMac() {
