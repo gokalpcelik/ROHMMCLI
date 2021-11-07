@@ -68,11 +68,11 @@ public class OverSeer {
 			"chr20", "chr21", "chr22", "chrX", "chrY" };
 
 	protected static String OSNAME = null;
-	
+
 	protected static String OSARCH = null;
-	
+
 	protected static final ImputeVariantInfo IVI = new ImputeVariantInfo();
-	
+
 	protected static List<String> CONTIGLIST = null;
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
@@ -291,13 +291,12 @@ public class OverSeer {
 		if (cmd.hasOption("GT")) {
 			input.useUserPLs = true;
 		}
-		
-		FHRPLArray = new int[]{0,userPL,userPL};
-		FHPLArray = new int[]{userPL,0,userPL};
-		FHAPLArray = new int[]{userPL,userPL,0};
-		DefaultPL = new int[]{0,255,255};
-		
-		
+
+		FHRPLArray = new int[] { 0, userPL, userPL };
+		FHPLArray = new int[] { userPL, 0, userPL };
+		FHAPLArray = new int[] { userPL, userPL, 0 };
+		DefaultPL = new int[] { 0, 255, 255 };
+
 		/*
 		 * else if (cmd.hasOption("legacy")) { input.usePLs = false; input.useGTs =
 		 * true; } else if (cmd.hasOption("Custom")) { input.usePLs = false;
@@ -427,11 +426,9 @@ public class OverSeer {
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
 
-		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
-																									// yoksa kalırız
-																									// ortada //
-																									// ilerideki
-																									// işlerde.
+		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO");
+
+		final PrintWriter pw = new PrintWriter(System.err, true);
 
 		try {
 			final CommandLineParser parser = new DefaultParser();
@@ -446,16 +443,19 @@ public class OverSeer {
 				log("SYSTEM", "Option parameter missing", ERROR);
 			}
 
-			final PrintWriter pw = new PrintWriter(System.err, true);
 			if (!isGUI) {
-				fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
-				fmtr.printOptions(pw, 80, opts, 0, 10);
-				endTimer();
+				printUsage(pw, fmtr, opts);
 			}
-			// pw.close();
-			// System.exit(1);
 		}
 
+	}
+
+	public static void printUsage(PrintWriter p, HelpFormatter h, Options o) {
+		h.printUsage(p, 80, "java -jar ROHMMCLI.jar <params>");
+		h.printOptions(p, 80, o, 0, 10);
+		endTimer();
+		p.close();
+		System.exit(1);
 	}
 
 	public static void resetOptionsGUI() {
@@ -472,10 +472,9 @@ public class OverSeer {
 		OSNAME = System.getProperty("os.name").toLowerCase();
 		log("SYSTEM", "Running on " + OSNAME, OverSeer.INFO);
 	}
-	
-	public static void getARCH()
-	{
-		OSARCH= System.getProperty("os.arch").toLowerCase();
+
+	public static void getARCH() {
+		OSARCH = System.getProperty("os.arch").toLowerCase();
 		log("SYSTEM", "Running on " + OSARCH, OverSeer.INFO);
 	}
 
