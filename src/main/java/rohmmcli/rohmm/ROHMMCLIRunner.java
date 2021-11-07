@@ -55,8 +55,6 @@ public class ROHMMCLIRunner {
 			OverSeer.parseCommands(args);
 			OverSeer.setHMMParams();
 			OverSeer.setInputParams();
-
-			// Utility.logInput(cmd);
 			Runner(OverSeer.cmd);
 			OverSeer.closeAllReaders();
 			OverSeer.endTimer();
@@ -95,7 +93,7 @@ public class ROHMMCLIRunner {
 						OverSeer.input.setContig(contig);
 						OverSeer.input.generateInput();
 						OverSeer.input.setHMMInputs(OverSeer.hmm);
-						
+
 						OverSeer.log(ROHMMCLIRunner.class.getSimpleName(),
 								"Size of the input dataset " + OverSeer.input.getInputDataNew().size(), OverSeer.INFO);
 
@@ -104,10 +102,10 @@ public class ROHMMCLIRunner {
 							int[] states = null;
 							double[][] posterior = null;
 
-							//OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
-							
+							// OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
+
 							OverSeer.hmm.setSampleIndex(sampleindex);
-							
+
 							states = Viterbi.getViterbiPath(OverSeer.hmm);
 
 							posterior = Viterbi.posterior(OverSeer.hmm);
