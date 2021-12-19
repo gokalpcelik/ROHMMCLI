@@ -39,6 +39,11 @@ public class OverSeer {
 	public static final int INFO = 2;
 	public static final int DEBUG = 3;
 	public static boolean isGUI = false;
+	public static int[] FHRPLArray;
+	public static int[] FHPLArray;
+	public static int[] FHAPLArray;
+	public static int[] DefaultPL;
+	public static int userPL;
 	protected static CommandLine cmd = null;
 	protected static HMM hmm = null;
 	protected static Input input = null;
@@ -64,11 +69,15 @@ public class OverSeer {
 
 	protected static String OSNAME = null;
 
+	protected static String OSARCH = null;
+
+	protected static final ImputeVariantInfo IVI = new ImputeVariantInfo();
+
 	protected static List<String> CONTIGLIST = null;
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
 
-	public static final String VERSION = "1.0.1beta-GUI 30/10/2021";
+	public static final String VERSION = "1.0.2beta-GUI 11/01/2021";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -258,8 +267,6 @@ public class OverSeer {
 	public static void setInputParams() {
 		input = new Input();
 
-		input.Distenabled = Model.distmode;
-		input.HWenabled = Model.hwmode;
 		input.AFtag = cmd.hasOption("AF") ? cmd.getOptionValue("AF") : null;
 		input.skipindels = cmd.hasOption("S");
 		input.defaultMAF = cmd.hasOption("D") ? Double.parseDouble(cmd.getOptionValue("D")) : 0.4;
@@ -279,13 +286,17 @@ public class OverSeer {
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
 		 */
-		input.userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
+		userPL = cmd.hasOption("ER") ? Integer.parseInt(cmd.getOptionValue("ER")) : 30;
 
 		if (cmd.hasOption("GT")) {
-			input.usePLs = false;
 			input.useUserPLs = true;
-			input.userPL = Integer.parseInt(cmd.getOptionValue("GT"));
 		}
+
+		FHRPLArray = new int[] { 0, userPL, userPL };
+		FHPLArray = new int[] { userPL, 0, userPL };
+		FHAPLArray = new int[] { userPL, userPL, 0 };
+		DefaultPL = new int[] { 0, 255, 255 };
+
 		/*
 		 * else if (cmd.hasOption("legacy")) { input.usePLs = false; input.useGTs =
 		 * true; } else if (cmd.hasOption("Custom")) { input.usePLs = false;
@@ -415,11 +426,9 @@ public class OverSeer {
 
 		opts.addOption("Q", "min-qual", true, "Minimum ROH quality to emit");
 
-		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO"); // bunu yapmak lazım
-																									// yoksa kalırız
-																									// ortada //
-																									// ilerideki
-																									// işlerde.
+		opts.addOption("LL", "log-level", true, "Log level: ERROR,WARNING or INFO. Default INFO");
+
+		final PrintWriter pw = new PrintWriter(System.err, true);
 
 		try {
 			final CommandLineParser parser = new DefaultParser();
@@ -434,16 +443,19 @@ public class OverSeer {
 				log("SYSTEM", "Option parameter missing", ERROR);
 			}
 
-			final PrintWriter pw = new PrintWriter(System.err, true);
 			if (!isGUI) {
-				fmtr.printUsage(pw, 80, "java -jar ROHMMCLI.jar <params>");
-				fmtr.printOptions(pw, 80, opts, 0, 10);
-				endTimer();
+				printUsage(pw, fmtr, opts);
 			}
-			// pw.close();
-			// System.exit(1);
 		}
 
+	}
+
+	public static void printUsage(PrintWriter p, HelpFormatter h, Options o) {
+		h.printUsage(p, 80, "java -jar ROHMMCLI.jar <params>");
+		h.printOptions(p, 80, o, 0, 10);
+		endTimer();
+		p.close();
+		System.exit(1);
 	}
 
 	public static void resetOptionsGUI() {
@@ -459,6 +471,11 @@ public class OverSeer {
 	public static void getOS() {
 		OSNAME = System.getProperty("os.name").toLowerCase();
 		log("SYSTEM", "Running on " + OSNAME, OverSeer.INFO);
+	}
+
+	public static void getARCH() {
+		OSARCH = System.getProperty("os.arch").toLowerCase();
+		log("SYSTEM", "Running on " + OSARCH, OverSeer.INFO);
 	}
 
 	public static boolean isMac() {

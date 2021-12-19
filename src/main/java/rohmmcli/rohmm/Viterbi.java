@@ -20,8 +20,8 @@ public class Viterbi {
 		forward = new double[2][hmm.getPathLength()];
 		backward = new double[2][hmm.getPathLength()];
 
-		if (hmm.MAFs != null) {
-			hmm.generateEMMatrixHW(hmm.MAFs[0]);
+		if (Model.hwmode) {
+			hmm.generateEMMatrixHW(hmm.VIs[0].getAF());
 		}
 
 		for (int i = 0; i < 2; i++) {
@@ -31,11 +31,11 @@ public class Viterbi {
 
 		for (int currentpos = 1; currentpos < viterbipath.length; currentpos++) {
 
-			if (hmm.MAFs != null) {
-				hmm.generateEMMatrixHW(hmm.MAFs[currentpos]);
+			if (Model.hwmode) {
+				hmm.generateEMMatrixHW(hmm.VIs[currentpos].getAF());
 			}
 
-			if (hmm.Dists != null) {
+			if (Model.distmode) {
 				hmm.genereateTRMatrixDist(hmm.Dists[currentpos]);
 			}
 
@@ -107,11 +107,11 @@ public class Viterbi {
 
 		for (int i = viterbipath.length - 2; i >= 0; i--) {
 
-			if (hmm.MAFs != null) {
-				hmm.generateEMMatrixHW(hmm.MAFs[i + 1]);
+			if (Model.hwmode) {
+				hmm.generateEMMatrixHW(hmm.VIs[i + 1].getAF());
 			}
 
-			if (hmm.Dists != null) {
+			if (Model.distmode) {
 				hmm.genereateTRMatrixDist(hmm.Dists[i + 1]);
 			}
 

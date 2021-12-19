@@ -3,12 +3,13 @@
  * Year : 2020
  */
 package rohmmcli.rohmm;
-
 import java.io.File;
 import java.nio.channels.ClosedByInterruptException;
-
+import java.util.Enumeration;
+import java.awt.Font;
 import javax.swing.UIManager;
-
+import javax.swing.text.StyleConstants.FontConstants;
+import javax.swing.plaf.FontUIResource;
 import org.apache.commons.cli.CommandLine;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
@@ -29,9 +30,13 @@ public class ROHMMCLIRunner {
 		OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "ROHMMCLI v" + OverSeer.VERSION + " Gokalp Celik...",
 				OverSeer.INFO);
 		OverSeer.getOS();
+		OverSeer.getARCH();
+		
+		
 
 		if (args.length == 0) {
 			OverSeer.log(ROHMMCLIRunner.class.getSimpleName(), "Running ROHMMGUI", OverSeer.INFO);
+			setUIFont(new FontUIResource(new Font("Sans Serif", Font.PLAIN, 12)));
 			if (OverSeer.isMac() && OverSeer.isMacDarkMode()) {
 				UIManager.setLookAndFeel(new FlatDarculaLaf());
 			} else {
@@ -50,8 +55,6 @@ public class ROHMMCLIRunner {
 			OverSeer.parseCommands(args);
 			OverSeer.setHMMParams();
 			OverSeer.setInputParams();
-
-			// Utility.logInput(cmd);
 			Runner(OverSeer.cmd);
 			OverSeer.closeAllReaders();
 			OverSeer.endTimer();
@@ -89,7 +92,7 @@ public class ROHMMCLIRunner {
 
 						OverSeer.input.setContig(contig);
 						OverSeer.input.generateInput();
-						OverSeer.input.setMAFAndDist(OverSeer.hmm);
+						OverSeer.input.setHMMInputs(OverSeer.hmm);
 
 						OverSeer.log(ROHMMCLIRunner.class.getSimpleName(),
 								"Size of the input dataset " + OverSeer.input.getInputDataNew().size(), OverSeer.INFO);
@@ -99,7 +102,9 @@ public class ROHMMCLIRunner {
 							int[] states = null;
 							double[][] posterior = null;
 
-							OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
+							// OverSeer.input.setObsAndPLs(OverSeer.hmm, sampleindex);
+
+							OverSeer.hmm.setSampleIndex(sampleindex);
 
 							states = Viterbi.getViterbiPath(OverSeer.hmm);
 
@@ -158,4 +163,17 @@ public class ROHMMCLIRunner {
 			}
 		}
 	}
+	
+	//Thanks to https://stackoverflow.com/questions/7434845/setting-the-default-font-of-swing-program
+	//UI font needs to be consistent among different platforms therefore this is needed. 
+	public static void setUIFont (javax.swing.plaf.FontUIResource f){
+	    Enumeration<Object> keys = UIManager.getDefaults().keys();
+	    while (keys.hasMoreElements()) {
+	      Object key = keys.nextElement();
+	      Object value = UIManager.get (key);
+	      if (value instanceof javax.swing.plaf.FontUIResource)
+	        UIManager.put (key, f);
+	      }
+	    } 
+	
 }

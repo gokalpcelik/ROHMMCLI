@@ -12,27 +12,16 @@ import htsjdk.variant.vcf.VCFFileReader;
 public class Input {
 
 	protected TreeMap<Integer, VariantInfo> inputData;
-	protected boolean HWenabled = false;
-	protected boolean Distenabled = false;
+
 	protected String contigname;
-	protected String gnomadpath;
 	protected String vcfpath;
 	protected String AFtag = null;
 	protected double defaultMAF;
 	protected boolean skipindels = false;
-	protected int fillfactor = 1;
-	protected boolean usePLs = true;
 	protected boolean useADs = false;
 	protected double ADThreshold = 0.2;
-	protected int depthThreshold = 10;
-	protected boolean legacywPL = false;
-	@Deprecated
-	protected boolean useGTs = false; // legacy
 	protected boolean useUserPLs = false;
-	protected int userPL = 30;
 	protected boolean spikeIn = false;
-
-	protected double minisculeformissing = 0.000001;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
 	protected HashSet<String> sampleset;
@@ -46,13 +35,11 @@ public class Input {
 		this.inputData = new TreeMap<>();
 		TreeMap<Integer, String> nonSpikedFilter = new TreeMap<>();
 
-		final ImputeVariantInfo ivi = new ImputeVariantInfo();
-
 		if (OverSeer.knownVariant != null) {
 			if (this.spikeIn) {
 				OverSeer.knownVariant.createIterator(this.contigname, 1, Integer.MAX_VALUE);
 				while (OverSeer.knownVariant.hasNext()) {
-					this.inputData.put(OverSeer.knownVariant.getNextPos(), ivi);
+					this.inputData.put(OverSeer.knownVariant.getNextPos(), OverSeer.IVI);
 				}
 				OverSeer.knownVariant.closeIterator();
 			} else {
@@ -86,21 +73,22 @@ public class Input {
 				final int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), this.sampleset); // durumdu...
 
 				if (dAF > 0) {
-					final SampleVariantInfo svi = new SampleVariantInfo(this.samplenamearr.length, this.useUserPLs,
-							this.userPL);
+					final SampleVariantInfo svi = new SampleVariantInfo(this.samplenamearr.length);
 
 					for (int spos = 0; spos < this.samplenamearr.length; spos++) {
 						final Genotype tempg = temp.getGenotype(this.samplenamearr[spos]);
 
 						if (tempg.isCalled()) {
-							if (tempg.hasLikelihoods() && !svi.FakePL) {
-								svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
-							}
+
 							if (tempg.isHet()) {
 								if (this.useADs) {
 									if (this.isBalanced(tempg)) {
 										svi.addGenotype(1, spos);
-									} else if (this.isRefBiased(tempg)) {
+										if (this.useUserPLs || !tempg.hasLikelihoods())
+											svi.addBalancedHetPL(spos);
+										else if (tempg.hasLikelihoods() && !this.useUserPLs)
+											svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
+									} else if (this.isBalanced(tempg) && this.isRefBiased(tempg)) {
 										svi.addGenotype(0, spos);
 										svi.addBalancedHomRefPL(spos);
 									} else {
@@ -109,12 +97,24 @@ public class Input {
 									}
 								} else {
 									svi.addGenotype(1, spos);
+									if (this.useUserPLs || !tempg.hasLikelihoods())
+										svi.addBalancedHetPL(spos);
+									else if (tempg.hasLikelihoods() && !this.useUserPLs)
+										svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
 								}
 
 							} else if (tempg.isHomVar()) {
 								svi.addGenotype(2, spos);
+								if (this.useUserPLs || !tempg.hasLikelihoods())
+									svi.addBalancedHomVarPL(spos);
+								else if (tempg.hasLikelihoods() && !this.useUserPLs)
+									svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
 							} else {
 								svi.addGenotype(0, spos);
+								if (this.useUserPLs || !tempg.hasLikelihoods())
+									svi.addBalancedHomRefPL(spos);
+								else if (tempg.hasLikelihoods() && !this.useUserPLs)
+									svi.addPL(tempg.getLikelihoods().getAsPLs(), spos);
 							}
 						} else {
 							svi.addDefaultPL(spos);
@@ -122,20 +122,22 @@ public class Input {
 						}
 					}
 
-					if (this.AFtag == null) {
-						if (!OverSeer.DMAF && this.sampleset.size() >= 30) {
-							svi.forceCalculateAF();
+					if (Model.hwmode) {
+						if (this.AFtag == null) {
+							if (!OverSeer.DMAF && this.sampleset.size() >= 5) {
+								svi.forceCalculateAF();
+							} else {
+								svi.addAF(this.defaultMAF);
+							}
 						} else {
-							svi.addAF(this.defaultMAF);
+							svi.addAF(temp.getAttributeAsDouble(this.AFtag, this.defaultMAF));
 						}
-					} else {
-						svi.addAF(temp.getAttributeAsDouble(this.AFtag, this.defaultMAF));
 					}
 
 					this.inputData.put(temp.getStart(), svi);
 
 				} else if (!this.skipzeroaf) {
-					this.inputData.put(temp.getStart(), ivi);
+					this.inputData.put(temp.getStart(), OverSeer.IVI);
 				}
 			}
 
@@ -157,15 +159,8 @@ public class Input {
 		return this;
 	}
 
-	public Input setGNOMADPath(String path) {
-		this.gnomadpath = path;
-
-		return this;
-	}
-
 	public Input setDefaultMAF(double af) {
 		this.defaultMAF = af;
-
 		return this;
 	}
 
@@ -180,51 +175,23 @@ public class Input {
 
 	}
 
-	public void setObsAndPLs(HMM hmm, int sampleindex) {
-		final int[] obsgt = new int[this.inputData.size()];
-		final int[][] obspl = new int[this.inputData.size()][3];
+	public void setHMMInputs(HMM hmm) {
 
 		int count = 0;
+		int DIST = 0;
+
+		OverSeer.hmm.Dists = new int[this.inputData.size()];
+
+		OverSeer.hmm.VIs = new VariantInfo[this.inputData.size()];
+
 		for (final Entry<Integer, VariantInfo> e : this.inputData.entrySet()) {
-			obsgt[count] = !this.usePLs && !this.useUserPLs && !this.legacywPL ? e.getValue().getGenotype(sampleindex)
-					: 0;
-			obspl[count] = this.usePLs || this.useUserPLs || this.legacywPL ? e.getValue().getPL(sampleindex) : null;
+			final int k = e.getKey();
+			OverSeer.hmm.Dists[count] = k - DIST;
+			DIST = k;
+			OverSeer.hmm.VIs[count] = e.getValue();
 			count++;
 		}
 
-		hmm.GTs = !this.usePLs && !this.useUserPLs && !this.legacywPL ? obsgt : null;
-		hmm.PLmatrix = this.usePLs || this.useUserPLs || this.legacywPL ? obspl : null;
-	}
-
-	public void setMAFAndDist(HMM hmm) {
-
-		if (this.Distenabled || this.HWenabled) {
-			int count = 0;
-			int DIST = 0;
-
-			final int[] distmap = new int[this.inputData.size()];
-
-			final double[] maf = new double[this.inputData.size()];
-
-			for (final Entry<Integer, VariantInfo> e : this.inputData.entrySet()) {
-				final int k = e.getKey();
-				distmap[count] = this.Distenabled ? k - DIST : 0;
-				DIST = k;
-				maf[count] = this.HWenabled ? e.getValue().getAF() : 0.0;
-				count++;
-			}
-
-			hmm.Dists = this.Distenabled ? distmap : null;
-			hmm.MAFs = this.HWenabled ? maf : null;
-		}
-	}
-
-	public void setDistEnabled() {
-		this.Distenabled = true;
-	}
-
-	public boolean getHWmode() {
-		return this.HWenabled;
 	}
 
 	public TreeMap<Integer, VariantInfo> getInputDataNew() {
