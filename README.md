@@ -2,7 +2,7 @@
 
 This is a brand new tool to detect runs of homozygosity with many enhancements and portability to any platform..
 
-Requires Java 8 or above. HTSJDK, Apache Commons-cli and FlafLAF are the 3 dependencies.
+Requires Java 8 or above. HTSJDK, Apache Commons-cli and FlafLAF are the 3 dependencies handled by maven.
 
 ## Install
 
