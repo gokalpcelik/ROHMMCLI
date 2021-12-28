@@ -15,3 +15,7 @@ cd ROHMMCLI
 
 ## Windows
 Download source code from the release page and extract it to a folder. Run ``build.bat``
+
+## How to cite ROHMM
+Çelik, G., & Tuncalı, T. (2021). ROHMM—A flexible hidden markov model framework to detect runs of homozygosity from genotyping data. Human
+Mutation, 1–11. https://doi.org/10.1002/humu.24316
