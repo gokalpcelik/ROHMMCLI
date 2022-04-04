@@ -19,12 +19,15 @@ public class Input {
 	protected double defaultMAF;
 	protected boolean skipindels = false;
 	protected boolean useADs = false;
+	protected boolean useDT = false;
 	protected double ADThreshold = 0.2;
+	protected int DepthThreshold = 10;
 	protected boolean useUserPLs = false;
 	protected boolean spikeIn = false;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
 	protected HashSet<String> sampleset;
+	
 
 	public Input() {
 
@@ -78,7 +81,7 @@ public class Input {
 					for (int spos = 0; spos < this.samplenamearr.length; spos++) {
 						final Genotype tempg = temp.getGenotype(this.samplenamearr[spos]);
 
-						if (tempg.isCalled()) {
+						if (tempg.isCalled() && (useDT ? getDepth(tempg) >= DepthThreshold : true)) {
 
 							if (tempg.isHet()) {
 								if (this.useADs) {
@@ -219,6 +222,16 @@ public class Input {
 			}
 		}
 		return true;
+	}
+	
+	private int getDepth(Genotype gt)
+	{
+		if(gt.hasDP())
+			return gt.getDP();
+		else if(gt.hasAD())
+			return gt.getAD()[0]+gt.getAD()[1];
+		
+		return 0;
 	}
 
 	private boolean isRefBiased(Genotype gt) {

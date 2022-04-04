@@ -46,6 +46,7 @@ public class IOPanel extends JPanel {
 	protected JTextField outputDirField;
 	protected JTextField knownVariantField;
 	protected JTextField ADThreshvalue;
+	protected JTextField DepthThreshvalue;
 	protected JTextField QualValue;
 	protected JTextField ROHLength;
 	protected JTextField ROHCount;
@@ -74,6 +75,7 @@ public class IOPanel extends JPanel {
 	protected JCheckBox skipIndels;
 	protected JCheckBox filterUsingKnown;
 	protected JCheckBox ADthresh;
+	protected JCheckBox Depththresh;
 	protected DefaultListModel<String> chrlistmodel = null;
 	protected DefaultListModel<String> samplenamemodel = null;
 	protected RunnerWorker worker = null;
@@ -217,7 +219,7 @@ public class IOPanel extends JPanel {
 		this.add(outPanel);
 		final JPanel filterPanel = new JPanel(new GridBagLayout());
 		filterPanel.setBorder(new TitledBorder("Variant Filtering"));
-		filterPanel.setBounds(290 + OverSeer.INDENTCONST, 200, 492, 170);
+		filterPanel.setBounds(290 + OverSeer.INDENTCONST, 200, 492, 220);
 		final VariantFilterCheckBoxListener vfcl = new VariantFilterCheckBoxListener();
 		this.skipIndels = new JCheckBox("Skip Indels");
 		this.skipIndels.setActionCommand("skipindels");
@@ -260,38 +262,61 @@ public class IOPanel extends JPanel {
 		filterPanel.add(this.ADthresh, c);
 		c.gridx = 1;
 		filterPanel.add(this.ADThreshvalue, c);
+		this.Depththresh = new JCheckBox("Depth Threshold");
+		this.Depththresh.setToolTipText("Depth threshold to eliminate false calls");
+		this.DepthThreshvalue = new JTextField("10");
+		c.gridx=0;
+		c.gridy = 4;
+		filterPanel.add(this.Depththresh, c);
+		c.gridx = 1;
+		filterPanel.add(this.DepthThreshvalue, c);
+		
 		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF in all selected samples");
 		this.skipZeroAFPolicy.setToolTipText(
 				"Experimental feature and may cause issues with spike-in feature. Do not use inconjunction with Spike-in function");
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 5;
 		c.gridwidth = 2;
 		filterPanel.add(this.skipZeroAFPolicy, c);
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
-		hmmPanel.setBorder(new TitledBorder("Simple HMM Options"));
-		hmmPanel.setBounds(290 + OverSeer.INDENTCONST, 372, 492, 100);
+		hmmPanel.setBorder(new TitledBorder("ROHMM HMM Options"));
+		hmmPanel.setBounds(290 + OverSeer.INDENTCONST, 422, 492, 50);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
-		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Use Default Allele Distribution Model");
+		this.useDefaultAlleleDistributionPolicy = new JRadioButton("ADM");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
+		this.useDefaultAlleleDistributionPolicy.setToolTipText("ROHMM Allele Distribution Model");
 		this.useDefaultAlleleDistributionPolicy.addActionListener(hmmRadioButtonListener);
 		this.useDefaultAlleleDistributionPolicy.setSelected(true);
-		this.useDefaultAlleleFrequencyPolicy = new JRadioButton("Use Default Allele Frequency Model");
+		this.useDefaultAlleleFrequencyPolicy = new JRadioButton("AFM");
 		this.useDefaultAlleleFrequencyPolicy.setActionCommand("usedefaultallelefrequency");
 		this.useDefaultAlleleFrequencyPolicy.addActionListener(hmmRadioButtonListener);
-		this.useCustomModelPolicy = new JRadioButton("Use Custom HMM Model (Set options from 'Advanced Options')");
+		this.useDefaultAlleleFrequencyPolicy.setToolTipText("ROHMM Allele Frequency Model");
+		this.useCustomModelPolicy = new JRadioButton("Custom");
 		this.useCustomModelPolicy.setActionCommand("usecustom");
 		this.useCustomModelPolicy.addActionListener(hmmRadioButtonListener);
+		this.useCustomModelPolicy.setToolTipText("Custom Model. See Advanced Options");
 		final ButtonGroup hmmModelRadioGroup = new ButtonGroup();
 		hmmModelRadioGroup.add(this.useDefaultAlleleDistributionPolicy);
 		hmmModelRadioGroup.add(this.useDefaultAlleleFrequencyPolicy);
 		hmmModelRadioGroup.add(this.useCustomModelPolicy);
-		c.weightx = 0.5;
-		c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.gridwidth = 3;
+		c.gridx=0;
+		c.gridy=0;	
+		c.anchor = GridBagConstraints.WEST;
 		hmmPanel.add(this.useDefaultAlleleDistributionPolicy, c);
-		c.gridy = 1;
+		c.gridx=1;
+		c.gridy=0;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;	
 		hmmPanel.add(this.useDefaultAlleleFrequencyPolicy, c);
-		c.gridy = 2;
+		c.gridx=2;
+		c.gridy=0;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.EAST;	
 		hmmPanel.add(this.useCustomModelPolicy, c);
 		this.add(hmmPanel);
 		final ROHMMRunnerButtonListener runnerbuttonlistener = new ROHMMRunnerButtonListener();
@@ -531,6 +556,13 @@ public class IOPanel extends JPanel {
 				if (IOPanel.this.ADthresh.isSelected()) {
 					OverSeer.setOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD,
 							IOPanel.this.ADThreshvalue.getText());
+				} else {
+					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
+				}
+				
+				if (IOPanel.this.Depththresh.isSelected()) {
+					OverSeer.setOption(GUIOptionStandards.DEPTHTHRESHOLD,
+							IOPanel.this.DepthThreshvalue.getText());
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
 				}

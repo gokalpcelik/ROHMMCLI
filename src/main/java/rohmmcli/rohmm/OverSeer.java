@@ -77,7 +77,7 @@ public class OverSeer {
 
 	protected static HashMap<String, String> optionMap = new HashMap<>();
 
-	public static final String VERSION = "1.0.2beta-GUI 11/01/2021";
+	public static final String VERSION = "1.0.3-GUI 04/04/2022";
 
 	public static void log(String COMPONENT, String Message, int Level) {
 
@@ -282,6 +282,9 @@ public class OverSeer {
 
 		input.useADs = cmd.hasOption("AD");
 		input.ADThreshold = input.useADs ? Double.parseDouble(cmd.getOptionValue("AD")) : 0.2;
+		
+		input.useDT = cmd.hasOption("DT");
+		input.DepthThreshold = input.useDT ? Integer.parseInt(cmd.getOptionValue("DT")) : 10;
 		/*
 		 * if (cmd.hasOption("FF")) input.fillfactor =
 		 * Integer.parseInt(cmd.getOptionValue("FF"));
@@ -407,6 +410,8 @@ public class OverSeer {
 				"Empirical error rate for misgenotyped alleles. Phred scaled. 30 is recommended (equals 1e-3).");
 
 		opts.addOption("AD", true, "Use Allelic Balance Threshold to decide genotype. 0.2 is recommended.");
+		
+		opts.addOption("DT", true, "Use Depth Threshold to decide true calls. 10 is recommended.");
 
 		opts.addOption("SN", "sample-name", true, "Comma seperated list of sample names from the vcf file");
 
