@@ -263,15 +263,15 @@ public class IOPanel extends JPanel {
 		c.gridx = 1;
 		filterPanel.add(this.ADThreshvalue, c);
 		this.Depththresh = new JCheckBox("Depth Threshold");
-		this.Depththresh.setToolTipText("Depth threshold to eliminate false calls");
+		this.Depththresh.setToolTipText("Depth threshold to eliminate potentially false calls");
 		this.DepthThreshvalue = new JTextField("10");
-		c.gridx=0;
+		c.gridx = 0;
 		c.gridy = 4;
 		filterPanel.add(this.Depththresh, c);
 		c.gridx = 1;
 		filterPanel.add(this.DepthThreshvalue, c);
-		
-		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF in all selected samples");
+
+		this.skipZeroAFPolicy = new JCheckBox("Skip sites that are all HOMREF (0/0) in all selected samples");
 		this.skipZeroAFPolicy.setToolTipText(
 				"Experimental feature and may cause issues with spike-in feature. Do not use inconjunction with Spike-in function");
 		c.gridx = 0;
@@ -280,18 +280,18 @@ public class IOPanel extends JPanel {
 		filterPanel.add(this.skipZeroAFPolicy, c);
 		this.add(filterPanel);
 		final JPanel hmmPanel = new JPanel(new GridBagLayout());
-		hmmPanel.setBorder(new TitledBorder("ROHMM HMM Options"));
+		hmmPanel.setBorder(new TitledBorder("ROHMM HMM Model Options"));
 		hmmPanel.setBounds(290 + OverSeer.INDENTCONST, 422, 492, 50);
 		final HMMRadioButtonListener hmmRadioButtonListener = new HMMRadioButtonListener();
-		this.useDefaultAlleleDistributionPolicy = new JRadioButton("ADM");
+		this.useDefaultAlleleDistributionPolicy = new JRadioButton("Allele Distribution");
 		this.useDefaultAlleleDistributionPolicy.setActionCommand("usedefaultalleledistribution");
-		this.useDefaultAlleleDistributionPolicy.setToolTipText("ROHMM Allele Distribution Model");
+		this.useDefaultAlleleDistributionPolicy.setToolTipText("ROHMM ADM");
 		this.useDefaultAlleleDistributionPolicy.addActionListener(hmmRadioButtonListener);
 		this.useDefaultAlleleDistributionPolicy.setSelected(true);
-		this.useDefaultAlleleFrequencyPolicy = new JRadioButton("AFM");
+		this.useDefaultAlleleFrequencyPolicy = new JRadioButton("Allele Frequency");
 		this.useDefaultAlleleFrequencyPolicy.setActionCommand("usedefaultallelefrequency");
 		this.useDefaultAlleleFrequencyPolicy.addActionListener(hmmRadioButtonListener);
-		this.useDefaultAlleleFrequencyPolicy.setToolTipText("ROHMM Allele Frequency Model");
+		this.useDefaultAlleleFrequencyPolicy.setToolTipText("ROHMM AFM");
 		this.useCustomModelPolicy = new JRadioButton("Custom");
 		this.useCustomModelPolicy.setActionCommand("usecustom");
 		this.useCustomModelPolicy.addActionListener(hmmRadioButtonListener);
@@ -302,21 +302,21 @@ public class IOPanel extends JPanel {
 		hmmModelRadioGroup.add(this.useCustomModelPolicy);
 		c.fill = GridBagConstraints.NONE;
 		c.gridwidth = 3;
-		c.gridx=0;
-		c.gridy=0;	
+		c.gridx = 0;
+		c.gridy = 0;
 		c.anchor = GridBagConstraints.WEST;
 		hmmPanel.add(this.useDefaultAlleleDistributionPolicy, c);
-		c.gridx=1;
-		c.gridy=0;
+		c.gridx = 1;
+		c.gridy = 0;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;	
+		c.anchor = GridBagConstraints.CENTER;
 		hmmPanel.add(this.useDefaultAlleleFrequencyPolicy, c);
-		c.gridx=2;
-		c.gridy=0;
+		c.gridx = 2;
+		c.gridy = 0;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.EAST;	
+		c.anchor = GridBagConstraints.EAST;
 		hmmPanel.add(this.useCustomModelPolicy, c);
 		this.add(hmmPanel);
 		final ROHMMRunnerButtonListener runnerbuttonlistener = new ROHMMRunnerButtonListener();
@@ -559,10 +559,9 @@ public class IOPanel extends JPanel {
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
 				}
-				
+
 				if (IOPanel.this.Depththresh.isSelected()) {
-					OverSeer.setOption(GUIOptionStandards.DEPTHTHRESHOLD,
-							IOPanel.this.DepthThreshvalue.getText());
+					OverSeer.setOption(GUIOptionStandards.DEPTHTHRESHOLD, IOPanel.this.DepthThreshvalue.getText());
 				} else {
 					OverSeer.removeOption(GUIOptionStandards.ALLELICBALANCETHRESHOLD);
 				}

@@ -20,14 +20,13 @@ public class Input {
 	protected boolean skipindels = false;
 	protected boolean useADs = false;
 	protected boolean useDT = false;
-	protected double ADThreshold = 0.2;
-	protected int DepthThreshold = 10;
+	protected double ADThreshold = 0.0;
+	protected int DepthThreshold = 0;
 	protected boolean useUserPLs = false;
 	protected boolean spikeIn = false;
 	protected String[] samplenamearr;
 	protected boolean skipzeroaf = false;
 	protected HashSet<String> sampleset;
-	
 
 	public Input() {
 
@@ -73,7 +72,7 @@ public class Input {
 											: nonSpikedFilter.containsKey(tempstart)
 									: true
 							: true)) {
-				final int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), this.sampleset); // durumdu...
+				final int dAF = temp.getCalledChrCount(temp.getAlternateAllele(0), this.sampleset);
 
 				if (dAF > 0) {
 					final SampleVariantInfo svi = new SampleVariantInfo(this.samplenamearr.length);
@@ -223,14 +222,16 @@ public class Input {
 		}
 		return true;
 	}
-	
-	private int getDepth(Genotype gt)
-	{
-		if(gt.hasDP())
-			return gt.getDP();
-		else if(gt.hasAD())
-			return gt.getAD()[0]+gt.getAD()[1];
-		
+
+	private int getDepth(Genotype gt) {
+		try {
+			if (gt.hasDP())
+				return gt.getDP();
+			else if (gt.hasAD())
+				return gt.getAD()[0] + gt.getAD()[1];
+		} catch (final Exception e) {
+			return 0;
+		}
 		return 0;
 	}
 
