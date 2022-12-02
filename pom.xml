@@ -6,7 +6,7 @@
 
 	<groupId>ROHMMCLI</groupId>
 	<artifactId>ROHMMCLI</artifactId>
-	<version>1.0.2beta-GUI</version>
+	<version>1.0.3-GUI</version>
 	<packaging>jar</packaging>
 	<developers>
 		<developer>
