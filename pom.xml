@@ -6,7 +6,7 @@
 
 	<groupId>ROHMMCLI</groupId>
 	<artifactId>ROHMMCLI</artifactId>
-	<version>1.0.3-GUI</version>
+	<version>1.0.4b-GUI</version>
 	<packaging>jar</packaging>
 	<developers>
 		<developer>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.github.samtools</groupId>
 			<artifactId>htsjdk</artifactId>
-			<version>2.21.1</version>
+			<version>3.0.4</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
